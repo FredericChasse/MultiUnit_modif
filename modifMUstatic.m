@@ -110,7 +110,6 @@ for i = 1 : nIterations
     uSign1 = sign((J(1,i)-J(1,i-1))*(Rext(i,1)-Rext(i-1,1)));
     uSign2 = sign((J(2,i)-J(2,i-1))*(Rext(i,2)-Rext(i-1,2)));
     
-    
     if i > 2
       uSignSlope1 = uSignOld1 * uSign1;
       uSignSlope2 = uSignOld2 * uSign2;
@@ -122,7 +121,7 @@ for i = 1 : nIterations
       end
       uBest1 = (uSignSlope1 + 1) * Rext(i, 1) / 2 + (uSignSlope1 - 1) * uBest1 / -2;
       uBest2 = (uSignSlope2 + 1) * Rext(i, 2) / 2 + (uSignSlope2 - 1) * uBest2 / -2;
-      
+
       delta = max(abs(uBest2 - uBest1), .15);
     else
       uBest1 = Rext(i, 1);
@@ -142,7 +141,7 @@ for i = 1 : nIterations
   else
 %     Rext(i+1, 1) = uSign1*u(2) - delta/2;
 %     Rext(i+1, 2) = uSign2*u(2) + delta/2;
-    Rext(i+1, 1) = u(1) + uSign1*grad(2) - delta/2;
+    Rext(i+1, 1) = u(1) + uSign1*grad(2) - delta/2;     %% Problème probablement ici, autour de delta
     Rext(i+1, 2) = u(1) + uSign2*grad(2) + delta/2;
   end
 
@@ -164,7 +163,7 @@ for i = 1 : nIterations
   uSignMem(i, :) = [uSign1, uSign2];
   uSignSlopeMem(i, :) = [uSignSlope1, uSignSlope2];
   uBestMem(i, :) = [uBest1, uBest2];
-  deltaMem(i) = delta;
+  deltaMem(i, 1) = delta;
   
 %   if (i == 3)
 %     allo = 2;
