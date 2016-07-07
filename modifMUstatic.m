@@ -20,7 +20,7 @@ RextMin = 10;
 Rres = 0;
 
 Rinit = 30;
-Rinit = 170;
+% Rinit = 170;
 % Rinit = 120;
 
 Rext = zeros(nIterations, 2);
@@ -37,9 +37,9 @@ diff = zeros(nIterations,1);
 gradSingle = zeros(nIterations,2);
 
 beta = 0;
-% beta = -25;
+% beta = -10;
 gamma = 0;
-% gamma = 10;
+gamma = 5;
 
 Dopt(1) = 100;
 Jopt(1) = 20;
@@ -50,8 +50,8 @@ Jopt(2) = 20  + gamma;
 
 J = zeros(2, nIterations);
 
-gradMem = zeros(nIterations, 2);
-uMem  = zeros(nIterations, 2);
+% gradMem = zeros(nIterations, 2);
+% uMem  = zeros(nIterations, 2);
 ni = 1:nIterations;
 ni = ni';
 
@@ -76,8 +76,8 @@ vecDif = zeros(nIterations,2);
 
 %% Algorithm
 
-uSign1 = 0;
-uSign2 = 0;
+uSign1 = 1;
+uSign2 = 1;
 uSignOld1 = 0;
 uSignOld2 = 0;
 uSignSlope1 = 0;
@@ -96,92 +96,54 @@ for i = 1 : nIterations
   
   % Unit 2
   J(2, i) = -0.002 * (Rext(i, 2) - Dopt(2))^2 + Jopt(2);
-
-%   if i == 1
-%     Pbest(1, i) = Rext(1, 1);
-%     Pbest(2, i) = Rext(1, 2);
-%   else
-%     if J(1, i) > Pbest(1, i-1)
-%       Pbest(1, i) = Rext(i, 1);
-%     else
-%       Pbest(1, i) = Pbest(1, i-1);
-%     end
-%     if J(2, i) > Pbest(2, i-1)
-%       Pbest(2, i) = Rext(i,2);
-%     else
-%       Pbest(2, i) = Pbest(2, i-1);
-%     end
-%   end
   
   diff(i) = J(2, i) - J(1, i);
   
-  % Tustin's discrete integrator
   grad(1) = grad(2);
+  
   if i == 1
-    grad(2) = kmu * diff(i);
-    uSign1 = 0;
-    uSign2 = 0;
+    uSign1 = 1;
+    uSign2 = 1;
   else
-%     grad(2) = kmu * diff(i);
-%     grad(2) = kmu * diff(i) * (sign((J(1,i)-J(1,i-1))*(Rext(i,1)-Rext(i-1,1))) + sign((J(2,i)-J(2,i-1))*(Rext(i,2)-Rext(i-1,2))));
-%     grad(2) = kmu * diff(i) * sign((J(1,i)-J(1,i-1))*(Rext(i,1)-Rext(i-1,1)));
-%     grad(2) = kmu * diff(i) * sign((J(2,i)-J(2,i-1))*(Rext(i,2)-Rext(i-1,2)));
-%     grad(2) = kmu * (J(2,i)+J(2,i-1)-J(1,i)-J(1,i-1));
     uSignOld1 = uSign1;
     uSignOld2 = uSign2;
     uSign1 = sign((J(1,i)-J(1,i-1))*(Rext(i,1)-Rext(i-1,1)));
     uSign2 = sign((J(2,i)-J(2,i-1))*(Rext(i,2)-Rext(i-1,2)));
-    uSignSlope1 = uSignOld1 * uSign1;
-    uSignSlope2 = uSignOld2 * uSign2;
+    
     
     if i > 2
-      uBest1 = (uSignSlope1 - 1) * uBest1 / 2 + (uSignSlope1 + 1) * Rext(i, 1) / 2;
-      uBest2 = (uSignSlope2 - 1) * uBest2 / 2 + (uSignSlope2 + 1) * Rext(i, 2) / 2;
-      delta = max(0.1, uBest2 - uBest1);
+      uSignSlope1 = uSignOld1 * uSign1;
+      uSignSlope2 = uSignOld2 * uSign2;
+      if uSignSlope1 == 0
+        uSignSlope1 = 1;
+      end
+      if uSignSlope2 == 0
+        uSignSlope2 = 1;
+      end
+      uBest1 = (uSignSlope1 + 1) * Rext(i, 1) / 2 + (uSignSlope1 - 1) * uBest1 / -2;
+      uBest2 = (uSignSlope2 + 1) * Rext(i, 2) / 2 + (uSignSlope2 - 1) * uBest2 / -2;
+      
+      delta = max(abs(uBest2 - uBest1), .15);
     else
       uBest1 = Rext(i, 1);
       uBest2 = Rext(i, 2);
-      delta = uBest2 - uBest1;
     end
-    
-    grad(2) = kmu / delta * diff(i);
-%     grad(2) = (uSign1 + 1) * kmu / 10 * diff(i) + (uSign1 - 1) * kmu / 10 * diff(i);
   end
+  
+%   grad(2) = kmu / delta * diff(i) / 1.1;
+  grad(2) = kmu / delta * diff(i) / 1.1;
+  
   u(1) = u(2);
-  
-%   cmd(2) = cmd(1) + T/2*(grad(1) + grad(2));
-%   u(2) = u(1) + grad(2)/delta;
   u(2) = u(1) + grad(2);
-%   u(2) = u(1) + grad(2)/(Rext(i,2)-Rext(i,1));
-
-  if abs(u(2) - u(1)) < Rres
-    u(2) = u(1);
-  end
-
-%   if i == 1
-%     Rext(i+1, 1) = cmd(2) - delta/2;
-%     Rext(i+1, 2) = cmd(2) + delta/2;
-%   else
-%     Rext(i+1, 1) = cmd(2) - delta/2 + .8*(Pbest(1, i) - Rext(i,1));
-%     Rext(i+1, 2) = cmd(2) + delta/2 + .8*(Pbest(2, i) - Rext(i,2));
-%   end
-
-  vecDif(i, :) = [Rext(i,2)-Rext(i,1), J(2,i)-J(1,i)];
-  if i > 1
-    grad1(i, :) = [Rext(i,1)-Rext(i-1,1), J(1, i)-J(1,i-1)];
-    grad2(i, :) = [Rext(i,2)-Rext(i-1,2), J(2, i)-J(2,i-1)];
-  end
-  
-  if i < 3
+    
+  if i == 1
     Rext(i+1, 1) = u(2) - delta/2;
     Rext(i+1, 2) = u(2) + delta/2;
   else
-    Rext(i+1, 1) = uSignSlope1*u(2) - delta/2;
-    Rext(i+1, 2) = uSignSlope2*u(2) + delta/2;
-%     Rext(i+1, 1) = u(2) - delta/2 + 0.1*(Rext(i,1)-Rext(i-1,1))*(J(1,i)-J(1,i-1));
-%     Rext(i+1, 2) = u(2) + delta/2 + 0.1*(Rext(i,2)-Rext(i-1,2))*(J(2,i)-J(2,i-1));
-%     Rext(i+1, 1)
-%     Rext(i+1, 2)
+%     Rext(i+1, 1) = uSign1*u(2) - delta/2;
+%     Rext(i+1, 2) = uSign2*u(2) + delta/2;
+    Rext(i+1, 1) = u(1) + uSign1*grad(2) - delta/2;
+    Rext(i+1, 2) = u(1) + uSign2*grad(2) + delta/2;
   end
 
   if Rext(i+1, 2) > RextMax
@@ -199,7 +161,14 @@ for i = 1 : nIterations
 %   end
   gradMem(i, :) = grad;
   uMem (i, :) = u;
+  uSignMem(i, :) = [uSign1, uSign2];
+  uSignSlopeMem(i, :) = [uSignSlope1, uSignSlope2];
+  uBestMem(i, :) = [uBest1, uBest2];
+  deltaMem(i) = delta;
   
+%   if (i == 3)
+%     allo = 2;
+%   end
 end
 toc
 
