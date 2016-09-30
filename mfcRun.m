@@ -1,18 +1,18 @@
 clear all
 close all
 
-Rext = 50:1:200;
+Rext = 100:1:200;
 % Rext = 50:1:200;
 % Rext = 50:1000/255:400;
 
 % S0 = [250 300 350 400 450 500 550 600 650 700];
-S0 = [300 300];
-gamma = [0 0.0002 0.0004];
-beta = [0 10];
+S0 = [300 290];
+gamma = [0 0];
+beta = [0 0];
 
 % oSaveFigure = 0;
 oDoBetaDif = 1;
-oDoGammaDif = 0;
+oDoGammaDif = 1;
 
 Pout = zeros(1, length(Rext));
 
@@ -25,7 +25,7 @@ fig = figure(1);
 legendString = {};
 hold on
 
-T = 1;
+T = .1;
 
 mfcDynamics = [20.8395  498.2432    2.0000    0.0412];
 

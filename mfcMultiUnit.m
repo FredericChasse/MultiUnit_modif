@@ -32,7 +32,8 @@ if oDoGammaBetaDif
   S0(1, :) = 500;
 end
 
-T = 1;
+T = 0.2;
+% T = 1;
 
 mfcDynamics = zeros(2, 4);
 mfcDynamics(1, :) = [20.8395  498.2432    2.0000    0.0412];
@@ -49,6 +50,7 @@ RextMax = 1050;
 RextMin = 50;
 
 Rres = 0.1;
+% Rres = 1;
 
 Rinit = 200;
 
@@ -141,16 +143,16 @@ toc
 
 if oDoFigures
   subplot(2,1,1)
-  plot(Pout(1,:))
+  stairs(Pout(1,:))
   hold on
-  plot(Pout(2,:))
+  stairs(Pout(2,:))
   legend({'1' '2'})
   hold off
   
   subplot(2,1,2)
-  plot(Rext(:,1))
+  stairs(Rext(:,1))
   hold on
-  plot(Rext(:,2))
+  stairs(Rext(:,2))
   legend({'1' '2'})
   hold off
 end

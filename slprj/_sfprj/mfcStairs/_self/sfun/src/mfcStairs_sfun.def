@@ -1,0 +1,3 @@
+LIBRARY mfcStairs_sfun.mexw64
+EXPORTS
+mexFunction
