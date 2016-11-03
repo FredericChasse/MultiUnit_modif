@@ -14,7 +14,7 @@ oDoPerturbStatic  = 0;
 oDoPerturbDynamic = 0;
 oDoGammaDif       = 0;
 oDoGammaBetaDif   = 0;
-oDoBetaDif        = 0;
+oDoBetaDif        = 1;
 gamma = 0.0001;
 beta = 10;
 
@@ -52,7 +52,7 @@ RextMin = 50;
 Rres = 0.05;
 % Rres = 0.1;
 
-Rinit = 200;
+Rinit = 70;
 
 Rext = zeros(nIterations, 2);
 
@@ -70,6 +70,11 @@ gradMem = zeros(nIterations, 2);
 cmdMem  = zeros(nIterations, 2);
 ni = 1:nIterations;
 ni = ni';
+
+bufferJ = [0 0 0; 0 0 0];
+bufferU = [0 0 0; 0 0 0];
+
+Rfig = RextMin:.1:RextMax;
 
 tic
 waitBarHandler = waitbar(0);
@@ -97,22 +102,28 @@ for i = 1 : nIterations
   mfcDynamics(2, :) = Y(end, :);
   [dummy, Pout(2, i)] = mfcModel(T, mfcDynamics(2, :), odeOptions, S0(2, i), Rext(i, 2));
   
+  % Buffer samples
+  if Pout(1, i) ~= bufferJ(1,1) && Rext(i, 1) ~= bufferU(1, 1) && Pout(2, i) ~= bufferJ(2,1) && Rext(i, 2) ~= bufferU(2, 1)
+    bufferJ(:, 2:3) = bufferJ(:, 1:2);
+    bufferJ(1, 1) = Pout(1, i);
+    bufferJ(2, 1) = Pout(2, i);
+    bufferU(:, 2:3) = bufferU(:, 1:2);
+    bufferU(1, 1) = Rext(i, 1);
+    bufferU(2, 1) = Rext(i, 2);
+  end
+  
+  % Quadratic eval
+  if i >= 3
+    [a1 uopt1 jopt1] = GetQuadraticValues(bufferU(1,:), bufferJ(1,:));
+    [a2 uopt2 jopt2] = GetQuadraticValues(bufferU(2,:), bufferJ(2,:));
+    allo = 1;
+  end
+  
   % Tustin's discrete integrator
   grad(1) = grad(2);
   
   diff(i) = Pout(2, i) - Pout(1, i);
-  if i ~= 1
-%     if (sign(diff) == sign(Pout(2,i) - Pout(2,i - 1))) && (sign(diff) == sign(Pout(1,i) - Pout(1,i - 1)))
-%     if ((Pout(2,i) - Pout(2,i - 1)) > 0) && ((Pout(1,i) - Pout(1,i - 1)) > 0)
-    if (sign(diff(i)) == sign(diff(i-1))) && ((Pout(2,i) - Pout(2,i-1)) < 0) && ((Pout(1,i)-Pout(2,i-1)) < 0)
-      grad(2) = -kmu * diff(i);
-    else
-      grad(2) = kmu * diff(i);
-    end
-  else
-    grad(2) = kmu * diff(i);
-  end
-%   grad(2) = kmu * diff(i);
+  grad(2) = kmu * diff(i);
   cmd(1) = cmd(2);
   cmd(2) = cmd(1) + T/2*(grad(1) + grad(2));
   
@@ -138,6 +149,17 @@ for i = 1 : nIterations
 %   end
   gradMem(i, :) = grad;
   cmdMem (i, :) = cmd;
+  bufferMem(i, :) = [bufferJ(1,:) bufferJ(2,:)];
+  iMem(i, 1) = i;
+  if i >= 3
+    aMem(i, :) = [a1 a2];
+    uoptMem(i,:) = [uopt1 uopt2];
+    joptMem(i,:) = [jopt1 jopt2];
+  else
+    aMem(i, :) = [0 0];
+    uoptMem(i,:) = [0 0];
+    joptMem(i,:) = [0 0];
+  end
 end
 toc
 
