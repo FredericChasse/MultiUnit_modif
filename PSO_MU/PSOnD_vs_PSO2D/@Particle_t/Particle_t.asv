@@ -6,8 +6,7 @@ classdef Particle_t < handle
     pos
     curSpeed
     prevSpeed
-    beta
-    gamma
+    realUnitId
   end
   
   methods (Access = public)
@@ -15,16 +14,11 @@ classdef Particle_t < handle
     % Constructor
     function p = Particle_t(id, dim)
       p.id                = id;
-      p.beta              = 0;
-      p.gamma             = 0;
-      p.pbest    (1, dim) = 0;
-      p.prevPbest(1, dim) = 0;
-      p.curPos   (1, dim) = 0;
-      p.prevPos  (1, dim) = 0;
+      p.pbest             = Position_t(dim);
+      p.pos               = Position_t(dim);
       p.curSpeed (1, dim) = 0;
       p.prevSpeed(1, dim) = 0;
-      p.curFitness        = 0;
-      p.prevFitness       = 0;
+      p.realUnitId        = 0;
     end
     
     % Destructor
@@ -32,7 +26,13 @@ classdef Particle_t < handle
       delete(p);
     end
     
-    ComputeSpeed(p, s);
+    % Link particle to a real identity
+    function SetReadUnitId(p, id)
+      p.realUnitId
+    
+    ComputeSpeed( p, s );
+    ComputePbest( p    );
+    ComputePos  ( p, s );
     
   end
   

@@ -22,6 +22,8 @@ classdef Swarm_t < handle
       s.particles  = Particle_t.empty;
       s.c1         = 0;
       s.c2         = 0;
+      s.posMin     = 0;
+      s.posMax     = 0;
       s.omega      = 0;
       s.decimals   = 0;
       s.posRes     = 0;
@@ -93,9 +95,9 @@ classdef Swarm_t < handle
       s.posMax    = posMax;
     end
     
-    ComputeGbest( s );
+    ComputeGbest(s);
     
-    SetParticlesInitState(s);
+    RandomizeParticlesPos(s);
     
   end
   

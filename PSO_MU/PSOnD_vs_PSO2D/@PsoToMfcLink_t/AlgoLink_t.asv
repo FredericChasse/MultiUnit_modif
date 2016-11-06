@@ -1,0 +1,29 @@
+classdef AlgoLink_t
+  
+  properties
+    algoIds
+    algoUnitIds
+    nLinks
+  end
+  
+  methods
+    
+    % Constructor
+    function link = AlgoLink_t
+      link.algoIds = [];
+      link.algoUnitIds = [];
+      link.nLinks = 0;
+    end
+    
+    % Destructor
+    function Del(link)
+      delete(link);
+    end
+    
+    % Add new link
+    function AddLink(link, algoId, unitId)
+      link.
+  end
+  
+end
+

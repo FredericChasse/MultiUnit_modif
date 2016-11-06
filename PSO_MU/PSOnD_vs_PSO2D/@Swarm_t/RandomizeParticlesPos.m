@@ -1,9 +1,8 @@
-function [  ] = SetParticlesInitState( s )
+function [  ] = RandomizeParticlesPos( s )
 
 for iParticle = 1 : s.nParticles
-  s.particles(iParticle).pos.prevPos = 0;
-  s.particles(iParticle).pos.curFitness = 0;
-  s.particles(iParticle).pos.prevFitness = 0;
+  s.particles(iParticle).pos.prevPos = s.particles(iParticle).pos.curPos;
+  s.particles(iParticle).pos.prevFitness = s.particles(iParticle).pos.curFitness;
   s.particles(iParticle).pos.curPos = rand(1, s.dimension) * (s.posMax - s.posMin) + s.posMin;
   
   for iDim = 1 : s.dimension
@@ -13,8 +12,6 @@ for iParticle = 1 : s.nParticles
       s.particles(iParticle).pos.curPos(iDim) = s.posMin;
     end
   end
-  
-  s.particles(iParticle).pbest = s.particles(iParticle).pos;
 end
 
 end

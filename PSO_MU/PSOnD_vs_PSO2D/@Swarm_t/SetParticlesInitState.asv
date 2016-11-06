@@ -1,8 +1,0 @@
-function [  ] = SetParticlesInitState( s )
-
-for iParticle = 1 : s.nParticles
-  s.particles(iParticle).pos.curPos = rand(1, s.dimension) * (s.posMax - s.posMin) + s.posMin;
-end
-
-end
-

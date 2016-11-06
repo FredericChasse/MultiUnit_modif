@@ -1,0 +1,79 @@
+classdef PsoTo < handle
+  
+  properties
+    hardId
+    algoId
+    unitId
+    nLinks
+  end
+  
+  methods
+    
+    % Constructor
+    function link = LinkTable_t
+      link.hardId = [];
+      link.algoId = [];
+      link.unitId = [];
+      link.nLinks = 0;
+    end
+    
+    % Destructor
+    function Del(link)
+      delete(link);
+    end
+    
+    % Add new link
+    function AddLink(link, hardId, algoId, unitId)
+      hardIdx = find(link.hardId == hardId);
+      if ~isempty(hardIdx)
+        algoIdx = find(link.algoId(hardIdx) == algoId);
+        if ~isempty(algoIdx)
+          unitIdx = find(link.unitId(algoIdx) == unitId);
+          if ~isempty(unitIdx)
+            error('Link already exists.');
+          end
+        end
+      end
+      
+      link.nLinks = link.nLinks + 1;
+      link.hardId(link.nLinks) = hardId;
+      link.algoId(link.nLinks) = algoId;
+      link.unitId(link.nLinks) = unitId;
+    end
+    
+    % Remove link
+    function RemoveLink(link, hardId, algoId, unitId)
+      if link.nLinks <= 0
+        error('No links to remove.');
+      end
+      
+      hardIdx = find(link.hardId == hardId);
+      if isempty(hardIdx)
+        error('No link for this hard ID.');
+      end
+      
+      algoIdx = find(link.algoId(hardIdx) == algoId);
+      if isempty(algoIdx)
+        error('No link for this algo ID.');
+      end
+      
+      algoIdx = find(link.algoId(hardIdx) == algoId);
+      if isempty(algoIdx)
+        error('No link for this algo ID.');
+      end
+      
+      unitIdx = find(link.unitId(algoIdx) == unitId);
+      if isempty(unitIdx)
+        error('No link for this unit ID.');
+      end
+      
+      link.hardId(unitIdx) = [];
+      link.algoId(unitIdx) = [];
+      link.unitId(unitIdx) = [];
+      link.nLinks = link.nLinks - 1;
+        
+    end
+  end
+  
+end
+

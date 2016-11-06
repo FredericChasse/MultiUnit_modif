@@ -14,6 +14,8 @@ classdef Position_t < handle
       for iDim = 1 : dim
         pos.prevPos(iDim) = 0;
         pos.curPos(iDim)  = 0;
+        pos.prevDimFitness(iDim) = 0;
+        pos.curDimFitness(iDim) = 0;
       end
       pos.prevFitness = 0;
       pos.curFitness  = 0;

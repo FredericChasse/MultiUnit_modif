@@ -1,10 +1,8 @@
 function [  ] = ComputePos( p, s )
 
-p.pos.prevFitness = p.pos.curFitness;
-
-for iDim = 1 : s.dim
+for iDim = 1 : s.dimension
   p.pos.prevPos(iDim) = p.pos.curPos(iDim);
-  p.pos.curPos(iDim) = p.prevPos(iDim) + p.curSpeed(iDim);
+  p.pos.curPos(iDim) = p.pos.prevPos(iDim) + p.curSpeed(iDim);
   
   residue = mod(p.pos.curPos(iDim), s.posRes);
   if residue < s.posRes / 2

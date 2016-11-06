@@ -21,7 +21,7 @@ classdef Pso_t < handle
       
       pso.swarms = Swarm_t.empty;
       for iSwarm = 1 : nSwarms
-        pso.swarms(iSwarm) = Swarm_t(iSwarm, nParticles(iSwarm), dimensions(iSwarm), 0, 0, 0, 0, 0);
+        pso.swarms(iSwarm) = Swarm_t(iSwarm, nParticles(iSwarm), dimensions(iSwarm));
       end
     end
     

@@ -3,7 +3,7 @@ function [] = ComputeGbest( s )
 units = zeros(1, s.nParticles);
 
 for iParticle = 1 : s.nParticles
-  units(iParticle) = s.particles(iParticles).pos.curFitness;
+  units(iParticle) = s.particles(iParticle).pos.curFitness;
 end
 
 idx = find(units == max(units));
