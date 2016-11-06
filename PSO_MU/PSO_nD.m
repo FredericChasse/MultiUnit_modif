@@ -10,11 +10,11 @@ rng(rngState);
 close all
 % clc
 
-oFigures = 0;   %% 0 = don't print figures
+oFigures = 1;   %% 0 = don't print figures
 
 %% Simulation parameters
 
-nIterations = 200;
+nIterations = 100;
 nParticles  = 8;
 
 omega = 0.5;
@@ -25,11 +25,9 @@ for iData = 1 : nIterations
   ni(iData) = iData;
 end
 
-
 % Search space
 dmin        = 10;
 dmax        = 200;
-
 
 % RextResolution = (dmax-dmin)/255; % Ohms
 RextResolution = 0.1; % Ohms
@@ -43,70 +41,40 @@ ssPrecision = 0.05;   % 5% precision for calculating steady-state
 detectPrecision = 0.01;   % 5% precision
 oChangeHasOccured = 0;    % Flag for detecting change
 
+% Dimension
+dim = 3;
+for iDim = 1 : dim
+  beta (iDim) = rand * 40 - 20;
+  gamma(iDim) = rand * 7 - 3.5;
+end
+% beta  = [0 -10 5  13  0 0 2 -3  5 1 0 0];
+% gamma = [0 -1  2 -3  -1 2 4  0 13 0 0 0];
+% if length(beta) ~= length(gamma)
+%   error('Beta and Gamma don''t have the same length')
+% end
+% dim = length(beta);
 
 % Simulation data
-d           = zeros(nIterations, nParticles, 2);
+d           = zeros(nIterations, nParticles, dim);
 J           = zeros(nIterations, nParticles);
+Jsingle     = zeros(nIterations, nParticles, dim);
 MaxVal      = zeros(nIterations, nParticles);
-Pbest       = zeros(nIterations, nParticles, 2);
-v           = zeros(nIterations, nParticles, 2);
+Pbest       = zeros(nIterations, nParticles, dim);
+v           = zeros(nIterations, nParticles, dim);
 
 MaxOfUnits  = zeros(nIterations, 1);
-Gbest       = zeros(nIterations, 2);
+Gbest       = zeros(nIterations, dim);
 c           = zeros(nIterations, 2);
 
 % Initial position of particles
 for iUnit = 1 : nParticles
-  d(1, iUnit,1) = rand* (dmax-dmin) + dmin;
-  d(1, iUnit,2) = rand* (dmax-dmin) + dmin;
+  for iDim = 1 : dim
+    d(1, iUnit,iDim) = rand* (dmax-dmin) + dmin;
+  end
 %   tmp = abs(Rvalues - d(1, iUnit));
 %   [idx idx] = min(tmp);
 %   d(1, iUnit) = Rvalues(idx);
 end
-
-%% Dynamic model parameters
-
-mfcDynamics = zeros(nParticles, 2);
-
-for i = 1:nParticles
-  mfcDynamics(i,:) = [5.726117682433310 0.030299840936202];
-end
-
-oDoPerturbStatic  = 0;
-oDoPerturbDynamic = 0;
-oDoGammaDif       = 0;
-oDoBetaDif        = 0;
-oDoGammaBetaDif   = 0;
-gamma             = 0.0002;
-beta              = 20;
-
-iPerturb = 30;
-perturbAmp = 300;
-
-S0 = ones(nParticles, nIterations) * 450;
-% S0 = ones(nParticles, nIterations) * 300;
-
-if oDoGammaBetaDif
-  S0(1:nParticles/2, :) = 350;
-end
-if oDoPerturbStatic
-  for iUnit = 1 : nParticles
-    S0(iUnit,iPerturb:end) = S0(iUnit,1) + perturbAmp;
-  end
-end
-if oDoPerturbDynamic
-  t = iPerturb:1:nIterations;
-  x = sin(t/2)*5 + 450;
-  for iUnit = 1:nParticles
-    S0(iUnit,iPerturb:end) = x;
-  end
-  clear t x
-end
-
-% odeOptions = odeset('RelTol',1e-6,'AbsTol',1e-9);
-odeOptions = odeset('RelTol',1e-9,'AbsTol',1e-12);
-
-T = 0.2;
 
 c(:,1) = 1.1;
 c(:,2) = 2;
@@ -121,8 +89,14 @@ for iData = 1 : nIterations
   % Curve (J)
   %========================================================================
   for iUnit = 1 : nParticles
-    J(iData, iUnit) = -0.002 * (d(iData, iUnit, 1) - 100)^2 + 20   ...
-                    + -0.002 * (d(iData, iUnit, 2) - 110)^2 + 19;
+    J(iData, iUnit) = 0;
+    for iDim = 1 : dim
+      Jsingle(iData, iUnit, iDim) = -0.002 * (d(iData, iUnit, iDim) - 100 + beta(iDim))^2 + 20 + gamma(iDim);
+      J(iData, iUnit) = J(iData, iUnit) + Jsingle(iData, iUnit, iDim);
+    end
+%     J(iData, iUnit) = Jsingle(iData, iUnit, 1) + Jsingle(iData, iUnit, 2) + Jsingle(iData, iUnit, 3);
+%     J(iData, iUnit) = -0.002 * (d(iData, iUnit, 1) - 100)^2 + 20   ...
+%                     + -0.002 * (d(iData, iUnit, 2) - 110)^2 + 19;
   end
 %   for iUnit = 1 : nParticles
 %     
@@ -231,25 +205,37 @@ for iData = 1 : nIterations
   %========================================================================
   if (iData == 1)
     for iUnit = 1 : nParticles
-      v(iData, iUnit,1) = rand                                                           ...
-                        + c(iData, 1) * rand * (Pbest(iData, iUnit, 1)  - d(iData, iUnit, 1))  ...
-                        + c(iData, 2) * rand * (Gbest(iData, 1)         - d(iData, iUnit, 1));
-      v(iData, iUnit,2) = rand                                                           ...
-                        + c(iData, 1) * rand * (Pbest(iData, iUnit, 2)  - d(iData, iUnit, 2))  ...
-                        + c(iData, 2) * rand * (Gbest(iData, 2)         - d(iData, iUnit, 2));
+      for iDim = 1 : dim
+        v(iData, iUnit,iDim) = rand                                                                      ...
+                            + c(iData, 1) * rand * (Pbest(iData, iUnit, iDim)  - d(iData, iUnit, iDim))   ...
+                            + c(iData, 2) * rand * (Gbest(iData, iDim)         - d(iData, iUnit, iDim));
+      end
+%       v(iData, iUnit,2) = rand                                                           ...
+%                         + c(iData, 1) * rand * (Pbest(iData, iUnit, 2)  - d(iData, iUnit, 2))  ...
+%                         + c(iData, 2) * rand * (Gbest(iData, 2)         - d(iData, iUnit, 2));
+%       v(iData, iUnit,3) = rand                                                           ...
+%                         + c(iData, 1) * rand * (Pbest(iData, iUnit, 3)  - d(iData, iUnit, 3))  ...
+%                         + c(iData, 2) * rand * (Gbest(iData, 3)         - d(iData, iUnit, 3));
     end
   else
     for iUnit = 1 : nParticles
-      v(iData, iUnit, 1) = round                                                         ...
-                      ( omega*v(iData-1, iUnit, 1)                                       ...
-                      + c(iData, 1) * rand * (Pbest(iData, iUnit, 1)  - d(iData, iUnit, 1)) ...
-                      + c(iData, 2) * rand * (Gbest(iData, 1)         - d(iData, iUnit, 1)) ...
-                      , 4);
-      v(iData, iUnit, 2) = round                                                         ...
-                      ( omega*v(iData-1, iUnit, 2)                                       ...
-                      + c(iData, 1) * rand * (Pbest(iData, iUnit, 2)  - d(iData, iUnit, 2)) ...
-                      + c(iData, 2) * rand * (Gbest(iData, 2)         - d(iData, iUnit, 2)) ...
-                      , 4);
+      for iDim = 1 : dim
+        v(iData, iUnit, iDim) = round                                                         ...
+                        ( omega*v(iData-1, iUnit, iDim)                                       ...
+                        + c(iData, 1) * rand * (Pbest(iData, iUnit, iDim)  - d(iData, iUnit, iDim)) ...
+                        + c(iData, 2) * rand * (Gbest(iData, iDim)         - d(iData, iUnit, iDim)) ...
+                        , 4);
+      end
+%       v(iData, iUnit, 2) = round                                                         ...
+%                       ( omega*v(iData-1, iUnit, 2)                                       ...
+%                       + c(iData, 1) * rand * (Pbest(iData, iUnit, 2)  - d(iData, iUnit, 2)) ...
+%                       + c(iData, 2) * rand * (Gbest(iData, 2)         - d(iData, iUnit, 2)) ...
+%                       , 4);
+%       v(iData, iUnit, 3) = round                                                         ...
+%                       ( omega*v(iData-1, iUnit, 3)                                       ...
+%                       + c(iData, 1) * rand * (Pbest(iData, iUnit, 3)  - d(iData, iUnit, 3)) ...
+%                       + c(iData, 2) * rand * (Gbest(iData, 3)         - d(iData, iUnit, 3)) ...
+%                       , 4);
     end
   end
   %========================================================================
@@ -263,20 +249,36 @@ for iData = 1 : nIterations
 %         tmp = abs(Rvalues - nextPos);
 %         [idx idx] = min(tmp);
 %         nextPos = Rvalues(idx);
-        if ( nextPos(1) < dmin )
-          d(iData + 1, iUnit, 1) = dmin;
-        elseif ( nextPos(1) > dmax )
-          d(iData + 1, iUnit, 1) = dmax;
-        else
-          d(iData + 1, iUnit, 1) = nextPos(1);
+        for iDim = 1 : dim
+          if ( nextPos(iDim) < dmin )
+            d(iData + 1, iUnit, iDim) = dmin;
+          elseif ( nextPos(iDim) > dmax )
+            d(iData + 1, iUnit, iDim) = dmax;
+          else
+            d(iData + 1, iUnit, iDim) = nextPos(iDim);
+          end
         end
-        if ( nextPos(2) < dmin )
-          d(iData + 1, iUnit, 2) = dmin;
-        elseif ( nextPos(2) > dmax )
-          d(iData + 1, iUnit, 2) = dmax;
-        else
-          d(iData + 1, iUnit, 2) = nextPos(2);
-        end
+%         if ( nextPos(1) < dmin )
+%           d(iData + 1, iUnit, 1) = dmin;
+%         elseif ( nextPos(1) > dmax )
+%           d(iData + 1, iUnit, 1) = dmax;
+%         else
+%           d(iData + 1, iUnit, 1) = nextPos(1);
+%         end
+%         if ( nextPos(2) < dmin )
+%           d(iData + 1, iUnit, 2) = dmin;
+%         elseif ( nextPos(2) > dmax )
+%           d(iData + 1, iUnit, 2) = dmax;
+%         else
+%           d(iData + 1, iUnit, 2) = nextPos(2);
+%         end
+%         if ( nextPos(3) < dmin )
+%           d(iData + 1, iUnit, 3) = dmin;
+%         elseif ( nextPos(3) > dmax )
+%           d(iData + 1, iUnit, 3) = dmax;
+%         else
+%           d(iData + 1, iUnit, 3) = nextPos(3);
+%         end
       end
     else
 %       for iUnit = 1 : nParticles
@@ -314,11 +316,11 @@ close(waitBarHandler)
 
 iSteadyState = nIterations + 1;
 
-if oDoPerturbStatic || oDoPerturbDynamic
-  iStart = iPerturb;
-else
+% if oDoPerturbStatic || oDoPerturbDynamic
+%   iStart = iPerturb;
+% else
   iStart = 1;
-end
+% end
 
 for iData = iStart : nIterations
 
@@ -339,9 +341,9 @@ for iData = iStart : nIterations
 end
 
 if iStart ~= 1
-  iSteadyState = iSteadyState - iStart;
+  iSteadyState = iSteadyState - iStart
 else
-  iSteadyState;
+  iSteadyState
 end
 
 %% Figures
@@ -354,22 +356,37 @@ if (oFigures)
     istr(iUnit) = {['Particule ' num2str(n)]};
   end
 
-  fig1 = figure(1);
-  subplot(2,1,1)
-  for iUnit = 1 : nParticles
-    plot(J(:,iUnit))
-    hold on
-  end
-  legend(Jstr)
-  hold off
-  
-  subplot(2,1,2)
-  for iUnit = 1 : nParticles
-    plot(d(:,iUnit))
-    hold on
-  end
-  legend(dstr)
-  hold off
+%   fig1 = figure(1);
+%   subplot(2,1,1)
+%   for iUnit = 1 : nParticles
+%     plot(J(:,iUnit))
+%     hold on
+%   end
+%   legend(Jstr)
+%   hold off
+%   
+%   subplot(2,1,2)
+%   for iUnit = 1 : nParticles
+%     plot(d(:,iUnit))
+%     hold on
+%   end
+
+%   fig = figure;
+% %   hold on
+%   Rfig = dmin:10:dmax;
+%   for i = 1:length(Rfig)
+%     for j = 1:length(Rfig)
+%       jfig(j,i) = -0.002 * (Rfig(i) - 100)^2 + 20 + -0.002*(Rfig(j)-110)^2+19;
+%     end
+%   end
+%   surf(Rfig,Rfig,jfig)
+%   hold on
+%   for iUnit = 1 : nParticles
+% %     surf(d(:,iUnit,1), d(:,iUnit,2), J(:,iUnit));
+%     plot3(d(:,iUnit,1), d(:,iUnit,2), J(:,iUnit), 'LineWidth', 2);
+%   end
+%   legend(dstr)
+%   hold off
 end
 
 

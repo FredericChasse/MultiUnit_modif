@@ -10,11 +10,11 @@ rng(rngState);
 close all
 % clc
 
-oFigures = 0;   %% 0 = don't print figures
+oFigures = 1;   %% 0 = don't print figures
 
 %% Simulation parameters
 
-nIterations = 200;
+nIterations = 100;
 nParticles  = 8;
 
 omega = 0.5;
@@ -356,22 +356,37 @@ if (oFigures)
     istr(iUnit) = {['Particule ' num2str(n)]};
   end
 
-  fig1 = figure(1);
-  subplot(2,1,1)
-  for iUnit = 1 : nParticles
-    plot(J(:,iUnit))
-    hold on
+%   fig1 = figure(1);
+%   subplot(2,1,1)
+%   for iUnit = 1 : nParticles
+%     plot(J(:,iUnit))
+%     hold on
+%   end
+%   legend(Jstr)
+%   hold off
+%   
+%   subplot(2,1,2)
+%   for iUnit = 1 : nParticles
+%     plot(d(:,iUnit))
+%     hold on
+%   end
+
+  fig = figure;
+%   hold on
+  Rfig = dmin:10:dmax;
+  for i = 1:length(Rfig)
+    for j = 1:length(Rfig)
+      jfig(j,i) = -0.002 * (Rfig(i) - 100)^2 + 20 + -0.002*(Rfig(j)-110)^2+19;
+    end
   end
-  legend(Jstr)
-  hold off
-  
-  subplot(2,1,2)
+  surf(Rfig,Rfig,jfig)
+  hold on
   for iUnit = 1 : nParticles
-    plot(d(:,iUnit))
-    hold on
+%     surf(d(:,iUnit,1), d(:,iUnit,2), J(:,iUnit));
+    plot3(d(:,iUnit,1), d(:,iUnit,2), J(:,iUnit), 'LineWidth', 2);
   end
-  legend(dstr)
-  hold off
+%   legend(dstr)
+%   hold off
 end
 
 

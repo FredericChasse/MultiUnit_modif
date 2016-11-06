@@ -1,0 +1,16 @@
+1 - Find first optimum with modified MU
+2 - Use 3D PSO to find the optimum of J = J1 + J2 with reduced search space
+3 - Determine beta & gamma
+4 - Use those values in classical MU / PSO 2D
+
+If there are perturbations
+1 - During MU - doesn't matter
+2 - During 3D PSO - doesn't matter
+3 - After 3D PSO - particles are sentinel, so it's detected
+a. Evaluate the amplitude of the perturbation. If all units have the same amplitude -> same perturbation -> beta and gamma stay the same
+b. Redo 3D PSO only on units that have a perturbation
+
+Contributions
+1 - A way of evaluating beta and gamma to use for the MPPT of predilection
+2 - A way to reduce search space
+3 - A way to reduce the dimension of PSO in dynamic systems with multiple units
