@@ -61,8 +61,9 @@ for j = 1 : length(S0)
   mfcDynamics = [20.8395  498.2432    2.0000    0.0412];
 %   mfcDynamics = [5.726117682433310 0.030299840936202];
 
+  format long
   plot(Rext, Pout)
-  max(Pout);
+  max(Pout)
   Ropt = Rext(find(Pout >= max(Pout)))
   
   legendStr{j} = ['S_0 = ', num2str(S0(j)), ' [mg/L]'];

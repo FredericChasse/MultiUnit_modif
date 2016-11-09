@@ -1,4 +1,4 @@
-function [dx, Pout]= mfcModel(T, x, dummy, S0, Rext)
+function [dx, Pout] = mfcModel(T, x, dummy, S0, Rext)
 F = 96485;
 R = 8.314472;
 T = 298.15;

@@ -4,6 +4,7 @@ classdef MfcArray_t < handle
     units
     nMfcs
     integrationTime
+    odeOptions
   end
   
   methods (Access = public)
@@ -23,10 +24,10 @@ classdef MfcArray_t < handle
       delete(mfcArray);
     end
     
-    function IntegrateMfc(mfcs, id, odeOptions)
-      [~, dynamics] = ode15s('mfcModel', [0 mfcs.integrationTime], mfcs.units(id).dynamics, odeOptions, mfcs.units(id).s0, mfcs.units(id).rext);
+    function EvaluateMfc(mfcs, id)
+      [~, dynamics] = ode15s('mfcModel', [0 mfcs.integrationTime], mfcs.units(id).dynamics, mfcs.odeOptions, mfcs.units(id).s0, mfcs.units(id).rext);
       mfcs.units(id).dynamics = dynamics(end, :);
-      [~, mfcs.units(id).pout] = mfcModel(mfcs.integrationTime, mfcs.units(id).dynamics, odeOptions, mfcs.units(id).s0, mfcs.units(id).rext);
+      [~, mfcs.units(id).pout] = mfcModel(mfcs.integrationTime, mfcs.units(id).dynamics, mfcs.odeOptions, mfcs.units(id).s0, mfcs.units(id).rext);
     end
     
   end

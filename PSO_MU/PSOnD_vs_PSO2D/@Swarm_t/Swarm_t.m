@@ -95,6 +95,48 @@ classdef Swarm_t < handle
       s.posMax    = posMax;
     end
     
+    function [speed] = GetParticlesSpeed(s)
+      speed = zeros(s.nParticles, s.dimension);
+      for i = 1 : s.nParticles
+        speed(i, :) = s.particles(i).curSpeed;
+      end
+    end
+    
+    function [pos] = GetParticlesPos(s)
+      pos = zeros(s.nParticles, s.dimension);
+      for i = 1 : s.nParticles
+        pos(i, :) = s.particles(i).pos.curPos;
+      end
+    end
+    
+    function [f] = GetParticlesFitness(s)
+      f = zeros(s.nParticles, 1);
+      for i = 1 : s.nParticles
+        f(i) = s.particles(i).pos.curFitness;
+      end
+    end
+    
+    function [fd] = GetParticlesFitnessDim(s)
+      fd = zeros(s.nParticles, s.dimension);
+      for i = 1 : s.nParticles
+        fd(i, :) = s.particles(i).dimFitness;
+      end
+    end
+    
+    function [pbest] = GetParticlesPbest(s)
+      pbest = zeros(s.nParticles, s.dimension);
+      for i = 1 : s.nParticles
+        pbest(i, :) = s.particles(i).pbest.curPos;
+      end
+    end
+    
+    function [gbest] = GetGbest(s)
+      gbest = zeros(s.nParticles, s.dimension);
+      for i = 1 : s.nParticles
+        gbest(i, :) = s.gbest.curPos;
+      end
+    end
+    
     ComputeGbest(s);
     
     RandomizeParticlesPos(s);

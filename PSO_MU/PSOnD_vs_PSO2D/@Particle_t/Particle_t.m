@@ -4,7 +4,7 @@ classdef Particle_t < handle
     id
     pbest
     pos
-    dimFitness
+    dimFitness % Fitness of each dimensions of a particle
     curSpeed
     prevSpeed
   end

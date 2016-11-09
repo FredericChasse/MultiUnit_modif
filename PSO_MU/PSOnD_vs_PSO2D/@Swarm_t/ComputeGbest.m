@@ -6,7 +6,7 @@ for iParticle = 1 : s.nParticles
   units(iParticle) = s.particles(iParticle).pos.curFitness;
 end
 
-idx = find(units == max(units));
+idx = find(units == max(units), 1);
 
 s.gbest.prevPos = s.gbest.curPos;
 s.gbest.prevFitness = s.gbest.curFitness;
