@@ -13,30 +13,43 @@ classdef Swarm_t < handle
     omega
     decimals
     posRes
+    sentinelMargin
+    steadyState
+    oMoveParticles
+    oResetParticles
   end
   
   methods (Access = public)
   
     % Constructor
     function s = Swarm_t(id, nParticles, dim)
-      s.particles  = Particle_t.empty;
-      s.c1         = 0;
-      s.c2         = 0;
-      s.posMin     = 0;
-      s.posMax     = 0;
-      s.omega      = 0;
-      s.decimals   = 0;
-      s.posRes     = 0;
-      s.id         = id;
-      s.dimension  = dim;
-      s.nParticles = 0;
-      s.gbest      = Position_t(dim);
+      s.particles             = Particle_t.empty;
+      s.c1                    = 0;
+      s.c2                    = 0;
+      s.posMin                = 0;
+      s.posMax                = 0;
+      s.omega                 = 0;
+      s.decimals              = 0;
+      s.posRes                = 0;
+      s.id                    = id;
+      s.dimension             = dim;
+      s.sentinelMargin        = 0.05;    % 5% margin for sentinels
+      s.steadyState           = SteadyState_t.empty;
+      s.nParticles            = 0;
+      s.gbest                 = Position_t(dim);
+      s.oMoveParticles        = 1;
+      s.oResetParticles       = 0;
       s.CreateParticles(nParticles);
     end
     
     % Destructor
     function Del(s)
       delete(s);
+    end
+    
+    % Set steady state settings
+    function SetSteadyState(s, sizeOfSample, oscAmp, nSamples)
+      s.steadyState = SteadyState_t(sizeOfSample, oscAmp, nSamples);
     end
     
     % Add existing particle
@@ -134,6 +147,22 @@ classdef Swarm_t < handle
       gbest = zeros(s.nParticles, s.dimension);
       for i = 1 : s.nParticles
         gbest(i, :) = s.gbest.curPos;
+      end
+    end
+    
+    function idx = CheckForPerturbation(s)
+      idx = [];
+      nPerturb = 0;
+      for iParticle = 1 : s.nParticles
+        s.particles(iParticle).SentinelEval(s.sentinelMargin);
+        oPerturbOccured = s.particles(iParticle).GetSentinelState;
+        if oPerturbOccured == 1
+          nPerturb = nPerturb + 1;
+          idx(nPerturb) = s.particles(iParticle).id; %#ok<AGROW>
+        end
+      end
+      if isempty(idx)
+        idx = 0;
       end
     end
     

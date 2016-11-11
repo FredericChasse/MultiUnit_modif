@@ -73,13 +73,26 @@ classdef PsoToMfcLink_t < handle
         error('No link for this dimension ID.');
       end
       
-      l.mfcId(dimIdx) = [];
-      l.swarmId(dimIdx) = [];
-      l.particleId(dimIdx) = [];
-      l.dimId(dimIdx) = [];
-      l.nLinks = l.nLinks - 1;
-        
+      l.mfcId(dimIdx)       = [];
+      l.swarmId(dimIdx)     = [];
+      l.particleId(dimIdx)  = [];
+      l.dimId(dimIdx)       = [];
+      l.nLinks              = l.nLinks - 1;
     end
+    
+    % Remove link by ID
+    function RemoveLinkById(l, id)
+      if id > l.nLinks
+        error('This link id does not exist');
+      end
+      
+      l.mfcId(id)       = [];
+      l.swarmId(id)     = [];
+      l.particleId(id)  = [];
+      l.dimId(id)       = [];
+      l.nLinks          = l.nLinks - 1;
+    end
+    
   end
   
 end

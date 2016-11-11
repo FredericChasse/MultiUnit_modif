@@ -8,19 +8,23 @@ classdef SimData_t < handle
     pbest
     gbest
     iteration
+    oInSteadyState
+    timeElapsed
   end
   
   methods
     
     % Constructor
     function data = SimData_t
-      data.speed     = {};
-      data.d         = {};
-      data.j         = {};
-      data.jSingle   = {};
-      data.pbest     = {};
-      data.gbest     = {};
-      data.iteration = {};
+      data.speed          = {};
+      data.d              = {};
+      data.j              = {};
+      data.jSingle        = {};
+      data.pbest          = {};
+      data.gbest          = {};
+      data.iteration      = {};
+      data.oInSteadyState = {};
+      data.timeElapsed    = {};
     end
     
     % Destructor
@@ -29,14 +33,16 @@ classdef SimData_t < handle
     end
     
     % Add simulation data
-    function AddData(data, speed, d, j, jSingle, pbest, gbest, iteration)
-      data.speed    {iteration} = speed;
-      data.d        {iteration} = d;
-      data.j        {iteration} = j;
-      data.jSingle  {iteration} = jSingle;
-      data.pbest    {iteration} = pbest;
-      data.gbest    {iteration} = gbest;
-      data.iteration{iteration} = iteration;
+    function AddData(data, speed, d, j, jSingle, pbest, gbest, timeElapsed, oInSteadyState, iteration)
+      data.speed          {iteration} = speed;
+      data.d              {iteration} = d;
+      data.j              {iteration} = j;
+      data.jSingle        {iteration} = jSingle;
+      data.pbest          {iteration} = pbest;
+      data.gbest          {iteration} = gbest;
+      data.timeElapsed    {iteration} = timeElapsed;
+      data.oInSteadyState {iteration} = oInSteadyState;
+      data.iteration      {iteration} = iteration;
     end
     
   end
