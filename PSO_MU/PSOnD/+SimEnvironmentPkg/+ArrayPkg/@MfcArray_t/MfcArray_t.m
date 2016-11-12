@@ -1,4 +1,11 @@
-classdef MfcArray_t < handle
+classdef MfcArray_t < ArrayPkg.ArrayInterface_t
+  
+  properties
+    % From class interface
+    id
+    unitVar
+    EvaluateFunc
+  end
   
   properties
     units
@@ -10,7 +17,9 @@ classdef MfcArray_t < handle
   methods (Access = public)
     
     % Constructor
-    function array = MfcArray_t(nUnits)
+    function array = MfcArray_t(id, nUnits)
+      import UnitPkg.*;
+      
       array.units = Mfc_t.empty;
       for iMfc = 1 : nUnits
         array.units(iMfc) = Mfc_t(iMfc);
@@ -18,6 +27,11 @@ classdef MfcArray_t < handle
       array.nUnits          = nUnits;
       array.integrationTime = 0;
       array.odeOptions      = odeset('RelTol',1e-6,'AbsTol',1e-9);
+      
+      % From class interface
+      array.id            = id;
+      array.unitVar       = 'units';
+      array.EvaluateFunc  = 'EvaluateMfc';
     end
     
     % Destructor
@@ -28,8 +42,8 @@ classdef MfcArray_t < handle
     function ComputeBetaGamma(mfcs, ids, meanRext, meanPout)
       % Using first MFC as reference
       for iUnit = 2 : length(ids)
-        mfcs.units(ids(iUnit)).beta  = meanRext(iUnit) - meanRext(1);
-        mfcs.units(ids(iUnit)).gamma = meanPout(iUnit) - meanPout(1);
+        mfcs.units(ids(iUnit)).beta  = meanRext(1) - meanRext(iUnit);
+        mfcs.units(ids(iUnit)).gamma = meanPout(1) - meanPout(iUnit);
       end
     end
     
