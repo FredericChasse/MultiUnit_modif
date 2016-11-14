@@ -1,14 +1,7 @@
-classdef Mfc_t < UnitPkg.UnitInterface_t
+classdef Mfc_t < SimPkg.UnitPkg.AbstractUnitInterface_t
   
   properties
-    % Class interface
     id
-    perturbVar
-    posVar
-    fitnessVar
-  end
-  
-  properties
     rext
     dynamics
     pout
@@ -17,10 +10,22 @@ classdef Mfc_t < UnitPkg.UnitInterface_t
     s0
   end
   
+  % Class interface
+  properties
+    id_if
+    unitInput_if
+    pos_if
+    fitness_if
+    beta_if
+    gamma_if
+  end
+  
   methods
     
     % Constructor
     function mfc = Mfc_t(id)
+      import SimEnvironmentPkg.UnitPkg.*
+      mfc.id          = id;
       mfc.rext        = 0;
       mfc.s0          = 0;
       mfc.pout        = 0;
@@ -31,10 +36,12 @@ classdef Mfc_t < UnitPkg.UnitInterface_t
       % mfcDynamics   = [5.726117682433310 0.030299840936202];
       
       % Class interface
-      mfc.id          = id;
-      mfc.perturbVar  = 's0';
-      mfc.posVar      = 'rext';
-      mfc.fitnessVar  = 'pout';
+      mfc.id_if         = 'id';
+      mfc.unitInput_if  = 's0';
+      mfc.pos_if        = 'rext';
+      mfc.fitness_if    = 'pout';
+      mfc.beta_if       = 'beta';
+      mfc.gamma_if      = 'gamma';
     end
     
     % Destructor

@@ -17,6 +17,13 @@
 %==========================================================================
 clear all %#ok<CLSCR>
 close all
+
+import SimPkg.*
+import SimPkg.UnitPkg.*
+import SimPkg.ArrayPkg.*
+
+import AlgoPkg.*
+import AlgoPkg.PsoPkg.*
 %//////////////////////////////////////////////////////////////////////////
 
 

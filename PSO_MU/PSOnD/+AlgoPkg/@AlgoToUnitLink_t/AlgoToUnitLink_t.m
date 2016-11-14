@@ -1,4 +1,4 @@
-classdef PsoToMfcLink_t < handle
+classdef AlgoToUnitLink_t < handle
   
   properties
     mfcId
@@ -11,17 +11,23 @@ classdef PsoToMfcLink_t < handle
   methods
     
     % Constructor
-    function l = PsoToMfcLink_t
-      l.mfcId = [];
-      l.swarmId = [];
-      l.particleId = [];
-      l.dimId = [];
-      l.nLinks = 0;
+    function l = AlgoToUnitLink_t
+      import SimPkg.*
+      import SimPkg.UnitPkg.*
+      import SimPkg.ArrayPkg.*
+      import AlgoPkg.*
+      import AlgoPkg.PsoPkg.*
+      
+      l.mfcId       = [];
+      l.swarmId     = [];
+      l.particleId  = [];
+      l.dimId       = [];
+      l.nLinks      = 0;
     end
     
     % Destructor
-    function Del(l)
-      delete(l);
+    function Del(link)
+      delete(link);
     end
     
     % Add new link
@@ -32,7 +38,7 @@ classdef PsoToMfcLink_t < handle
         if ~isempty(swarmIdx)
           particleIdx = find(l.particleId(swarmIdx) == particleId);
           if ~isempty(particleIdx)
-            dimIdx = find(l.dimId(particleIdx) == dimId)
+            dimIdx = find(l.dimId(particleIdx) == dimId, 1);
             if ~isempty(dimIdx)
               error('Link already exists.');
             end

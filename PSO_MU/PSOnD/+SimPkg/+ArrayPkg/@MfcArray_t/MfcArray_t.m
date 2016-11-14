@@ -1,24 +1,28 @@
-classdef MfcArray_t < ArrayPkg.ArrayInterface_t
+classdef MfcArray_t < SimPkg.ArrayPkg.AbstractArrayInterface_t
   
   properties
-    % From class interface
     id
-    unitVar
-    EvaluateFunc
-  end
-  
-  properties
     units
     nUnits
     integrationTime
     odeOptions
   end
   
+  %Class interface
+  properties
+    id_if
+    nUnits_if
+    units_if
+    EvaluateFunc_if
+  end
+  
   methods (Access = public)
     
     % Constructor
     function array = MfcArray_t(id, nUnits)
-      import UnitPkg.*;
+      import SimPkg.UnitPkg.*
+      
+      array.id            = id;
       
       array.units = Mfc_t.empty;
       for iMfc = 1 : nUnits
@@ -28,10 +32,11 @@ classdef MfcArray_t < ArrayPkg.ArrayInterface_t
       array.integrationTime = 0;
       array.odeOptions      = odeset('RelTol',1e-6,'AbsTol',1e-9);
       
-      % From class interface
-      array.id            = id;
-      array.unitVar       = 'units';
-      array.EvaluateFunc  = 'EvaluateMfc';
+      % Class interface
+      array.id_if             = 'id';
+      array.nUnits_if         = 'nUnits';
+      array.units_if          = 'units';
+      array.EvaluateFunc_if   = 'EvaluateMfc';
     end
     
     % Destructor
