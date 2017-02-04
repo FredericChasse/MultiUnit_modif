@@ -30,7 +30,8 @@ classdef Perturbation_t < handle
       if curIteration == p.iActive
         for iUnit = 1 : p.nUnitsToPerturb
           idx = p.unitsToPerturb(iUnit);
-          p.unitArray.units(idx).s0 = p.unitArray.units(idx).s0 + p.amp;
+          p.unitArray.units(idx).ApplyPerturb(p.amp);
+%           p.unitArray.units(idx).unit_input = p.unitArray.units(idx).unit_input + p.amp;
         end
       end
     end

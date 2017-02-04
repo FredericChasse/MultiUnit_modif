@@ -1,28 +1,41 @@
-classdef Pso_t < handle
+classdef Pso_t < AlgoPkg.AbstractAlgoInterface_t
+% classdef Pso_t < handle
   % Class Pso_t defines the attributes to be used for simulation
   
   properties
+    id
     swarms
     nSwarms
+    unitArray
+    
+    % Algo interface
+    id_if
+    unitArray_if
+    RunAlgoFunc_if
   end
   
   methods (Access = public)
     
     % Constructor
-    function pso = Pso_t(nSwarms, nParticles, dimensions)
-      if length(nParticles) ~= nSwarms
-        error('Must specify nParticles for all swarms');
-      end
-      if length(dimensions) ~= nSwarms
-        error('Must specify dimension for all swarms');
+    function pso = Pso_t(id, nParticles, unitArray)
+      import AlgoPkg.PsoPkg.*
+      
+      pso.id        = id;
+      pso.unitArray = unitArray;
+      pso.nSwarms   = 1;
+      pso.swarms    = PsoSwarm_t.empty;
+%       dimension     = unitArray.nUnits;
+      pso.swarms(1) = PsoSwarm_t(1, nParticles, unitArray, PsoSimData_t);
+      
+      % Link to units
+      for iDim = 1 : unitArray.nUnits
+        
       end
       
-      pso.nSwarms = nSwarms;
-      
-      pso.swarms = Swarm_t.empty;
-      for iSwarm = 1 : nSwarms
-        pso.swarms(iSwarm) = Swarm_t(iSwarm, nParticles(iSwarm), dimensions(iSwarm));
-      end
+      % Algo interface
+      pso.id_if           = 'id';
+      pso.unitArray_if    = 'unitArray';
+      pso.RunAlgoFunc_if  = 'RunPso';
     end
     
     % Destructor
@@ -77,6 +90,9 @@ classdef Pso_t < handle
       
       pso.swarms(swarmId).SetParam(c1, c2, omega, decimals, posRes, posMin, posMax);
     end
+    
+    % Run Algorithm    
+    RunPso(pso, iteration);
     
   end
   

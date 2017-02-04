@@ -1,9 +1,9 @@
-classdef AbstractAlgoInterface_t < handle & matlab.mixin.Heterogeneous
+classdef (Abstract) AbstractAlgoInterface_t < handle & matlab.mixin.Heterogeneous
   
-  properties
-  end
-  
-  methods
+  properties (Abstract)
+    id_if
+    unitArray_if
+    RunAlgoFunc_if
   end
   
 end

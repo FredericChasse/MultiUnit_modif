@@ -29,9 +29,12 @@ classdef StaticFunction_t < SimPkg.UnitPkg.AbstractUnitInterface_t
       f.id          = id;
       f.d           = 0;
       f.j           = 0;
-      f.a           = -0.002;
-      f.dopt        = 100;
-      f.jopt        = 20;
+      f.a           = -0.000055;
+      f.dopt        = 325;
+      f.jopt        = 31;
+%       f.a           = -0.002;
+%       f.dopt        = 100;
+%       f.jopt        = 20;
       f.beta        = 0;
       f.gamma       = 0;
       f.unitInput   = [0 0];

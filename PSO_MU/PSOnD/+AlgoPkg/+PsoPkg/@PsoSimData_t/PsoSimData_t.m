@@ -1,4 +1,4 @@
-classdef SimData_t < handle
+classdef PsoSimData_t < handle
   
   properties
     speed
@@ -9,13 +9,13 @@ classdef SimData_t < handle
     gbest
     iteration
     oInSteadyState
-    timeElapsed
+%     timeElapsed
   end
   
   methods
     
     % Constructor
-    function data = SimData_t
+    function data = PsoSimData_t
       data.speed          = {};
       data.d              = {};
       data.j              = {};
@@ -24,7 +24,7 @@ classdef SimData_t < handle
       data.gbest          = {};
       data.iteration      = {};
       data.oInSteadyState = {};
-      data.timeElapsed    = {};
+%       data.timeElapsed    = {};
     end
     
     % Destructor
@@ -33,14 +33,15 @@ classdef SimData_t < handle
     end
     
     % Add simulation data
-    function AddData(data, speed, d, j, jSingle, pbest, gbest, timeElapsed, oInSteadyState, iteration)
+%     function AddData(data, speed, d, j, jSingle, pbest, gbest, timeElapsed, oInSteadyState, iteration)
+    function AddData(data, speed, d, j, jSingle, pbest, gbest, oInSteadyState, iteration)
       data.speed          {iteration} = speed;
       data.d              {iteration} = d;
       data.j              {iteration} = j;
       data.jSingle        {iteration} = jSingle;
       data.pbest          {iteration} = pbest;
       data.gbest          {iteration} = gbest;
-      data.timeElapsed    {iteration} = timeElapsed;
+%       data.timeElapsed    {iteration} = timeElapsed;
       data.oInSteadyState {iteration} = oInSteadyState;
       data.iteration      {iteration} = iteration;
     end

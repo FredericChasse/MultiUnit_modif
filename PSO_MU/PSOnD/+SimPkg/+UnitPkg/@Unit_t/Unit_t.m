@@ -35,7 +35,7 @@ classdef Unit_t < SimPkg.UnitPkg.AbstractUnitInterface_t
     end
     
     function ApplyPerturb(unit, perturbAmp)
-      unit.obj.(unit.perturb_if) = unit.obj.(unit.perturb_if) + perturbAmp;
+      unit.obj.(unit.unitInput_if) = unit.obj.(unit.unitInput_if) + perturbAmp;
     end
     
     function SetPos(unit, pos)

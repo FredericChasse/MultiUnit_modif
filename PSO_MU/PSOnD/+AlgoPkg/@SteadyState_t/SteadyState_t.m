@@ -54,8 +54,8 @@ classdef SteadyState_t < handle
           maxDim  = max(ss.samples(:,:,iDim));
           minDim  = min(ss.samples(:,:,iDim));
           
-          if ~isempty(find((abs(maxDim-meanDim)./meanDim) >= ss.oscAmp)) ...
-          || ~isempty(find((abs(minDim-meanDim)./meanDim) >= ss.oscAmp))
+          if ~isempty(find((abs(maxDim-meanDim)./meanDim) >= ss.oscAmp, 1)) ...
+          || ~isempty(find((abs(minDim-meanDim)./meanDim) >= ss.oscAmp, 1))
             oInSs = 0;
             ss.oInSteadyState = 0;
             break;

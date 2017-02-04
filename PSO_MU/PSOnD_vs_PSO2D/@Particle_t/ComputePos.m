@@ -13,8 +13,10 @@ for iDim = 1 : s.dimension
   
   if p.pos.curPos(iDim) > s.posMax
     p.pos.curPos(iDim) = s.posMax;
+    p.curSpeed(iDim) = p.pos.curPos(iDim) - p.pos.prevPos(iDim);
   elseif p.pos.curPos(iDim) < s.posMin
     p.pos.curPos(iDim) = s.posMin;
+    p.curSpeed(iDim) = p.pos.curPos(iDim) - p.pos.prevPos(iDim);
   end
 end
 

@@ -39,8 +39,8 @@ classdef Array_t < SimPkg.ArrayPkg.AbstractArrayInterface_t
       delete(array);
     end
     
-    function EvalUnit(array, args)
-      array.obj.(array.EvaluateFunc_if)(args);
+    function EvalUnit(array, id)
+      array.obj.(array.EvaluateFunc_if)(id);
     end
     
     function id = id(array)

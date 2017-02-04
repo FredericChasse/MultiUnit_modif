@@ -14,6 +14,7 @@ classdef Particle_t < handle
     
     % Constructor
     function p = Particle_t(id, dim)
+      import AlgoPkg.Position_t;
       p.id                  = id;
       p.pbest               = Position_t(dim);
       p.pos                 = Position_t(dim);
