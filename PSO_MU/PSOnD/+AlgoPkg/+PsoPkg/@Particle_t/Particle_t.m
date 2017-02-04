@@ -4,6 +4,7 @@ classdef Particle_t < handle
     id
     pbest
     pos
+    prevDimFitness
     dimFitness % Fitness of each dimensions of a particle
     curSpeed
     prevSpeed
@@ -15,13 +16,14 @@ classdef Particle_t < handle
     % Constructor
     function p = Particle_t(id, dim)
       import AlgoPkg.Position_t;
-      p.id                  = id;
-      p.pbest               = Position_t(dim);
-      p.pos                 = Position_t(dim);
-      p.curSpeed  (1, dim)  = 0;
-      p.prevSpeed (1, dim)  = 0;
-      p.dimFitness(1, dim)  = 0;
-      p.oSentinelWarning    = 0;
+      p.id                      = id;
+      p.pbest                   = Position_t(dim);
+      p.pos                     = Position_t(dim);
+      p.curSpeed  (1, dim)      = 0;
+      p.prevSpeed (1, dim)      = 0;
+      p.prevDimFitness(1, dim)  = 0;
+      p.dimFitness(1, dim)      = 0;
+      p.oSentinelWarning        = 0;
     end
     
     % Destructor
@@ -40,7 +42,8 @@ classdef Particle_t < handle
     end
     
     function SetDimFitness(p, f, dim)
-      p.dimFitness(dim) = f;
+      p.prevDimFitness(dim) = p.dimFitness(dim);
+      p.dimFitness    (dim) = f;
     end
     
     function ComputeOverallFitness(p)

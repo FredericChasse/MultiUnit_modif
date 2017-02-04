@@ -7,6 +7,7 @@ classdef Pso_t < AlgoPkg.AbstractAlgoInterface_t
     swarms
     nSwarms
     unitArray
+    oMultiSwarm
     
     % Algo interface
     id_if
@@ -17,20 +18,15 @@ classdef Pso_t < AlgoPkg.AbstractAlgoInterface_t
   methods (Access = public)
     
     % Constructor
-    function pso = Pso_t(id, nParticles, unitArray)
+    function pso = Pso_t(id, nParticles, unitArray, oMultiSwarm)
       import AlgoPkg.PsoPkg.*
       
-      pso.id        = id;
-      pso.unitArray = unitArray;
-      pso.nSwarms   = 1;
-      pso.swarms    = PsoSwarm_t.empty;
-%       dimension     = unitArray.nUnits;
-      pso.swarms(1) = PsoSwarm_t(1, nParticles, unitArray, PsoSimData_t);
-      
-      % Link to units
-      for iDim = 1 : unitArray.nUnits
-        
-      end
+      pso.id          = id;
+      pso.unitArray   = unitArray;
+      pso.nSwarms     = 1;
+      pso.swarms      = PsoSwarm_t.empty;
+      pso.oMultiSwarm = oMultiSwarm;
+      pso.swarms(1)   = PsoSwarm_t(1, nParticles, unitArray, PsoSimData_t);
       
       % Algo interface
       pso.id_if           = 'id';

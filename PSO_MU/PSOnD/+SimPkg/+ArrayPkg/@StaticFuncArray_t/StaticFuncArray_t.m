@@ -12,6 +12,7 @@ classdef StaticFuncArray_t < SimPkg.ArrayPkg.AbstractArrayInterface_t
     nUnits_if
     units_if
     EvaluateFunc_if
+    SplitArrayFunc_if
   end
   
   methods
@@ -29,10 +30,40 @@ classdef StaticFuncArray_t < SimPkg.ArrayPkg.AbstractArrayInterface_t
       end
       
       % Class interface
-      array.id_if           = 'id';
-      array.nUnits_if       = 'nUnits';
-      array.units_if        = 'units';
-      array.EvaluateFunc_if = 'EvalUnit';
+      array.id_if             = 'id';
+      array.nUnits_if         = 'nUnits';
+      array.units_if          = 'units';
+      array.EvaluateFunc_if   = 'EvalUnit';
+      array.SplitArrayFunc_if = 'SplitArray';
+    end
+    
+    function [a1, a2] = SplitArray(array, idxToSplit, newId)
+      import SimPkg.*
+      import SimPkg.ArrayPkg.*
+      import SimPkg.UnitPkg.*
+      
+      idxToKeep = [];
+      for iUnit = 1 : array.nUnits
+        if isempty(find(idxToSplit == iUnit, 1))
+          idxToKeep = [idxToKeep iUnit]; %#ok<AGROW>
+        end
+      end
+      
+      nUnitsToSplit = length(idxToSplit);
+      nUnitsToKeep  = length(idxToKeep );
+      
+      a1 = StaticFuncArray_t(newId    , nUnitsToSplit);
+      a2 = StaticFuncArray_t(newId + 1, nUnitsToKeep);
+      
+      for iUnit = 1 : nUnitsToSplit
+        a1.units(iUnit).Del;
+        a1.units(iUnit) = array.units(idxToSplit(iUnit));
+      end
+      
+      for iUnit = 1 : nUnitsToKeep
+        a2.units(iUnit).Del;
+        a2.units(iUnit) = array.units(idxToKeep(iUnit));
+      end
     end
     
     % Destructor

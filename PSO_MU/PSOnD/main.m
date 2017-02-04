@@ -22,7 +22,8 @@
 %   rngState = rng;
 % end
 % clearvars -except rngState
-clear all %#ok<CLSCR>
+% clear all %#ok<CLSCR>
+clear % This will not remove the breakpoints
 close all
 
 % Next 2 lines are to close any open waitbar
@@ -87,11 +88,12 @@ end
 
 % Perturbations
 %==========================================================================
-idx = zeros(1, array.nUnits);
-for i = 1 : array.nUnits
+nUnitsToPerturb = array.nUnits/2;
+idx = zeros(1, nUnitsToPerturb);
+for i = 1 : nUnitsToPerturb
   idx(i) = array.units(i).id;
 end
-s0Perturb = Perturbation_t(1, array, idx);
+perturb = Perturbation_t(1, array, idx);
 
 if strcmp(typeOfUnits, mfcType)
   perturbAmp = -10;
@@ -101,8 +103,8 @@ else
   error('Must define a type of units!');
 end
 
-s0Perturb.SetAmplitude(perturbAmp);
-s0Perturb.SetActiveIteration(70);
+perturb.SetAmplitude(perturbAmp);
+perturb.SetActiveIteration(70);
 %//////////////////////////////////////////////////////////////////////////
 
 
@@ -118,7 +120,7 @@ for iSim = 1 : nIterations
   
   % Apply perturbations
   %========================================================================
-  s0Perturb.ApplyPerturb(iSim);
+  perturb.ApplyPerturb(iSim);
   %------------------------------------------------------------------------
 end
 

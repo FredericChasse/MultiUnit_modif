@@ -14,6 +14,7 @@ classdef MfcArray_t < SimPkg.ArrayPkg.AbstractArrayInterface_t
     nUnits_if
     units_if
     EvaluateFunc_if
+    SplitArrayFunc_if
   end
   
   methods (Access = public)
@@ -37,11 +38,41 @@ classdef MfcArray_t < SimPkg.ArrayPkg.AbstractArrayInterface_t
       array.nUnits_if         = 'nUnits';
       array.units_if          = 'units';
       array.EvaluateFunc_if   = 'EvaluateMfc';
+      array.SplitArrayFunc_if = 'SplitArray';
     end
     
     % Destructor
     function Del(mfcArray)
       delete(mfcArray);
+    end
+    
+    function [a1, a2] = SplitArray(mfcs, idxToSplit, newId)
+      import SimPkg.*
+      import SimPkg.ArrayPkg.*
+      import SimPkg.UnitPkg.*
+      
+      idxToKeep = [];
+      for iUnit = 1 : mfcs.nUnits
+        if isempty(find(idxToSplit == iUnit, 1))
+          idxToKeep = [idxToKeep iUnit]; %#ok<AGROW>
+        end
+      end
+      
+      nUnitsToSplit = length(idxToSplit);
+      nUnitsToKeep  = length(idxToKeep );
+      
+      a1 = MfcArray_t(newId    , nUnitsToSplit);
+      a2 = MfcArray_t(newId + 1, nUnitsToKeep);
+      
+      for iUnit = 1 : nUnitsToSplit
+        a1.units(iUnit).Del;
+        a1.units(iUnit) = mfcs.units(idxToSplit(iUnit));
+      end
+      
+      for iUnit = 1 : nUnitsToKeep
+        a2.units(iUnit).Del;
+        a2.units(iUnit) = mfcs.units(idxToKeep(iUnit));
+      end
     end
     
     function ComputeBetaGamma(mfcs, ids, meanRext, meanPout)

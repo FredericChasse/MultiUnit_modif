@@ -3,6 +3,7 @@ classdef PsoSwarm_t < handle
  
   properties
     id
+    swarmIteration
     nParticles
     particles
     gbest
@@ -32,6 +33,7 @@ classdef PsoSwarm_t < handle
       import AlgoPkg.PsoPkg.*
       import AlgoPkg.Position_t;
       s.particles             = Particle_t.empty;
+      s.swarmIteration        = 0;
       s.c1                    = 0;
       s.c2                    = 0;
       s.posMin                = 0;
@@ -57,60 +59,6 @@ classdef PsoSwarm_t < handle
     %======================================================================
     function Del(s)
       delete(s);
-    end
-    %//////////////////////////////////////////////////////////////////////
-    
-    %======================================================================
-    function RunIteration(s, iteration)
-      
-      % Compute pbest and gbest
-      %--------------------------------------------------------------------
-      for iParticle = 1 : s.nParticles
-        s.particles(iParticle).ComputeOverallFitness;
-        s.particles(iParticle).ComputePbest;
-      end
-      s.ComputeGbest;
-      %____________________________________________________________________
-      
-      % Check for steady state
-      %--------------------------------------------------------------------
-      s.steadyState.AddSample(s.GetParticlesPos);
-      s.steadyState.EvaluateSteadyState;
-      %____________________________________________________________________
-      
-      % Check for perturbations
-      %--------------------------------------------------------------------
-      particlesPerturbed = s.CheckForPerturbation;
-      if particlesPerturbed ~= 0 % Perturbation occured
-        if s.oMoveParticles == 0
-          s.oResetParticles = 1;
-          s.oMoveParticles  = 1;
-        end
-      end
-      %____________________________________________________________________
-      
-      % Compute next positions
-      %--------------------------------------------------------------------
-      if s.oResetParticles == 1
-        s.oResetParticles = 0;
-        for iParticle = 1 : s.nParticles
-          s.RandomizeParticlesPos();
-          s.particles(iParticle).InitSpeed(s);
-        end
-      else
-        if iteration == 1
-          for iParticle = 1 : s.nParticles
-            s.particles(iParticle).InitSpeed (s);
-            s.particles(iParticle).ComputePos(s);
-          end
-        else
-          for iParticle = 1 : s.nParticles
-            s.particles(iParticle).ComputeSpeed(s);
-            s.particles(iParticle).ComputePos  (s);
-          end
-        end
-      end
-      %____________________________________________________________________
     end
     %//////////////////////////////////////////////////////////////////////
     
@@ -262,11 +210,80 @@ classdef PsoSwarm_t < handle
     %//////////////////////////////////////////////////////////////////////
     
     %======================================================================
+    function idx = CheckForDimensionalPerturbation(s, particlesPerturbed)
+      idx = [];
+      p = s.particles(particlesPerturbed(1));
+      for iDim = 1 : s.dimension
+        if p.dimFitness(iDim) ~= p.prevDimFitness
+          idx = [idx iDim]; %#ok<AGROW>
+        end
+      end
+      if isempty(idx)
+        idx = 0;
+      end
+    end
+    %//////////////////////////////////////////////////////////////////////
+    
+    %======================================================================
     ComputeGbest(s);
     %//////////////////////////////////////////////////////////////////////
     
     %======================================================================
     RandomizeParticlesPos(s);
+    %//////////////////////////////////////////////////////////////////////
+    
+    %======================================================================
+    function RunIteration(s, iteration)
+      
+      % Compute pbest and gbest
+      %--------------------------------------------------------------------
+      for iParticle = 1 : s.nParticles
+        s.particles(iParticle).ComputeOverallFitness;
+        s.particles(iParticle).ComputePbest;
+      end
+      s.ComputeGbest;
+      %____________________________________________________________________
+      
+      % Check for steady state
+      %--------------------------------------------------------------------
+      s.steadyState.AddSample(s.GetParticlesPos);
+      s.steadyState.EvaluateSteadyState;
+      %____________________________________________________________________
+      
+      % Check for perturbations
+      %--------------------------------------------------------------------
+      particlesPerturbed = s.CheckForPerturbation;
+      if particlesPerturbed ~= 0 % Perturbation occured
+        if s.oMoveParticles == 0
+          s.oResetParticles = 1;
+          s.oMoveParticles  = 1;
+        end
+      end
+      %____________________________________________________________________
+      
+      % Compute next positions
+      %--------------------------------------------------------------------
+      if s.oResetParticles == 1
+        s.oResetParticles = 0;
+        for iParticle = 1 : s.nParticles
+          s.RandomizeParticlesPos();
+          s.particles(iParticle).InitSpeed(s);
+        end
+      else
+        if iteration == 1
+          for iParticle = 1 : s.nParticles
+            s.particles(iParticle).InitSpeed (s);
+            s.particles(iParticle).ComputePos(s);
+          end
+        else
+          for iParticle = 1 : s.nParticles
+            s.particles(iParticle).ComputeSpeed(s);
+            s.particles(iParticle).ComputePos  (s);
+          end
+        end
+      end
+      %____________________________________________________________________
+    end
     %//////////////////////////////////////////////////////////////////////
     
   end

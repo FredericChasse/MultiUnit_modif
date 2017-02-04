@@ -2,6 +2,7 @@ function [ ] = RunPso( pso, iteration )
 
 for iSwarm = 1 : pso.nSwarms
   swarm = pso.swarms(iSwarm);
+  swarm.swarmIteration = swarm.swarmIteration + 1;
   
   % Compute the fitness of each unit
   %--------------------------------------------------------------------
@@ -32,7 +33,7 @@ for iSwarm = 1 : pso.nSwarms
     swarm.oMoveParticles = 0;
   end
   %____________________________________________________________________
-  
+
   % SimData
   %--------------------------------------------------------------------
   swarm.simData.AddData ( swarm.GetParticlesSpeed           ...
@@ -42,20 +43,28 @@ for iSwarm = 1 : pso.nSwarms
                         , swarm.GetParticlesPbest           ...
                         , swarm.GetGbest                    ...
                         , swarm.steadyState.oInSteadyState  ...
-                        , iteration                         ...
+                        , swarm.swarmIteration              ...
                         );
+  %____________________________________________________________________
 
   % Check for perturbations
   %--------------------------------------------------------------------
-  particlesPerturbed = swarm.CheckForPerturbation;
-  if particlesPerturbed ~= 0 % Perturbation occured
+  particlesPerturbedIdx = swarm.CheckForPerturbation;
+  if particlesPerturbedIdx ~= 0 % Perturbation occured
     if swarm.oMoveParticles == 0
       swarm.oResetParticles = 1;
       swarm.oMoveParticles  = 1;
+      
+      if pso.oMultiSwarm == 1
+        unitsPerturbedIdx = swarm.CheckForDimensionalPerturbation(particlesPerturbedIdx);
+        tmpUnitArray = pso.unitArray;
+        perturbedArray = pso.unitArray;
+        perturbArray(unitsPerturbedIdx) = [];
+      end
     end
   end
   %____________________________________________________________________
-
+  
   % Compute next positions
   %--------------------------------------------------------------------
   if swarm.oResetParticles == 1
@@ -65,7 +74,7 @@ for iSwarm = 1 : pso.nSwarms
       swarm.particles(iParticle).InitSpeed(swarm);
     end
   else
-    if iteration == 1
+    if swarm.swarmIteration == 1
       for iParticle = 1 : swarm.nParticles
         swarm.particles(iParticle).InitSpeed (swarm);
         swarm.particles(iParticle).ComputePos(swarm);

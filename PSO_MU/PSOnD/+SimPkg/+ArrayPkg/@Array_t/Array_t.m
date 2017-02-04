@@ -11,6 +11,7 @@ classdef Array_t < SimPkg.ArrayPkg.AbstractArrayInterface_t
     nUnits_if
     units_if
     EvaluateFunc_if
+    SplitArrayFunc_if
   end
   
   methods
@@ -22,16 +23,27 @@ classdef Array_t < SimPkg.ArrayPkg.AbstractArrayInterface_t
       array.obj = obj;
       
       % From class interface
-      array.id_if           = obj.id_if;
-      array.nUnits_if       = obj.nUnits_if;
-      array.units_if        = obj.units_if;
-      array.EvaluateFunc_if = obj.EvaluateFunc_if;
+      array.id_if             = obj.id_if;
+      array.nUnits_if         = obj.nUnits_if;
+      array.units_if          = obj.units_if;
+      array.EvaluateFunc_if   = obj.EvaluateFunc_if;
+      array.SplitArrayFunc_if = obj.SplitArrayFunc_if;
       
       % Create array of units based on object received
       array.units = Unit_t.empty;
       for i = 1 : obj.(array.nUnits_if)
         array.units(i) = Unit_t(array.obj.(array.units_if)(i));
       end
+    end
+    
+    function [a1, a2] = SplitArray(array, idxToSplit, newId)
+      import SimPkg.*
+      import SimPkg.ArrayPkg.*
+      import SimPkg.UnitPkg.*
+      
+      [a1, a2] = array.obj.(array.SplitArrayFunc_if)(idxToSplit, newId);
+      a1 = Array_t(a1);
+      a2 = Array_t(a2);
     end
     
     % Destructor
