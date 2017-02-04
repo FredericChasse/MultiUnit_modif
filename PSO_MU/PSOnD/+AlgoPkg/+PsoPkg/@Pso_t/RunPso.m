@@ -57,9 +57,10 @@ for iSwarm = 1 : pso.nSwarms
       
       if pso.oMultiSwarm == 1
         unitsPerturbedIdx = swarm.CheckForDimensionalPerturbation(particlesPerturbedIdx);
-        tmpUnitArray = pso.unitArray;
-        perturbedArray = pso.unitArray;
-        perturbArray(unitsPerturbedIdx) = [];
+        [a1 a2] = pso.unitArray.SplitArray(unitsPerturbedIdx, pso.nSwarms + 1);
+        
+        s1 = PsoSwarm_t(pso.nSwarms + 1, nParticles, a1, PsoSimData_t);
+        s2 = PsoSwarm_t(pso.nSwarms + 2, nParticles, a2, PsoSimData_t);
       end
     end
   end
