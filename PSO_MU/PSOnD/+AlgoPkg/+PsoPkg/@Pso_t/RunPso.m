@@ -59,8 +59,16 @@ for iSwarm = 1 : pso.nSwarms
         unitsPerturbedIdx = swarm.CheckForDimensionalPerturbation(particlesPerturbedIdx);
         [a1 a2] = pso.unitArray.SplitArray(unitsPerturbedIdx, pso.nSwarms + 1);
         
-        s1 = PsoSwarm_t(pso.nSwarms + 1, nParticles, a1, PsoSimData_t);
-        s2 = PsoSwarm_t(pso.nSwarms + 2, nParticles, a2, PsoSimData_t);
+        s1 = PsoSwarm_t(pso.nSwarms + 1, pso.swarms(1).nParticles, a1, PsoSimData_t);
+        s2 = PsoSwarm_t(pso.nSwarms + 2, pso.swarms(1).nParticles, a2, PsoSimData_t);
+        
+        s1.SetSteadyState([pso.swarms(1).nParticles a1.nUnits], pso.swarms(1).ssOscAmp, pso.swarms(1).nSamples4ss);
+        s1.SetParam(pso.swarms(1).c1, pso.swarms(1).c2, pso.swarms(1).omega, pso.swarms(1).decimals, pso.swarms(1).posRes, pso.swarms(1).posMin, pso.swarms(1).posMax);
+        s1.RandomizeParticlesPos();
+        
+        s2.SetSteadyState([pso.swarms(1).nParticles a2.nUnits], pso.swarms(1).ssOscAmp, pso.swarms(1).nSamples4ss);
+        s2.SetParam(pso.swarms(1).c1, pso.swarms(1).c2, pso.swarms(1).omega, pso.swarms(1).decimals, pso.swarms(1).posRes, pso.swarms(1).posMin, pso.swarms(1).posMax);
+        s2.RandomizeParticlesPos();
       end
     end
   end
