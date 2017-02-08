@@ -88,23 +88,27 @@ end
 
 % Perturbations
 %==========================================================================
-nUnitsToPerturb = array.nUnits/2;
-idx = zeros(1, nUnitsToPerturb);
-for i = 1 : nUnitsToPerturb
-  idx(i) = array.units(i).id;
-end
-perturb = Perturbation_t(1, array, idx);
+nPerturbToApply = 1;
 
-if strcmp(typeOfUnits, mfcType)
-  perturbAmp = -10;
-elseif strcmp(typeOfUnits, staticFunctionType)
-  perturbAmp = [10 -3];
-else
-  error('Must define a type of units!');
-end
+for iPerturb = 1 : nPerturbToApply
+  nUnitsToPerturb = array.nUnits/2;
+  idx = zeros(1, nUnitsToPerturb);
+  for i = 1 : nUnitsToPerturb
+    idx(i) = array.units(i).id;
+  end
+  perturb(iPerturb) = Perturbation_t(1, array, idx); %#ok<SAGROW>
 
-perturb.SetAmplitude(perturbAmp);
-perturb.SetActiveIteration(110);
+  if strcmp(typeOfUnits, mfcType)
+    perturbAmp = -10;
+  elseif strcmp(typeOfUnits, staticFunctionType)
+    perturbAmp = [10 -3];
+  else
+    error('Must define a type of units!');
+  end
+
+perturb(iPerturb).SetAmplitude(perturbAmp);
+perturb(iPerturb).SetActiveIteration(110);
+end
 %//////////////////////////////////////////////////////////////////////////
 
 
@@ -120,7 +124,9 @@ for iSim = 1 : nIterations
   
   % Apply perturbations
   %========================================================================
-  perturb.ApplyPerturb(iSim);
+  for iPerturb = 1 : nPerturbToApply
+    perturb(iPerturb).ApplyPerturb(iSim);
+  end
   %------------------------------------------------------------------------
 end
 

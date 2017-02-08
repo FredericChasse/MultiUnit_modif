@@ -4,6 +4,7 @@ classdef MfcArray_t < SimPkg.ArrayPkg.AbstractArrayInterface_t
     id
     units
     nUnits
+    realTimeElapsed
     integrationTime
     odeOptions
   end
@@ -23,7 +24,8 @@ classdef MfcArray_t < SimPkg.ArrayPkg.AbstractArrayInterface_t
     function array = MfcArray_t(id, nUnits)
       import SimPkg.UnitPkg.*
       
-      array.id            = id;
+      array.id              = id;
+      array.realTimeElapsed = 0;
       
       array.units = Mfc_t.empty;
       for iMfc = 1 : nUnits
@@ -87,6 +89,7 @@ classdef MfcArray_t < SimPkg.ArrayPkg.AbstractArrayInterface_t
       [time, dynamics] = ode15s('mfcModel', [0 mfcs.integrationTime], mfcs.units(id).dynamics, mfcs.odeOptions, mfcs.units(id).s0, mfcs.units(id).rext);
       mfcs.units(id).dynamics = dynamics(end, :);
       timeElapsed = time(end);
+      mfcs.realTimeElapsed = mfcs.realTimeElapsed+ timeElapsed;
       [~, mfcs.units(id).pout] = mfcModel(mfcs.integrationTime, mfcs.units(id).dynamics, mfcs.odeOptions, mfcs.units(id).s0, mfcs.units(id).rext);
     end
     
