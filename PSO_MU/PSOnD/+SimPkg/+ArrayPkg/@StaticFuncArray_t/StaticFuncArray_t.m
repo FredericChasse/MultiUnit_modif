@@ -37,7 +37,7 @@ classdef StaticFuncArray_t < SimPkg.ArrayPkg.AbstractArrayInterface_t
       array.SplitArrayFunc_if = 'SplitArray';
     end
     
-    function [a1, a2] = SplitArray(array, idxToSplit, newId)
+    function [aSplit, aKeep, idxToKeep] = SplitArray(array, idxToSplit, newId)
       import SimPkg.*
       import SimPkg.ArrayPkg.*
       import SimPkg.UnitPkg.*
@@ -52,17 +52,17 @@ classdef StaticFuncArray_t < SimPkg.ArrayPkg.AbstractArrayInterface_t
       nUnitsToSplit = length(idxToSplit);
       nUnitsToKeep  = length(idxToKeep );
       
-      a1 = StaticFuncArray_t(newId    , nUnitsToSplit);
-      a2 = StaticFuncArray_t(newId + 1, nUnitsToKeep);
+      aSplit = StaticFuncArray_t(newId    , nUnitsToSplit);
+      aKeep  = StaticFuncArray_t(newId + 1, nUnitsToKeep);
       
       for iUnit = 1 : nUnitsToSplit
-        a1.units(iUnit).Del;
-        a1.units(iUnit) = array.units(idxToSplit(iUnit));
+        aSplit.units(iUnit).Del;
+        aSplit.units(iUnit) = array.units(idxToSplit(iUnit));
       end
       
       for iUnit = 1 : nUnitsToKeep
-        a2.units(iUnit).Del;
-        a2.units(iUnit) = array.units(idxToKeep(iUnit));
+        aKeep.units(iUnit).Del;
+        aKeep.units(iUnit) = array.units(idxToKeep(iUnit));
       end
     end
     

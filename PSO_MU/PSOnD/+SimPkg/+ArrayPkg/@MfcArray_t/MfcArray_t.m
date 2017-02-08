@@ -46,7 +46,7 @@ classdef MfcArray_t < SimPkg.ArrayPkg.AbstractArrayInterface_t
       delete(mfcArray);
     end
     
-    function [a1, a2] = SplitArray(mfcs, idxToSplit, newId)
+    function [aSplit, aKeep, idxToKeep] = SplitArray(mfcs, idxToSplit, newId)
       import SimPkg.*
       import SimPkg.ArrayPkg.*
       import SimPkg.UnitPkg.*
@@ -61,17 +61,17 @@ classdef MfcArray_t < SimPkg.ArrayPkg.AbstractArrayInterface_t
       nUnitsToSplit = length(idxToSplit);
       nUnitsToKeep  = length(idxToKeep );
       
-      a1 = MfcArray_t(newId    , nUnitsToSplit);
-      a2 = MfcArray_t(newId + 1, nUnitsToKeep);
+      aSplit = MfcArray_t(newId    , nUnitsToSplit);
+      aKeep  = MfcArray_t(newId + 1, nUnitsToKeep);
       
       for iUnit = 1 : nUnitsToSplit
-        a1.units(iUnit).Del;
-        a1.units(iUnit) = mfcs.units(idxToSplit(iUnit));
+        aSplit.units(iUnit).Del;
+        aSplit.units(iUnit) = mfcs.units(idxToSplit(iUnit));
       end
       
       for iUnit = 1 : nUnitsToKeep
-        a2.units(iUnit).Del;
-        a2.units(iUnit) = mfcs.units(idxToKeep(iUnit));
+        aKeep.units(iUnit).Del;
+        aKeep.units(iUnit) = mfcs.units(idxToKeep(iUnit));
       end
     end
     

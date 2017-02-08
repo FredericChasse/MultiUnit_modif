@@ -8,6 +8,8 @@ classdef Pso_t < AlgoPkg.AbstractAlgoInterface_t
     nSwarms
     unitArray
     oMultiSwarm
+    simData
+    nSimData
     
     % Algo interface
     id_if
@@ -27,6 +29,8 @@ classdef Pso_t < AlgoPkg.AbstractAlgoInterface_t
       pso.swarms      = PsoSwarm_t.empty;
       pso.oMultiSwarm = oMultiSwarm;
       pso.swarms(1)   = PsoSwarm_t(1, nParticles, unitArray, PsoSimData_t);
+      pso.simData{1}  = {pso.swarms(1).simData};
+      pso.nSimData    = 1;
       
       % Algo interface
       pso.id_if           = 'id';

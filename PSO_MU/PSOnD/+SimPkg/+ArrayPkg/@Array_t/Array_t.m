@@ -36,14 +36,14 @@ classdef Array_t < SimPkg.ArrayPkg.AbstractArrayInterface_t
       end
     end
     
-    function [a1, a2] = SplitArray(array, idxToSplit, newId)
+    function [aSplit, aKeep, idxToKeep] = SplitArray(array, idxToSplit, newId)
       import SimPkg.*
       import SimPkg.ArrayPkg.*
       import SimPkg.UnitPkg.*
       
-      [a1, a2] = array.obj.(array.SplitArrayFunc_if)(idxToSplit, newId);
-      a1 = Array_t(a1);
-      a2 = Array_t(a2);
+      [aSplit, aKeep, idxToKeep] = array.obj.(array.SplitArrayFunc_if)(idxToSplit, newId);
+      aSplit = Array_t(aSplit);
+      aKeep = Array_t(aKeep);
     end
     
     % Destructor

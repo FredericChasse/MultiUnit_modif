@@ -42,7 +42,7 @@ import AlgoPkg.PsoPkg.*
 
 % Simulation environment
 %==========================================================================
-nIterations = 100;    % Iterations of the main loop
+nIterations = 200;    % Iterations of the main loop
 
 simRealTime = 0;      % Keep track of the "real-time" in days
 
@@ -54,7 +54,7 @@ wbh = waitbar(0, ['Sim iteration: ' num2str(0)]);  % Waitbar handle
 
 % Unit array
 %==========================================================================
-nUnits = 2;
+nUnits = 10;
 
 mfcType             = 'mfc';
 staticFunctionType  = 'static function';
@@ -104,7 +104,7 @@ else
 end
 
 perturb.SetAmplitude(perturbAmp);
-perturb.SetActiveIteration(70);
+perturb.SetActiveIteration(110);
 %//////////////////////////////////////////////////////////////////////////
 
 
@@ -126,15 +126,25 @@ end
 
 % For debug purposes
 %==========================================================================
-simData = pso.swarms(1).simData;
-d = simData.FormatToArray(simData.d);
-v = simData.FormatToArray(simData.speed);
-j = simData.FormatToArray(simData.j);
-jSingle = simData.FormatToArray(simData.jSingle);
-pbest = simData.FormatToArray(simData.pbest);
-gbest = simData.FormatToArray(simData.gbest);
-i = simData.FormatToArray(simData.iteration);
-ss = simData.FormatToArray(simData.oInSteadyState);
+for iSimData = 1 : pso.nSimData
+  simData = pso.simData{iSimData}{1};
+  eval(['d'       num2str(iSimData) ' = simData.FormatToArray(simData.d);'              ]);
+  eval(['v'       num2str(iSimData) ' = simData.FormatToArray(simData.speed);'          ]);
+  eval(['j'       num2str(iSimData) ' = simData.FormatToArray(simData.j);'              ]);
+  eval(['jSingle' num2str(iSimData) ' = simData.FormatToArray(simData.jSingle);'        ]);
+  eval(['pbest'   num2str(iSimData) ' = simData.FormatToArray(simData.pbest);'          ]);
+  eval(['gbest'   num2str(iSimData) ' = simData.FormatToArray(simData.gbest);'          ]);
+  eval(['i'       num2str(iSimData) ' = simData.FormatToArray(simData.iteration);'      ]);
+  eval(['ss'      num2str(iSimData) ' = simData.FormatToArray(simData.oInSteadyState);' ]);
+%   d = simData.FormatToArray(simData.d);
+%   v = simData.FormatToArray(simData.speed);
+%   j = simData.FormatToArray(simData.j);
+%   jSingle = simData.FormatToArray(simData.jSingle);
+%   pbest = simData.FormatToArray(simData.pbest);
+%   gbest = simData.FormatToArray(simData.gbest);
+%   i = simData.FormatToArray(simData.iteration);
+%   ss = simData.FormatToArray(simData.oInSteadyState);
+end
 %//////////////////////////////////////////////////////////////////////////
 
 close(wbh)
