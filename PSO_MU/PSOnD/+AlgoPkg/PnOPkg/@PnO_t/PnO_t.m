@@ -11,6 +11,8 @@ classdef PnO_t < AlgoPkg.AbstractAlgoInterface_t
     % Algo interface
     id_if
     unitArray_if
+    simData_if
+    nSimData_if
     RunAlgoFunc_if
   end
   
@@ -22,11 +24,13 @@ classdef PnO_t < AlgoPkg.AbstractAlgoInterface_t
       
       pno.id          = id;
       pno.unitArray   = unitArray;
-      pno.simData     = PoSimData_t;
+      pno.simData     = PnOSimData_t;
       
       % Algo interface
       pno.id_if           = 'id';
       pno.unitArray_if    = 'unitArray';
+      pso.simData_if      = 'simData';
+      pso.nSimData_if     = 'nSimData';
       pno.RunAlgoFunc_if  = 'RunPnO';
     end
     

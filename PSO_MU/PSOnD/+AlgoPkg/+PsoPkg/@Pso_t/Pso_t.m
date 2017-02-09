@@ -14,6 +14,8 @@ classdef Pso_t < AlgoPkg.AbstractAlgoInterface_t
     % Algo interface
     id_if
     unitArray_if
+    simData_if
+    nSimData_if
     RunAlgoFunc_if
   end
   
@@ -35,6 +37,8 @@ classdef Pso_t < AlgoPkg.AbstractAlgoInterface_t
       % Algo interface
       pso.id_if           = 'id';
       pso.unitArray_if    = 'unitArray';
+      pso.simData_if      = 'simData';
+      pso.nSimData_if     = 'nSimData';
       pso.RunAlgoFunc_if  = 'RunPso';
     end
     

@@ -7,6 +7,8 @@ classdef Algo_t < AlgoPkg.AbstractAlgoInterface_t
     % Algo interface
     id_if
     unitArray_if
+    simData_if
+    nSimData_if
     RunAlgoFunc_if
   end
   
@@ -20,6 +22,8 @@ classdef Algo_t < AlgoPkg.AbstractAlgoInterface_t
       % Algo interface
       algo.id_if          = obj.id_if;
       algo.unitArray_if   = obj.unitArray_if;
+      algo.simData_if     = obj.simData_if;
+      algo.nSimData_if    = obj.nSimData_if;
       algo.RunAlgoFunc_if = obj.RunAlgoFunc_if;
     end
     
@@ -36,6 +40,16 @@ classdef Algo_t < AlgoPkg.AbstractAlgoInterface_t
     % Algo run
     function RunAlgoIteration(algo, iteration)
       algo.obj.(algo.RunAlgoFunc_if)(iteration);
+    end
+    
+    % SimData
+    function simData = simData(algo)
+      simData = algo.obj.(algo.simData_if);
+    end
+    
+    % nSimData
+    function nSimData = nSimData(algo)
+      nSimData = algo.obj.(algo.nSimData_if);
     end
     
   end
