@@ -23,8 +23,15 @@
 % end
 % clearvars -except rngState
 % clear all %#ok<CLSCR>
-clear % This will not remove the breakpoints
+% clear % This will not remove the breakpoints
 close all
+clearvars -except rngState
+
+if ~exist('rngState', 'var')
+  rngState = rng;
+end
+
+rng(rngState);
 
 % Next 2 lines are to close any open waitbar
 f = findall(0,'tag','TMWWaitbar');
@@ -54,7 +61,7 @@ wbh = waitbar(0, ['Sim iteration: ' num2str(0)]);  % Waitbar handle
 
 % Unit array
 %==========================================================================
-nUnits = 10;
+nUnits = 6;
 
 mfcType             = 'mfc';
 staticFunctionType  = 'static function';

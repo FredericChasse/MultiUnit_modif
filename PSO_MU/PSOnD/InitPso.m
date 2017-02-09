@@ -1,7 +1,7 @@
 nParticles  = 8;
 psoId       = 1;
 dimension   = array.nUnits;
-oMultiSwarm = 1;
+oMultiSwarm = 0;
 pso = Pso_t(psoId, nParticles, array, oMultiSwarm);
 
 c1        = 1;
