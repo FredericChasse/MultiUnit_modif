@@ -2,12 +2,11 @@ extSeekId   = 1;
 extSeek = ExtSeek_t(extSeekId, array);
 
 if strcmp(typeOfUnits, mfcType)
-  ap = 2;
-  unitFreq = 1 / array.unitEvalTime;
-  wp = unitFreq / 10 * 2 * pi;
+  ap = 10;
+  wp = 0.001;
   wl = wp / 5;
-  wh = wl / 5;
-  k  = 2;
+  wh = wl;
+  k  = 5;
   umin = 1;
   umax = 1000;
   uInit = 20;
