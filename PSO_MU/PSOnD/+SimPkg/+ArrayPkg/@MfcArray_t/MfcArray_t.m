@@ -4,6 +4,7 @@ classdef MfcArray_t < SimPkg.ArrayPkg.AbstractArrayInterface_t
     id
     units
     nUnits
+    mfcModel
     realTimeElapsed
     integrationTime
     odeOptions
@@ -23,7 +24,7 @@ classdef MfcArray_t < SimPkg.ArrayPkg.AbstractArrayInterface_t
   methods (Access = public)
     
     % Constructor
-    function array = MfcArray_t(id, nUnits, integrationTime)
+    function array = MfcArray_t(id, nUnits, integrationTime, mfcModel)
       import SimPkg.UnitPkg.*
       
       array.id              = id;
@@ -31,11 +32,12 @@ classdef MfcArray_t < SimPkg.ArrayPkg.AbstractArrayInterface_t
       
       array.units = Mfc_t.empty;
       for iMfc = 1 : nUnits
-        array.units(iMfc) = Mfc_t(iMfc);
+        array.units(iMfc) = Mfc_t(iMfc, mfcModel);
       end
       array.nUnits          = nUnits;
       array.integrationTime = integrationTime;
       array.odeOptions      = odeset('RelTol',1e-6,'AbsTol',1e-9);
+      array.mfcModel        = mfcModel;
       
       % Class interface
       array.id_if               = 'id';
@@ -67,8 +69,8 @@ classdef MfcArray_t < SimPkg.ArrayPkg.AbstractArrayInterface_t
       nUnitsToSplit = length(idxToSplit);
       nUnitsToKeep  = length(idxToKeep );
       
-      aSplit = MfcArray_t(newId    , nUnitsToSplit, mfcs.integrationTime);
-      aKeep  = MfcArray_t(newId + 1, nUnitsToKeep , mfcs.integrationTime);
+      aSplit = MfcArray_t(newId    , nUnitsToSplit, mfcs.integrationTime, mfcs.mfcModel);
+      aKeep  = MfcArray_t(newId + 1, nUnitsToKeep , mfcs.integrationTime, mfcs.mfcModel);
       
       for iUnit = 1 : nUnitsToSplit
         aSplit.units(iUnit).Del;
@@ -90,11 +92,12 @@ classdef MfcArray_t < SimPkg.ArrayPkg.AbstractArrayInterface_t
     end
     
     function timeElapsed = EvaluateMfc(mfcs, id)
-      [time, dynamics] = ode15s('mfcModel', [0 mfcs.integrationTime], mfcs.units(id).dynamics, mfcs.odeOptions, mfcs.units(id).s0, mfcs.units(id).rext);
+      [time, dynamics] = ode15s(mfcs.mfcModel, [0 mfcs.integrationTime], mfcs.units(id).dynamics, mfcs.odeOptions, mfcs.units(id).s0, mfcs.units(id).rext);
       mfcs.units(id).dynamics = dynamics(end, :);
       timeElapsed = time(end);
       mfcs.realTimeElapsed = mfcs.realTimeElapsed+ timeElapsed;
-      [~, mfcs.units(id).pout] = mfcModel(mfcs.integrationTime, mfcs.units(id).dynamics, mfcs.odeOptions, mfcs.units(id).s0, mfcs.units(id).rext);
+      fh = str2func(mfcs.mfcModel);
+      [~, mfcs.units(id).pout] = fh(mfcs.integrationTime, mfcs.units(id).dynamics, mfcs.odeOptions, mfcs.units(id).s0, mfcs.units(id).rext);
     end
     
   end

@@ -2,14 +2,22 @@ extSeekId   = 1;
 extSeek = ExtSeek_t(extSeekId, array);
 
 if strcmp(typeOfUnits, mfcType)
-  ap = 10;
-  wp = 0.001;
+%   ap = 10;
+%   wp = 0.001;
+%   wl = wp / 5;
+%   wh = wl;
+%   k  = 5;
+%   umin = 1;
+%   umax = 1000;
+%   uInit = 20;
+  ap = 20;
+  wp = 0.1;
   wl = wp / 5;
   wh = wl;
-  k  = 5;
+  k  = 100;
   umin = 1;
   umax = 1000;
-  uInit = 20;
+  uInit = 1;
 elseif strcmp(typeOfUnits, staticFunctionType)
   ap = 10;
   wp = 1.5;

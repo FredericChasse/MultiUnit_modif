@@ -4,6 +4,7 @@ classdef Perturbation_t < handle
     id
     amp
     iActive
+    oDoPerturb
     unitsToPerturb
     nUnitsToPerturb
     unitArray
@@ -12,11 +13,12 @@ classdef Perturbation_t < handle
   methods
     
     % Constructor
-    function p = Perturbation_t(id, array, unitsToAffect)
+    function p = Perturbation_t(id, array, unitsToAffect, oDoPerturb)
       p.id              = id;
       p.unitArray       = array;
       p.amp             = 0;
       p.iActive         = 0;
+      p.oDoPerturb      = oDoPerturb;
       p.unitsToPerturb  = unitsToAffect;
       p.nUnitsToPerturb = length(unitsToAffect);
     end
@@ -27,11 +29,13 @@ classdef Perturbation_t < handle
     end
     
     function ApplyPerturb(p, curIteration)
-      if curIteration == p.iActive
-        for iUnit = 1 : p.nUnitsToPerturb
-          idx = p.unitsToPerturb(iUnit);
-          p.unitArray.units(idx).ApplyPerturb(p.amp);
-%           p.unitArray.units(idx).unit_input = p.unitArray.units(idx).unit_input + p.amp;
+      if p.oDoPerturb
+        if curIteration == p.iActive
+          for iUnit = 1 : p.nUnitsToPerturb
+            idx = p.unitsToPerturb(iUnit);
+            p.unitArray.units(idx).ApplyPerturb(p.amp);
+  %           p.unitArray.units(idx).unit_input = p.unitArray.units(idx).unit_input + p.amp;
+          end
         end
       end
     end

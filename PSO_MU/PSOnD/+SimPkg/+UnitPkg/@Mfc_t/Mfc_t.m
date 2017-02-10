@@ -23,7 +23,7 @@ classdef Mfc_t < SimPkg.UnitPkg.AbstractUnitInterface_t
   methods
     
     % Constructor
-    function mfc = Mfc_t(id)
+    function mfc = Mfc_t(id, mfcModel)
       import SimEnvironmentPkg.UnitPkg.*
       mfc.id          = id;
       mfc.rext        = 0;
@@ -31,9 +31,13 @@ classdef Mfc_t < SimPkg.UnitPkg.AbstractUnitInterface_t
       mfc.pout        = 0;
       mfc.beta        = 0;
       mfc.gamma       = 0;
-      mfc.dynamics    = [20.8395 498.2432 2.0000 0.0412];
-      % mfcDynamics   = [20.8395  498.2432    2.0000    0.0412];
-      % mfcDynamics   = [5.726117682433310 0.030299840936202];
+      if strcmp(mfcModel, 'mfcModel')
+        mfc.dynamics    = [20.8395 498.2432 2.0000 0.0412];
+      elseif strcmp(mfcModel, 'mfcModelFast')
+        mfc.dynamics    = [5.726117682433310 0.030299840936202];
+      else
+        error('Must define a valid model for MFC')
+      end
       
       % Class interface
       mfc.id_if         = 'id';

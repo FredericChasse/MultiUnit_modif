@@ -44,19 +44,51 @@ import SimPkg.ArrayPkg.*
 import AlgoPkg.*
 import AlgoPkg.LinkPkg.*
 import AlgoPkg.PsoPkg.*
-import AlgoPkg.PnOPkg.*
+import AlgoPkg.ExtSeekPkg.*
+%//////////////////////////////////////////////////////////////////////////
+
+
+% Simulation environment
+%==========================================================================
+
+% Type of unit
+%-------------------------------------------
+mfcType             = 'mfc';
+staticFunctionType  = 'static function';
+
+typeOfUnits = mfcType;
+% typeOfUnits = staticFunctionType;
+%-------------------------------------------
+
+% Type of algo
+%-------------------------------------------
+psoType = 'pso';
+extremumSeekType = 'extSeek';
+% typeOfAlgo = psoType;
+typeOfAlgo = extremumSeekType;
+%-------------------------------------------
+
+if strcmp(typeOfAlgo, psoType)
+  nIterations = 200;
+elseif strcmp(typeOfAlgo, extremumSeekType)
+  if strcmp(typeOfUnits, mfcType)
+    nIterations = 10000;
+  elseif strcmp(typeOfUnits, staticFunctionType)
+    nIterations = 1000;
+  else
+    error('Must define a type of units!');
+  end
+else
+  error('Must define a type of algorithm!');
+end
+
+wbh = waitbar(0, ['Sim : ' num2str(0) '/' num2str(nIterations)]);  % Waitbar handle
 %//////////////////////////////////////////////////////////////////////////
 
 
 % Unit array
 %==========================================================================
 nUnits = 1;
-
-mfcType             = 'mfc';
-staticFunctionType  = 'static function';
-
-typeOfUnits = mfcType;
-% typeOfUnits = staticFunctionType;
 
 if strcmp(typeOfUnits, mfcType)
   InitMfc
@@ -70,11 +102,6 @@ end
 
 % Algo init
 %==========================================================================
-psoType = 'pso';
-extremumSeekType = 'extSeek';
-
-% typeOfAlgo = psoType;
-typeOfAlgo = extremumSeekType;
 
 if strcmp(typeOfAlgo, psoType)
   InitPso
@@ -86,33 +113,10 @@ end
 %//////////////////////////////////////////////////////////////////////////
 
 
-% Simulation environment
-%==========================================================================
-
-if strcmp(typeOfAlgo, psoType)
-  nIterations = 200;
-elseif strcmp(typeOfAlgo, extremumSeekType)
-  if strcmp(typeOfUnits, mfcType)
-    nIterations = 1000;
-  elseif strcmp(typeOfUnits, staticFunctionType)
-    nIterations = 1000;
-  else
-    error('Must define a type of units!');
-  end
-else
-  error('Must define a type of algorithm!');
-end
-
-simRealTime = 0;      % Keep track of the "real-time" in days
-
-% simData = PsoSimData_t;  % Data structure
-
-wbh = waitbar(0, ['Sim iteration: ' num2str(0)]);  % Waitbar handle
-%//////////////////////////////////////////////////////////////////////////
-
-
 % Perturbations
 %==========================================================================
+oDoPerturb = 0;
+
 nPerturbToApply = 1;
 
 for iPerturb = 1 : nPerturbToApply
@@ -125,7 +129,7 @@ for iPerturb = 1 : nPerturbToApply
   for i = 1 : nUnitsToPerturb
     idx(i) = array.units(i).id;
   end
-  perturb(iPerturb) = Perturbation_t(1, array, idx); %#ok<SAGROW>
+  perturb(iPerturb) = Perturbation_t(1, array, idx, oDoPerturb); %#ok<SAGROW>
 
   if strcmp(typeOfUnits, mfcType)
     perturbAmp = -10;
@@ -137,8 +141,8 @@ for iPerturb = 1 : nPerturbToApply
     error('Must define a type of units!');
   end
 
-perturb(iPerturb).SetAmplitude(perturbAmp);
-perturb(iPerturb).SetActiveIteration(1500);
+  perturb(iPerturb).SetAmplitude(perturbAmp);
+  perturb(iPerturb).SetActiveIteration(1500);
 end
 %//////////////////////////////////////////////////////////////////////////
 
@@ -146,7 +150,9 @@ end
 % Simulation
 %==========================================================================
 for iSim = 1 : nIterations
-  waitbar(iSim/nIterations, wbh, ['Sim iteration: ' num2str(iSim) '/' num2str(nIterations)])
+  if mod(iSim, 50) == 0
+    waitbar(iSim/nIterations, wbh, ['Sim iteration: ' num2str(iSim) '/' num2str(nIterations)])
+  end
   
   % Run algorithm
   %========================================================================
