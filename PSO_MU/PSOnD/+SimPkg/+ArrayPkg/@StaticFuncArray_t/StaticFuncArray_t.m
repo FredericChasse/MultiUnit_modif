@@ -4,6 +4,8 @@ classdef StaticFuncArray_t < SimPkg.ArrayPkg.AbstractArrayInterface_t
     id
     units
     nUnits
+    realTimeElapsed
+    integrationTime
   end
   
   %Class interface
@@ -11,6 +13,8 @@ classdef StaticFuncArray_t < SimPkg.ArrayPkg.AbstractArrayInterface_t
     id_if
     nUnits_if
     units_if
+    realTime_if
+    integrationTime_if
     EvaluateFunc_if
     SplitArrayFunc_if
   end
@@ -18,11 +22,13 @@ classdef StaticFuncArray_t < SimPkg.ArrayPkg.AbstractArrayInterface_t
   methods
     
     % Constructor
-    function array = StaticFuncArray_t(id, nUnits)
+    function array = StaticFuncArray_t(id, nUnits, integrationTime)
       import SimPkg.UnitPkg.*
       
-      array.id      = id;
-      array.nUnits  = nUnits;
+      array.id              = id;
+      array.nUnits          = nUnits;
+      array.integrationTime = integrationTime;
+      array.realTimeElapsed = 0;
       
       array.units = StaticFunction_t.empty;
       for i = 1 : nUnits
@@ -30,11 +36,13 @@ classdef StaticFuncArray_t < SimPkg.ArrayPkg.AbstractArrayInterface_t
       end
       
       % Class interface
-      array.id_if             = 'id';
-      array.nUnits_if         = 'nUnits';
-      array.units_if          = 'units';
-      array.EvaluateFunc_if   = 'EvalUnit';
-      array.SplitArrayFunc_if = 'SplitArray';
+      array.id_if               = 'id';
+      array.nUnits_if           = 'nUnits';
+      array.units_if            = 'units';
+      array.realTime_if         = 'realTimeElapsed';
+      array.integrationTime_if  = 'integrationTime';
+      array.EvaluateFunc_if     = 'EvalUnit';
+      array.SplitArrayFunc_if   = 'SplitArray';
     end
     
     function [aSplit, aKeep, idxToKeep] = SplitArray(array, idxToSplit, newId)
@@ -52,8 +60,8 @@ classdef StaticFuncArray_t < SimPkg.ArrayPkg.AbstractArrayInterface_t
       nUnitsToSplit = length(idxToSplit);
       nUnitsToKeep  = length(idxToKeep );
       
-      aSplit = StaticFuncArray_t(newId    , nUnitsToSplit);
-      aKeep  = StaticFuncArray_t(newId + 1, nUnitsToKeep);
+      aSplit = StaticFuncArray_t(newId    , nUnitsToSplit, array.integrationTime);
+      aKeep  = StaticFuncArray_t(newId + 1, nUnitsToKeep , array.integrationTime);
       
       for iUnit = 1 : nUnitsToSplit
         aSplit.units(iUnit).Del;
@@ -73,6 +81,7 @@ classdef StaticFuncArray_t < SimPkg.ArrayPkg.AbstractArrayInterface_t
     
     % Eval function
     function EvalUnit(array, unitId)
+      array.realTimeElapsed = array.realTimeElapsed + array.integrationTime;
       array.units(unitId).EvalObjFunc;
     end
     

@@ -9,6 +9,7 @@ classdef Algo_t < AlgoPkg.AbstractAlgoInterface_t
     unitArray_if
     simData_if
     nSimData_if
+    realTimeElapsed_if
     RunAlgoFunc_if
   end
   
@@ -20,11 +21,12 @@ classdef Algo_t < AlgoPkg.AbstractAlgoInterface_t
       algo.unitArray      = obj.(obj.unitArray_if);
       
       % Algo interface
-      algo.id_if          = obj.id_if;
-      algo.unitArray_if   = obj.unitArray_if;
-      algo.simData_if     = obj.simData_if;
-      algo.nSimData_if    = obj.nSimData_if;
-      algo.RunAlgoFunc_if = obj.RunAlgoFunc_if;
+      algo.id_if              = obj.id_if;
+      algo.unitArray_if       = obj.unitArray_if;
+      algo.simData_if         = obj.simData_if;
+      algo.nSimData_if        = obj.nSimData_if;
+      algo.realTimeElapsed_if = obj.realTimeElapsed_if;
+      algo.RunAlgoFunc_if     = obj.RunAlgoFunc_if;
     end
     
     % Destructor
@@ -50,6 +52,10 @@ classdef Algo_t < AlgoPkg.AbstractAlgoInterface_t
     % nSimData
     function nSimData = nSimData(algo)
       nSimData = algo.obj.(algo.nSimData_if);
+    end
+    
+    function realTimeElapsed = realTimeElapsed(algo)
+      realTimeElapsed = algo.obj.(algo.realTimeElapsed_if);
     end
     
   end

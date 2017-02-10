@@ -14,6 +14,8 @@ classdef MfcArray_t < SimPkg.ArrayPkg.AbstractArrayInterface_t
     id_if
     nUnits_if
     units_if
+    realTime_if
+    integrationTime_if
     EvaluateFunc_if
     SplitArrayFunc_if
   end
@@ -21,7 +23,7 @@ classdef MfcArray_t < SimPkg.ArrayPkg.AbstractArrayInterface_t
   methods (Access = public)
     
     % Constructor
-    function array = MfcArray_t(id, nUnits)
+    function array = MfcArray_t(id, nUnits, integrationTime)
       import SimPkg.UnitPkg.*
       
       array.id              = id;
@@ -32,15 +34,17 @@ classdef MfcArray_t < SimPkg.ArrayPkg.AbstractArrayInterface_t
         array.units(iMfc) = Mfc_t(iMfc);
       end
       array.nUnits          = nUnits;
-      array.integrationTime = 0;
+      array.integrationTime = integrationTime;
       array.odeOptions      = odeset('RelTol',1e-6,'AbsTol',1e-9);
       
       % Class interface
-      array.id_if             = 'id';
-      array.nUnits_if         = 'nUnits';
-      array.units_if          = 'units';
-      array.EvaluateFunc_if   = 'EvaluateMfc';
-      array.SplitArrayFunc_if = 'SplitArray';
+      array.id_if               = 'id';
+      array.nUnits_if           = 'nUnits';
+      array.units_if            = 'units';
+      array.realTime_if         = 'realTimeElapsed';
+      array.integrationTime_if  = 'integrationTime';
+      array.EvaluateFunc_if     = 'EvaluateMfc';
+      array.SplitArrayFunc_if   = 'SplitArray';
     end
     
     % Destructor
@@ -63,8 +67,8 @@ classdef MfcArray_t < SimPkg.ArrayPkg.AbstractArrayInterface_t
       nUnitsToSplit = length(idxToSplit);
       nUnitsToKeep  = length(idxToKeep );
       
-      aSplit = MfcArray_t(newId    , nUnitsToSplit);
-      aKeep  = MfcArray_t(newId + 1, nUnitsToKeep);
+      aSplit = MfcArray_t(newId    , nUnitsToSplit, mfcs.integrationTime);
+      aKeep  = MfcArray_t(newId + 1, nUnitsToKeep , mfcs.integrationTime);
       
       for iUnit = 1 : nUnitsToSplit
         aSplit.units(iUnit).Del;

@@ -10,12 +10,15 @@ classdef Pso_t < AlgoPkg.AbstractAlgoInterface_t
     oMultiSwarm
     simData
     nSimData
+    realTimeElapsed
+    unitEvalTime
     
     % Algo interface
     id_if
     unitArray_if
     simData_if
     nSimData_if
+    realTimeElapsed_if
     RunAlgoFunc_if
   end
   
@@ -25,21 +28,24 @@ classdef Pso_t < AlgoPkg.AbstractAlgoInterface_t
     function pso = Pso_t(id, nParticles, unitArray, oMultiSwarm)
       import AlgoPkg.PsoPkg.*
       
-      pso.id          = id;
-      pso.unitArray   = unitArray;
-      pso.nSwarms     = 1;
-      pso.swarms      = PsoSwarm_t.empty;
-      pso.oMultiSwarm = oMultiSwarm;
-      pso.swarms(1)   = PsoSwarm_t(1, nParticles, unitArray, PsoSimData_t);
-      pso.simData{1}  = {pso.swarms(1).simData};
-      pso.nSimData    = 1;
+      pso.id              = id;
+      pso.unitArray       = unitArray;
+      pso.nSwarms         = 1;
+      pso.swarms          = PsoSwarm_t.empty;
+      pso.oMultiSwarm     = oMultiSwarm;
+      pso.swarms(1)       = PsoSwarm_t(1, nParticles, unitArray, PsoSimData_t);
+      pso.simData{1}      = {pso.swarms(1).simData};
+      pso.nSimData        = 1;
+      pso.realTimeElapsed = 0;
+      pso.unitEvalTime    = unitArray.unitEvalTime;
       
       % Algo interface
-      pso.id_if           = 'id';
-      pso.unitArray_if    = 'unitArray';
-      pso.simData_if      = 'simData';
-      pso.nSimData_if     = 'nSimData';
-      pso.RunAlgoFunc_if  = 'RunPso';
+      pso.id_if               = 'id';
+      pso.unitArray_if        = 'unitArray';
+      pso.realTimeElapsed_if  = 'realTimeElapsed';
+      pso.simData_if          = 'simData';
+      pso.nSimData_if         = 'nSimData';
+      pso.RunAlgoFunc_if      = 'RunPso';
     end
     
     % Destructor

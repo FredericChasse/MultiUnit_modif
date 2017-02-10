@@ -10,6 +10,8 @@ classdef Array_t < SimPkg.ArrayPkg.AbstractArrayInterface_t
     id_if
     nUnits_if
     units_if
+    realTime_if
+    integrationTime_if
     EvaluateFunc_if
     SplitArrayFunc_if
   end
@@ -23,11 +25,13 @@ classdef Array_t < SimPkg.ArrayPkg.AbstractArrayInterface_t
       array.obj = obj;
       
       % From class interface
-      array.id_if             = obj.id_if;
-      array.nUnits_if         = obj.nUnits_if;
-      array.units_if          = obj.units_if;
-      array.EvaluateFunc_if   = obj.EvaluateFunc_if;
-      array.SplitArrayFunc_if = obj.SplitArrayFunc_if;
+      array.id_if               = obj.id_if;
+      array.nUnits_if           = obj.nUnits_if;
+      array.units_if            = obj.units_if;
+      array.realTime_if         = obj.realTime_if;
+      array.integrationTime_if  = obj.integrationTime_if;
+      array.EvaluateFunc_if     = obj.EvaluateFunc_if;
+      array.SplitArrayFunc_if   = obj.SplitArrayFunc_if;
       
       % Create array of units based on object received
       array.units = Unit_t.empty;
@@ -61,6 +65,10 @@ classdef Array_t < SimPkg.ArrayPkg.AbstractArrayInterface_t
     
     function nUnits = nUnits(array)
       nUnits = array.obj.(array.nUnits_if);
+    end
+    
+    function unitEvalTime = unitEvalTime(array)
+      unitEvalTime = array.obj.(array.integrationTime_if);
     end
     
   end

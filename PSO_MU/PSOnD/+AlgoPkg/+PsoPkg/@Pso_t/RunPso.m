@@ -10,6 +10,13 @@ for iSwarm = 1 : pso.nSwarms
   %--------------------------------------------------------------------
   for iParticle = 1 : swarm.nParticles
     p = swarm.particles(iParticle);
+    
+    % This condition here simulates the parallel evaluation of the units'
+    % objective functions
+    if iSwarm == 1
+      pso.realTimeElapsed = pso.realTimeElapsed + pso.unitEvalTime;
+    end
+    
     for iDim = 1 : swarm.dimension
       swarm.unitArray.units(iDim).SetPos(p.pos.curPos(iDim));
       swarm.unitArray.EvalUnit(iDim);
