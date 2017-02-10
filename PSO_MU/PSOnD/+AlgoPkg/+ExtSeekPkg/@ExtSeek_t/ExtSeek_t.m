@@ -31,13 +31,15 @@ classdef ExtSeek_t < AlgoPkg.AbstractAlgoInterface_t
       es.realTimeElapsed  = 0;
       es.unitEvalTime     = unitArray.unitEvalTime;
       es.unitArray        = unitArray;
-      es.simData          = ExtSeekSimData_t;
-      es.nSimData         = 1;
+%       es.simData          = {};
+      es.nSimData         = 0;
       es.nInstances       = unitArray.nUnits;
       
-      es.instances = ExtSeekInstance_t.empty
+      es.instances = ExtSeekInstance_t.empty;
       for i = 1 : es.nInstances
-        es.instances(i) = ExtSeekInstance_t(i);
+        es.instances(i) = ExtSeekInstance_t(i, ExtSeekSimData_t);
+        es.nSimData = es.nSimData + 1;
+        es.simData{i} = {es.instances(i).simData};
       end
       
       % Algo interface
@@ -56,6 +58,13 @@ classdef ExtSeek_t < AlgoPkg.AbstractAlgoInterface_t
     
     % Run Algorithm    
     RunExtSeek(es, iteration);
+    
+    % Set all parameters of all instances
+    function SetInstancesParameters(es, ap, wp, wl, wh, k, umin, umax, uInit)
+      for i = 1 : es.nInstances
+        es.instances(i).SetInstanceParameters(ap, wp, wl, wh, k, umin, umax, uInit);
+      end
+    end
     
   end
   

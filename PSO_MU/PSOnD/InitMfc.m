@@ -1,4 +1,4 @@
-integrationTime = 0.8
+integrationTime = 0.8;
 
 mfcArray = MfcArray_t(1, nUnits, integrationTime);
 for iUnit = 1 : nUnits

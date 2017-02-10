@@ -18,12 +18,14 @@ classdef ExtSeekInstance_t < handle
     lpfOutput;
     grad;
     j; % Objective function
+    
+    simData;
   end
   
   methods
     
     % Constructor
-    function esi = ExtSeekInstance_t(id)
+    function esi = ExtSeekInstance_t(id, simData)
       esi.id = id;
       esi.ap = 10;
       esi.wp = .5;
@@ -39,11 +41,27 @@ classdef ExtSeekInstance_t < handle
       esi.grad      = [0 esi.uInit];
       esi.j         = [0 0];
       esi.d         = esi.uInit;
+      
+      esi.simData   = simData;
     end
     
     % Destructor
     function Del(esi)
       delete(esi);
+    end
+    
+    % Set all parameters of instance
+    function SetInstanceParameters(esi, ap, wp, wl, wh, k, umin, umax, uInit)
+      esi.ap = ap;
+      esi.wp = wp;
+      esi.wh = wh;
+      esi.wl = wl;
+      esi.k  = k;
+      esi.umin = umin;
+      esi.umax = umax;
+      esi.d  = uInit;
+      esi.uInit = uInit;
+      esi.grad = [0 uInit];
     end
     
   end

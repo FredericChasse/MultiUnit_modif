@@ -1,1 +1,4 @@
 *.asv
+*/slprj/*
+*\slprj\*
+*.autosave

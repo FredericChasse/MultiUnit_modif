@@ -23,9 +23,9 @@
 % end
 % clearvars -except rngState
 % clear all %#ok<CLSCR>
-% clear % This will not remove the breakpoints
+clear % This will not remove the breakpoints
 close all
-clearvars -except rngState
+% clearvars -except rngState
 
 if ~exist('rngState', 'var')
   rngState = rng;
@@ -48,27 +48,15 @@ import AlgoPkg.PnOPkg.*
 %//////////////////////////////////////////////////////////////////////////
 
 
-% Simulation environment
-%==========================================================================
-nIterations = 200;    % Iterations of the main loop
-
-simRealTime = 0;      % Keep track of the "real-time" in days
-
-simData = PsoSimData_t;  % Data structure
-
-wbh = waitbar(0, ['Sim iteration: ' num2str(0)]);  % Waitbar handle
-%//////////////////////////////////////////////////////////////////////////
-
-
 % Unit array
 %==========================================================================
-nUnits = 6;
+nUnits = 1;
 
 mfcType             = 'mfc';
 staticFunctionType  = 'static function';
 
-% typeOfUnits = mfcType;
-typeOfUnits = staticFunctionType;
+typeOfUnits = mfcType;
+% typeOfUnits = staticFunctionType;
 
 if strcmp(typeOfUnits, mfcType)
   InitMfc
@@ -83,14 +71,43 @@ end
 % Algo init
 %==========================================================================
 psoType = 'pso';
+extremumSeekType = 'extSeek';
 
-typeOfAlgo = psoType;
+% typeOfAlgo = psoType;
+typeOfAlgo = extremumSeekType;
 
 if strcmp(typeOfAlgo, psoType)
   InitPso
+elseif strcmp(typeOfAlgo, extremumSeekType)
+  InitExtremumSeeking
 else
   error('Must define a type of algorithm!');
 end
+%//////////////////////////////////////////////////////////////////////////
+
+
+% Simulation environment
+%==========================================================================
+
+if strcmp(typeOfAlgo, psoType)
+  nIterations = 200;
+elseif strcmp(typeOfAlgo, extremumSeekType)
+  if strcmp(typeOfUnits, mfcType)
+    nIterations = 1000;
+  elseif strcmp(typeOfUnits, staticFunctionType)
+    nIterations = 1000;
+  else
+    error('Must define a type of units!');
+  end
+else
+  error('Must define a type of algorithm!');
+end
+
+simRealTime = 0;      % Keep track of the "real-time" in days
+
+% simData = PsoSimData_t;  % Data structure
+
+wbh = waitbar(0, ['Sim iteration: ' num2str(0)]);  % Waitbar handle
 %//////////////////////////////////////////////////////////////////////////
 
 
@@ -99,7 +116,11 @@ end
 nPerturbToApply = 1;
 
 for iPerturb = 1 : nPerturbToApply
-  nUnitsToPerturb = array.nUnits/2;
+  if array.nUnits == 1
+    nUnitsToPerturb = 1;
+  else
+    nUnitsToPerturb = array.nUnits/2;
+  end
   idx = zeros(1, nUnitsToPerturb);
   for i = 1 : nUnitsToPerturb
     idx(i) = array.units(i).id;
@@ -108,14 +129,16 @@ for iPerturb = 1 : nPerturbToApply
 
   if strcmp(typeOfUnits, mfcType)
     perturbAmp = -10;
+    perturbIteration = 4000;
   elseif strcmp(typeOfUnits, staticFunctionType)
-    perturbAmp = [10 -3];
+    perturbAmp = [30 -3];
+    perturbIteration = 100;
   else
     error('Must define a type of units!');
   end
 
 perturb(iPerturb).SetAmplitude(perturbAmp);
-perturb(iPerturb).SetActiveIteration(110);
+perturb(iPerturb).SetActiveIteration(1500);
 end
 %//////////////////////////////////////////////////////////////////////////
 
@@ -140,16 +163,18 @@ end
 
 % For debug purposes
 %==========================================================================
-for iSimData = 1 : pso.nSimData
-  simData = pso.simData{iSimData}{1};
+for iSimData = 1 : algo.nSimData
+  simData = algo.simData{iSimData}{1};
   eval(['d'       num2str(iSimData) ' = simData.FormatToArray(simData.d);'              ]);
-  eval(['v'       num2str(iSimData) ' = simData.FormatToArray(simData.speed);'          ]);
   eval(['j'       num2str(iSimData) ' = simData.FormatToArray(simData.j);'              ]);
-  eval(['jSingle' num2str(iSimData) ' = simData.FormatToArray(simData.jSingle);'        ]);
-  eval(['pbest'   num2str(iSimData) ' = simData.FormatToArray(simData.pbest);'          ]);
-  eval(['gbest'   num2str(iSimData) ' = simData.FormatToArray(simData.gbest);'          ]);
   eval(['i'       num2str(iSimData) ' = simData.FormatToArray(simData.iteration);'      ]);
-  eval(['ss'      num2str(iSimData) ' = simData.FormatToArray(simData.oInSteadyState);' ]);
+  if strcmp(typeOfAlgo, psoType)
+    eval(['v'       num2str(iSimData) ' = simData.FormatToArray(simData.speed);'          ]);
+    eval(['jSingle' num2str(iSimData) ' = simData.FormatToArray(simData.jSingle);'        ]);
+    eval(['pbest'   num2str(iSimData) ' = simData.FormatToArray(simData.pbest);'          ]);
+    eval(['gbest'   num2str(iSimData) ' = simData.FormatToArray(simData.gbest);'          ]);
+    eval(['ss'      num2str(iSimData) ' = simData.FormatToArray(simData.oInSteadyState);' ]);
+  end
 %   d = simData.FormatToArray(simData.d);
 %   v = simData.FormatToArray(simData.speed);
 %   j = simData.FormatToArray(simData.j);
@@ -158,6 +183,15 @@ for iSimData = 1 : pso.nSimData
 %   gbest = simData.FormatToArray(simData.gbest);
 %   i = simData.FormatToArray(simData.iteration);
 %   ss = simData.FormatToArray(simData.oInSteadyState);
+end
+
+if strcmp(typeOfAlgo, extremumSeekType)
+  subplot(2,1,1)
+  plot(d1)
+  title('d')
+  subplot(2,1,2)
+  plot(j1)
+  title('j')
 end
 %//////////////////////////////////////////////////////////////////////////
 
