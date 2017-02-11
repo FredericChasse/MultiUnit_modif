@@ -27,20 +27,20 @@ classdef ExtSeekInstance_t < handle
     % Constructor
     function esi = ExtSeekInstance_t(id, simData)
       esi.id = id;
-      esi.ap = 10;
-      esi.wp = .5;
-      esi.wl = esi.wp / 10;
-      esi.wh = esi.wl;
-      esi.k  = 5;
+      esi.ap = 0;
+      esi.wp = 0;
+      esi.wl = 0;
+      esi.wh = 0;
+      esi.k  = 0;
       esi.umin = 1;
       esi.umax = 1000;
-      esi.uInit = 20;
+      esi.uInit = 0;
       esi.hpfOutput = [0 0];
       esi.lpfInput  = [0 0];
       esi.lpfOutput = [0 0];
-      esi.grad      = [0 esi.uInit];
+      esi.grad      = [0 0];
       esi.j         = [0 0];
-      esi.d         = esi.uInit;
+      esi.d         = 0;
       
       esi.simData   = simData;
     end
@@ -61,7 +61,7 @@ classdef ExtSeekInstance_t < handle
       esi.umax = umax;
       esi.d  = uInit;
       esi.uInit = uInit;
-      esi.grad = [0 uInit];
+      esi.grad = [uInit/k uInit/k];
     end
     
   end

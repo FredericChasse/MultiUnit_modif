@@ -10,14 +10,22 @@ if strcmp(typeOfUnits, mfcType)
 %   umin = 1;
 %   umax = 1000;
 %   uInit = 20;
-  ap = 20;
-  wp = 0.1;
-  wl = wp / 5;
+%   ap = 20;
+%   wp = 0.1;
+%   wl = wp / 5;
+%   wh = wl;
+%   k  = 100;
+%   umin = 1;
+%   umax = 1000;
+%   uInit = 1;
+  ap = 5;
+  wp = 1/5*2*pi;
+  wl = 0.26;
   wh = wl;
-  k  = 100;
+  k  = 1200;
   umin = 1;
   umax = 1000;
-  uInit = 1;
+  uInit = 50;
 elseif strcmp(typeOfUnits, staticFunctionType)
   ap = 10;
   wp = 1.5;

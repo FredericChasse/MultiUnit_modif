@@ -64,15 +64,15 @@ typeOfUnits = mfcType;
 %-------------------------------------------
 psoType = 'pso';
 extremumSeekType = 'extSeek';
-% typeOfAlgo = psoType;
-typeOfAlgo = extremumSeekType;
+typeOfAlgo = psoType;
+% typeOfAlgo = extremumSeekType;
 %-------------------------------------------
 
 if strcmp(typeOfAlgo, psoType)
   nIterations = 200;
 elseif strcmp(typeOfAlgo, extremumSeekType)
   if strcmp(typeOfUnits, mfcType)
-    nIterations = 10000;
+    nIterations = 1200;
   elseif strcmp(typeOfUnits, staticFunctionType)
     nIterations = 1000;
   else
