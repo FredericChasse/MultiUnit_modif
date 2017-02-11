@@ -64,12 +64,13 @@ typeOfUnits = mfcType;
 %-------------------------------------------
 psoType = 'pso';
 extremumSeekType = 'extSeek';
-% typeOfAlgo = psoType;
-typeOfAlgo = extremumSeekType;
+typeOfAlgo = psoType;
+% typeOfAlgo = extremumSeekType;
 %-------------------------------------------
 
 if strcmp(typeOfAlgo, psoType)
-  nIterations = 200;
+  nIterations = 50;
+  waitBarModulo = 5;
 elseif strcmp(typeOfAlgo, extremumSeekType)
   if strcmp(typeOfUnits, mfcType)
     nIterations = 500;
@@ -78,6 +79,7 @@ elseif strcmp(typeOfAlgo, extremumSeekType)
   else
     error('Must define a type of units!');
   end
+  waitBarModulo = 50;
 else
   error('Must define a type of algorithm!');
 end
@@ -88,7 +90,7 @@ wbh = waitbar(0, ['Sim : ' num2str(0) '/' num2str(nIterations)]);  % Waitbar han
 
 % Unit array
 %==========================================================================
-nUnits = 4;
+nUnits = 1;
 
 if strcmp(typeOfUnits, mfcType)
   InitMfc
@@ -150,7 +152,7 @@ end
 % Simulation
 %==========================================================================
 for iSim = 1 : nIterations
-  if mod(iSim, 50) == 0
+  if mod(iSim, waitBarModulo) == 0
     waitbar(iSim/nIterations, wbh, ['Sim iteration: ' num2str(iSim) '/' num2str(nIterations)])
   end
   

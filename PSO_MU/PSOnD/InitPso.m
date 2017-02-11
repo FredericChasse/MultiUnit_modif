@@ -6,12 +6,16 @@ pso = Pso_t(psoId, nParticles, array, oMultiSwarm);
 
 c1        = 1;
 c2        = 2;
+% c1        = 0.4;
+% c2        = 1.1;
 omega     = 0.4;
 decimals  = 4;
 posRes    = 0.1;
 if strcmp(typeOfUnits, mfcType)
   posMin    = 10;
   posMax    = 500;
+%   posMin    = 70;
+%   posMax    = 90;
 elseif strcmp(typeOfUnits, staticFunctionType)
 %   posMin    = 10;
 %   posMax    = 200;
