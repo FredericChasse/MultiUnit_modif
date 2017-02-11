@@ -22,7 +22,7 @@ if strcmp(typeOfUnits, mfcType)
   wp = 1/5*2*pi;
   wl = 0.26;
   wh = wl;
-  k  = 1200;
+  k  = 5000;
   umin = 1;
   umax = 1000;
   uInit = 50;

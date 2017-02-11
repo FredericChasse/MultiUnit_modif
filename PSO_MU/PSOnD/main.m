@@ -64,15 +64,15 @@ typeOfUnits = mfcType;
 %-------------------------------------------
 psoType = 'pso';
 extremumSeekType = 'extSeek';
-typeOfAlgo = psoType;
-% typeOfAlgo = extremumSeekType;
+% typeOfAlgo = psoType;
+typeOfAlgo = extremumSeekType;
 %-------------------------------------------
 
 if strcmp(typeOfAlgo, psoType)
   nIterations = 200;
 elseif strcmp(typeOfAlgo, extremumSeekType)
   if strcmp(typeOfUnits, mfcType)
-    nIterations = 1200;
+    nIterations = 500;
   elseif strcmp(typeOfUnits, staticFunctionType)
     nIterations = 1000;
   else
@@ -88,7 +88,7 @@ wbh = waitbar(0, ['Sim : ' num2str(0) '/' num2str(nIterations)]);  % Waitbar han
 
 % Unit array
 %==========================================================================
-nUnits = 1;
+nUnits = 4;
 
 if strcmp(typeOfUnits, mfcType)
   InitMfc
@@ -191,14 +191,14 @@ for iSimData = 1 : algo.nSimData
 %   ss = simData.FormatToArray(simData.oInSteadyState);
 end
 
-if strcmp(typeOfAlgo, extremumSeekType)
+% if strcmp(typeOfAlgo, extremumSeekType)
   subplot(2,1,1)
   plot(d1)
   title('d')
   subplot(2,1,2)
   plot(j1)
   title('j')
-end
+% end
 %//////////////////////////////////////////////////////////////////////////
 
 close(wbh)
