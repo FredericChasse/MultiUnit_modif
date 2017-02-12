@@ -3,19 +3,18 @@
 % psoAlgo       = PsoType.PSO_1D;
 psoAlgo       = PsoType.PARALLEL_PSO;
 
-nParticles = 3;
+nParticles    = 3;
 psoId         = 1;
 
 if psoAlgo == PsoType.PARALLEL_PSO 
   dimension  = 1;
-  nParticles = array.nUnits;
+  pso = ParaPso_t(psoId, array, psoAlgo);
 elseif psoAlgo == PsoType.PSO_1D
-  dimension  = 1;
+  error('No implementation!')
 else
   dimension = array.nUnits;
+  pso = Pso_t(psoId, array, psoAlgo);
 end
-
-pso = Pso_t(psoId, nParticles, array, psoAlgo);
 
 c1        = 1;
 c2        = 2;
@@ -40,7 +39,7 @@ end
 
 ssOscAmp    = 0.01; % Steady-state defined @±1% oscillation
 nSamples4ss = 5;   % For that number of iterations
-pso.swarms(1).SetSteadyState([nParticles dimension], ssOscAmp, nSamples4ss);
+pso.swarms(1).SetSteadyState([pso.swarms(1).nParticles dimension], ssOscAmp, nSamples4ss);
 
 pso.swarms(1).SetParam(c1, c2, omega, decimals, posRes, posMin, posMax);
 

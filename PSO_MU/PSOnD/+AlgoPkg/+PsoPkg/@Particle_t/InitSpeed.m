@@ -11,4 +11,3 @@ for iDim = 1 : s.dimension
 end
 
 end
-

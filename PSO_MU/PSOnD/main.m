@@ -90,7 +90,7 @@ wbh = waitbar(0, ['Sim : ' num2str(0) '/' num2str(nIterations)]);  % Waitbar han
 
 % Unit array
 %==========================================================================
-nUnits = 8;
+nUnits = 1;
 
 if strcmp(typeOfUnits, mfcType)
   InitMfc

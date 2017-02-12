@@ -1,4 +1,4 @@
-classdef Pso_t < AlgoPkg.AbstractAlgoInterface_t
+classdef ParaPso_t < AlgoPkg.AbstractAlgoInterface_t
 % classdef Pso_t < handle
   % Class Pso_t defines the attributes to be used for simulation
   
@@ -25,22 +25,20 @@ classdef Pso_t < AlgoPkg.AbstractAlgoInterface_t
   methods (Access = public)
     
     % Constructor
-    function pso = Pso_t(id, nParticles, unitArray, psoType)
+    function pso = ParaPso_t(id, unitArray, psoType)
       import AlgoPkg.PsoPkg.*
       
-      if psoType == PsoType.PSO_1D || psoType == PsoType.PARALLEL_PSO
+      if pso.psoType ~= PsoType.PARALLEL_PSO
         error('Wrong algorithm!')
       end
       
       pso.id              = id;
       pso.unitArray       = unitArray;
       pso.nSwarms         = 1;
-      pso.swarms          = PsoSwarm_t.empty;
+      pso.swarms          = ParaPsoSwarm_t.empty;
       pso.psoType         = psoType;
       
-      dimension           = unitArray.nUnits;
-      
-      pso.swarms(1)       = PsoSwarm_t(1, nParticles, unitArray, PsoSimData_t, dimension);
+      pso.swarms(1)       = ParaPsoSwarm_t(1, unitArray, PsoSimData_t);
       pso.simData{1}      = {pso.swarms(1).simData};
       pso.nSimData        = 1;
       pso.realTimeElapsed = 0;
@@ -52,7 +50,7 @@ classdef Pso_t < AlgoPkg.AbstractAlgoInterface_t
       pso.realTimeElapsed_if  = 'realTimeElapsed';
       pso.simData_if          = 'simData';
       pso.nSimData_if         = 'nSimData';
-      pso.RunAlgoFunc_if      = 'RunPso';
+      pso.RunAlgoFunc_if      = 'RunParaPso';
     end
     
     % Destructor
@@ -71,16 +69,16 @@ classdef Pso_t < AlgoPkg.AbstractAlgoInterface_t
     end
     
     % Create swarms
-    function CreateSwarms(pso, nSwarms, nParticles, dimensions)
-      if length(dimensions) ~= nSwarms
-        error('Must specify dimensions for all swarms');
-      end
+    function CreateSwarms(pso, nSwarms, nParticles, unitArrays)
       if length(nParticles) ~= nSwarms
         error('Must specify nParticles for all swarms');
       end
+      if length(unitArrays) ~= nSwarms
+        error('Must specify a unit array for each swarm!');
+      end
       
       for iSwarm = pso.nSwarms + 1 : pso.nSwarms + nSwarms
-        pso.swarms(iSwarm) = Swarm_t(iSwarm, nParticles(iSwarm), dimensions(iSwarm), 0, 0, 0, 0, 0);
+        pso.swarms(iSwarm) = ParaPsoSwarm_t(iSwarm, nParticles(iSwarm), unitArrays(iSwarm));
         pso.nSwarms = pso.nSwarms + 1;
       end
     end
@@ -109,7 +107,7 @@ classdef Pso_t < AlgoPkg.AbstractAlgoInterface_t
     end
     
     % Run Algorithm    
-    RunPso(pso, iteration);
+    RunParaPso(pso, iteration);
     
   end
   
