@@ -12,6 +12,9 @@ classdef Unit_t < SimPkg.UnitPkg.AbstractUnitInterface_t
     fitness_if
     beta_if
     gamma_if
+    dmem_if
+    jmem_if
+    nUnitEval_if
   end
   
   methods
@@ -27,6 +30,9 @@ classdef Unit_t < SimPkg.UnitPkg.AbstractUnitInterface_t
       unit.fitness_if   = obj.fitness_if;
       unit.beta_if      = obj.beta_if;
       unit.gamma_if     = obj.gamma_if;
+      unit.dmem_if      = obj.dmem_if;
+      unit.jmem_if      = obj.jmem_if;
+      unit.nUnitEval_if = obj.nUnitEval_if;
     end
     
     % Destructor
@@ -76,6 +82,24 @@ classdef Unit_t < SimPkg.UnitPkg.AbstractUnitInterface_t
     
     function gamma = gamma(unit)
       gamma = unit.obj.(unit.gamma_if);
+    end
+    
+    function nUnitEval = nUnitEval(unit)
+      nUnitEval = unit.obj.(unit.nUnitEval_if);
+    end
+    
+    function dmem = dmem(unit, startIdx, endIdx)
+      dmem = unit.obj.(unit.dmem_if)(startIdx:endIdx);
+    end
+    
+    function jmem = jmem(unit, startIdx, endIdx)
+      jmem = unit.obj.(unit.jmem_if)(startIdx:endIdx);
+    end
+    
+    function AddMemSample(unit, d, j)
+      unit.obj.(unit.nUnitEval_if) = unit.obj.(unit.nUnitEval_if) + 1;
+      unit.obj.(unit.dmem_if)(unit.obj.(unit.nUnitEval_if)) = d;
+      unit.obj.(unit.jmem_if)(unit.obj.(unit.nUnitEval_if)) = j;
     end
     
   end

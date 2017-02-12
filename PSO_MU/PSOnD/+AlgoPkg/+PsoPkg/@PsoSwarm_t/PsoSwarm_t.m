@@ -15,6 +15,7 @@ classdef PsoSwarm_t < handle
     omega
     decimals
     posRes
+    perturbAmp
     sentinelMargin
     steadyState
     oMoveParticles
@@ -27,11 +28,12 @@ classdef PsoSwarm_t < handle
   
     % Constructor
     %======================================================================
-    function s = PsoSwarm_t(id, nParticles, unitArray, simData)
+    function s = PsoSwarm_t(id, nParticles, unitArray, simData, dimension)
       import AlgoPkg.SteadyState_t;
       import AlgoPkg.LinkPkg.*;
       import AlgoPkg.PsoPkg.*
       import AlgoPkg.Position_t;
+      import AlgoPkg.PsoPkg.ParticleState;
       s.particles             = Particle_t.empty;
       s.swarmIteration        = 0;
       s.c1                    = 0;
@@ -42,7 +44,8 @@ classdef PsoSwarm_t < handle
       s.decimals              = 0;
       s.posRes                = 0;
       s.id                    = id;
-      s.dimension             = unitArray.nUnits;
+      s.dimension             = dimension;
+      s.perturbAmp            = 10;
       s.sentinelMargin        = 0.05;    % 5% margin for sentinels
       s.steadyState           = SteadyState_t.empty;
       s.nParticles            = 0;
@@ -90,9 +93,24 @@ classdef PsoSwarm_t < handle
     end
     %//////////////////////////////////////////////////////////////////////
     
-    % Remove certain particles
+    % Remove certain particles from swarm without deleting the object
     %======================================================================
     function RemoveParticles(s,idx)
+      if ~isempty(find(idx > s.nParticles)) || ~isempty(find(idx < 0))
+        error('No particles with at one or more of these indexes.');
+      end
+      idx = sort(idx);
+      for i = length(idx) : -1 : 1
+        s.ShiftParticlesIdLeft(idx(i));
+        s.particles(idx(i)) = [];
+        s.nParticles = s.nParticles - 1;
+      end
+    end
+    %//////////////////////////////////////////////////////////////////////
+    
+    % Delete certain particles from swarm
+    %======================================================================
+    function DeleteParticles(s,idx)
       if ~isempty(find(idx > s.nParticles)) || ~isempty(find(idx < 0))
         error('No particles with at one or more of these indexes.');
       end
@@ -109,6 +127,7 @@ classdef PsoSwarm_t < handle
     % Get the content of certain particles
     %======================================================================
     function p = GetParticles(s,idx)
+      import AlgoPkg.PsoPkg.Particle_t
       if ~isempty(find(idx > s.nParticles)) || ~isempty(find(idx < 0))
         error('No particles with at one or more of these indexes.');
       end

@@ -10,6 +10,9 @@ classdef StaticFunction_t < SimPkg.UnitPkg.AbstractUnitInterface_t
     beta
     gamma
     unitInput % [beta gamma]
+    dmem
+    jmem
+    nUnitEval
   end
   
   % Class interface
@@ -20,6 +23,9 @@ classdef StaticFunction_t < SimPkg.UnitPkg.AbstractUnitInterface_t
     fitness_if
     beta_if
     gamma_if
+    dmem_if
+    jmem_if
+    nUnitEval_if
   end
   
   methods
@@ -39,6 +45,10 @@ classdef StaticFunction_t < SimPkg.UnitPkg.AbstractUnitInterface_t
       f.gamma       = 0;
       f.unitInput   = [0 0];
       
+      f.dmem = zeros(10000, 1);
+      f.jmem = zeros(10000, 1);
+      f.nUnitEval = 0;
+      
       % Class interface
       f.id_if         = 'id';
       f.unitInput_if  = 'unitInput';
@@ -46,6 +56,9 @@ classdef StaticFunction_t < SimPkg.UnitPkg.AbstractUnitInterface_t
       f.fitness_if    = 'j';
       f.beta_if       = 'beta';
       f.gamma_if      = 'gamma';
+      f.dmem_if       = 'dmem';
+      f.jmem_if       = 'jmem';
+      f.nUnitEval_if  = 'nUnitEval';
     end
     
     % Destructor
@@ -54,7 +67,7 @@ classdef StaticFunction_t < SimPkg.UnitPkg.AbstractUnitInterface_t
     end
     
     function EvalObjFunc(f)
-      f.j = f.a .* (f.d - f.dopt + f.unitInput(1)).^2 + f.jopt + f.unitInput(2);
+      f.j = f.a .* (f.d - f.dopt + f.unitInput(1) + f.beta)^2 + f.jopt + f.unitInput(2) + f.gamma;
     end
     
   end

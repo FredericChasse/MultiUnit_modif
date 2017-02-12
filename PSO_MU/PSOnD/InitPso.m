@@ -1,8 +1,21 @@
-nParticles  = 8;
-psoId       = 1;
-dimension   = array.nUnits;
-oMultiSwarm = 1;
-pso = Pso_t(psoId, nParticles, array, oMultiSwarm);
+% psoAlgo       = PsoType.PSO_ND_SINGLE_SWARM;
+% psoAlgo       = PsoType.PSO_ND_MULTI_SWARM;
+% psoAlgo       = PsoType.PSO_1D;
+psoAlgo       = PsoType.PARALLEL_PSO;
+
+nParticles = 3;
+psoId         = 1;
+
+if psoAlgo == PsoType.PARALLEL_PSO 
+  dimension  = 1;
+  nParticles = array.nUnits;
+elseif psoAlgo == PsoType.PSO_1D
+  dimension  = 1;
+else
+  dimension = array.nUnits;
+end
+
+pso = Pso_t(psoId, nParticles, array, psoAlgo);
 
 c1        = 1;
 c2        = 2;
@@ -26,7 +39,7 @@ else
 end
 
 ssOscAmp    = 0.01; % Steady-state defined @±1% oscillation
-nSamples4ss = 10;   % For that number of iterations
+nSamples4ss = 5;   % For that number of iterations
 pso.swarms(1).SetSteadyState([nParticles dimension], ssOscAmp, nSamples4ss);
 
 pso.swarms(1).SetParam(c1, c2, omega, decimals, posRes, posMin, posMax);

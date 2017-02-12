@@ -64,13 +64,13 @@ for iSwarm = 1 : pso.nSwarms
       swarm.oResetParticles = 1;
       swarm.oMoveParticles  = 1;
       
-      if pso.oMultiSwarm == 1
+      if pso.psoType == PsoType.PSO_ND_MULTISWARM
         unitsPerturbedIdx = swarm.CheckForDimensionalPerturbation(particlesPerturbedIdx);
         if length(unitsPerturbedIdx) ~= swarm.unitArray.nUnits
           [aSplit, aKeep, idxToKeep] = pso.unitArray.SplitArray(unitsPerturbedIdx, pso.nSwarms + 1);
 
-          sSplit = PsoSwarm_t(pso.nSwarms + 1, pso.swarms(1).nParticles, aSplit, PsoSimData_t);
-          sKeep  = PsoSwarm_t(pso.nSwarms + 2, pso.swarms(1).nParticles, aKeep , PsoSimData_t);
+          sSplit = PsoSwarm_t(pso.nSwarms + 1, pso.swarms(1).nParticles, aSplit, PsoSimData_t, aSplit.nUnits);
+          sKeep  = PsoSwarm_t(pso.nSwarms + 2, pso.swarms(1).nParticles, aKeep , PsoSimData_t,  aKeep.nUnits);
 
           sSplit.SetSteadyState([pso.swarms(1).nParticles aSplit.nUnits], pso.swarms(1).steadyState.oscAmp, pso.swarms(1).steadyState.nSamplesForSteadyState);
           sSplit.SetParam(pso.swarms(1).c1, pso.swarms(1).c2, pso.swarms(1).omega, pso.swarms(1).decimals, pso.swarms(1).posRes, pso.swarms(1).posMin, pso.swarms(1).posMax);

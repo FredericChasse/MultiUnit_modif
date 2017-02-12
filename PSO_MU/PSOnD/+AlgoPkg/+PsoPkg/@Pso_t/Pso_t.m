@@ -7,11 +7,11 @@ classdef Pso_t < AlgoPkg.AbstractAlgoInterface_t
     swarms
     nSwarms
     unitArray
-    oMultiSwarm
     simData
     nSimData
     realTimeElapsed
     unitEvalTime
+    psoType
     
     % Algo interface
     id_if
@@ -25,15 +25,28 @@ classdef Pso_t < AlgoPkg.AbstractAlgoInterface_t
   methods (Access = public)
     
     % Constructor
-    function pso = Pso_t(id, nParticles, unitArray, oMultiSwarm)
+    function pso = Pso_t(id, nParticles, unitArray, psoType)
       import AlgoPkg.PsoPkg.*
       
       pso.id              = id;
       pso.unitArray       = unitArray;
       pso.nSwarms         = 1;
       pso.swarms          = PsoSwarm_t.empty;
-      pso.oMultiSwarm     = oMultiSwarm;
-      pso.swarms(1)       = PsoSwarm_t(1, nParticles, unitArray, PsoSimData_t);
+      pso.psoType         = psoType;
+      
+      switch pso.psoType
+        case { PsoType.PSO_ND_SINGLE_SWARM, PsoType.PSO_ND_MULTI_SWARM}
+          dimension = unitArray.nUnits;
+        case PsoType.PARALLEL_PSO
+          dimension = 1;
+          nParticles = unitArray.nUnits;
+        case PsoType.PSO_1D
+          dimension = 1;
+        otherwise
+          error('Must define a valid PSO type!')
+      end
+      
+      pso.swarms(1)       = PsoSwarm_t(1, nParticles, unitArray, PsoSimData_t, dimension);
       pso.simData{1}      = {pso.swarms(1).simData};
       pso.nSimData        = 1;
       pso.realTimeElapsed = 0;
@@ -45,7 +58,17 @@ classdef Pso_t < AlgoPkg.AbstractAlgoInterface_t
       pso.realTimeElapsed_if  = 'realTimeElapsed';
       pso.simData_if          = 'simData';
       pso.nSimData_if         = 'nSimData';
-      pso.RunAlgoFunc_if      = 'RunPso';
+      
+      switch pso.psoType
+        case { PsoType.PSO_ND_SINGLE_SWARM, PsoType.PSO_ND_MULTI_SWARM}
+          pso.RunAlgoFunc_if    = 'RunPso';
+        case PsoType.PARALLEL_PSO
+          pso.RunAlgoFunc_if    = 'RunParaPso';
+        case PsoType.PSO_1D
+          error('PSO 1D not implemented!')
+        otherwise
+          error('Must define a valid PSO type!')
+      end
     end
     
     % Destructor

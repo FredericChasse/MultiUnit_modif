@@ -57,6 +57,10 @@ classdef Array_t < SimPkg.ArrayPkg.AbstractArrayInterface_t
     
     function EvalUnit(array, id)
       array.obj.(array.EvaluateFunc_if)(id);
+      array.units(id).AddMemSample(array.units(id).pos, array.units(id).fitness);
+%       array.units(id).nUnitEval = array.units(id).nUnitEval + 1;
+%       array.units(id).jmem(array.units(id).nUnitEval) = array.units(id).fitness;
+%       array.units(id).dmem(array.units(id).nUnitEval) = array.units(id).pos;
     end
     
     function id = id(array)

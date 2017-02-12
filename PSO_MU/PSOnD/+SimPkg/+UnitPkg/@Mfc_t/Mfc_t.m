@@ -8,6 +8,9 @@ classdef Mfc_t < SimPkg.UnitPkg.AbstractUnitInterface_t
     beta
     gamma
     s0
+    dmem
+    jmem
+    nUnitEval
   end
   
   % Class interface
@@ -18,6 +21,9 @@ classdef Mfc_t < SimPkg.UnitPkg.AbstractUnitInterface_t
     fitness_if
     beta_if
     gamma_if
+    dmem_if
+    jmem_if
+    nUnitEval_if
   end
   
   methods
@@ -39,6 +45,10 @@ classdef Mfc_t < SimPkg.UnitPkg.AbstractUnitInterface_t
         error('Must define a valid model for MFC')
       end
       
+      mfc.dmem = zeros(10000, 1);
+      mfc.jmem = zeros(10000, 1);
+      mfc.nUnitEval = 0;
+      
       % Class interface
       mfc.id_if         = 'id';
       mfc.unitInput_if  = 's0';
@@ -46,6 +56,9 @@ classdef Mfc_t < SimPkg.UnitPkg.AbstractUnitInterface_t
       mfc.fitness_if    = 'pout';
       mfc.beta_if       = 'beta';
       mfc.gamma_if      = 'gamma';
+      mfc.dmem_if       = 'dmem';
+      mfc.jmem_if       = 'jmem';
+      mfc.nUnitEval_if  = 'nUnitEval';
     end
     
     % Destructor
