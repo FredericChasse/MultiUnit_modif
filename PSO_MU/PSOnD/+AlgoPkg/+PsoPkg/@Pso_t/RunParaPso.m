@@ -211,7 +211,8 @@ for iSwarm = 1 : pso.nSwarms
             
           case ParticleState.PERTURB_END
             % If no perturbation has occured
-            if p.pos.curFitness == p.perturbPos.j
+            oscAmp = swarm.steadyState.oscAmp;
+            if p.pos.curFitness < p.perturbPos.j * (1 + oscAmp) && p.pos.curFitness > p.perturbPos.j * (1 - oscAmp)
               % If the final position is an optimum
               if p.perturbPos.jminus < p.pos.curFitness && p.perturbPos.jpos < p.pos.curFitness
                 p.state = ParticleState.STEADY_STATE;

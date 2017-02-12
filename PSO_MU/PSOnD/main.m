@@ -232,6 +232,7 @@ for i = 1 : array.nUnits
   plot(t, array.units(i).dmem(1,array.units(i).nUnitEval))
 end
 legend(legendStr)
+title('d')
 subplot(2,1,2)
 hold on
 for i = 1 : array.nUnits
@@ -241,6 +242,7 @@ for i = 1 : array.nUnits
   plot(t, array.units(i).jmem(1,array.units(i).nUnitEval))
 end
 legend(legendStr)
+title('j')
 
 %//////////////////////////////////////////////////////////////////////////
 
