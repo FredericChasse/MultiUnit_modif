@@ -156,7 +156,10 @@ for iSwarm = 1 : pso.nSwarms
     for iParticle = 1 : swarm.nParticles
       swarm.RandomizeParticlesPos();
       swarm.particles(iParticle).InitSpeed(swarm);
+      swarm.particles(iParticle).pbest.curPos = swarm.particles(iParticle).pos.curPos;
+      swarm.particles(iParticle).pbest.curFitness = 0;
     end
+    swarm.gbest.curFitness = 0;
   else
     if swarm.swarmIteration == 1 && ~swarm.steadyState.oInSteadyState
       for iParticle = 1 : swarm.nParticles

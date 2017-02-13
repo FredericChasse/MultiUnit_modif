@@ -28,7 +28,7 @@ classdef ParaPso_t < AlgoPkg.AbstractAlgoInterface_t
     function pso = ParaPso_t(id, unitArray, psoType)
       import AlgoPkg.PsoPkg.*
       
-      if pso.psoType ~= PsoType.PARALLEL_PSO
+      if (psoType ~= PsoType.PARALLEL_PSO) && (psoType ~= PsoType.PARALLEL_PSO_PBEST_ABS)
         error('Wrong algorithm!')
       end
       
@@ -50,7 +50,12 @@ classdef ParaPso_t < AlgoPkg.AbstractAlgoInterface_t
       pso.realTimeElapsed_if  = 'realTimeElapsed';
       pso.simData_if          = 'simData';
       pso.nSimData_if         = 'nSimData';
-      pso.RunAlgoFunc_if      = 'RunParaPso';
+      
+      if psoType == PsoType.PARALLEL_PSO
+        pso.RunAlgoFunc_if    = 'RunParaPso';
+      else
+        pso.RunAlgoFunc_if    = 'RunParaPsoWithPbestAbs';
+      end
     end
     
     % Destructor

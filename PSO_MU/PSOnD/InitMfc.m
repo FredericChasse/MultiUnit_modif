@@ -21,8 +21,8 @@ mfcArray.odeOptions = odeset('RelTol',1e-6,'AbsTol',1e-9);
 array = Array_t(mfcArray);
 
 
-% nDiffUnits = floor(array.nUnits / 2);
-% 
-% for i = 1 : nDiffUnits
-%   mfcArray.units(i).s0 = 500;
-% end
+nDiffUnits = floor(array.nUnits / 2);
+
+for i = 1 : nDiffUnits
+  mfcArray.units(i).s0 = 500;
+end

@@ -3,6 +3,7 @@ classdef ParaParticle_t < handle
   properties
     id
     pbest
+    pbestAbs
     pos
     perturbPos % Used in Parallel PSO for perturbing the particle
     curSpeed
@@ -24,6 +25,8 @@ classdef ParaParticle_t < handle
       p.pos                     = Position_t(1);
       p.curSpeed                = 0;
       p.prevSpeed               = 0;
+      p.pbestAbs.pos            = 0;
+      p.pbestAbs.fitness        = 0;
       p.oSentinelWarning        = 0;
       p.state                   = ParticleState.SEARCHING;
       p.steadyState             = SteadyState_t.empty;

@@ -6,6 +6,7 @@ classdef PsoType
     PSO_ND_MULTI_SWARM
     PSO_1D
     PARALLEL_PSO
+    PARALLEL_PSO_PBEST_ABS
   end
   
   properties
