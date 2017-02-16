@@ -4,11 +4,15 @@ classdef ParticleState
   
   enumeration
     SEARCHING
+    PERTURB_OCCURED
+    TEST_PBEST
+    VALIDATE_OPTIMUM
+    STEADY_STATE
+    
     PERTURB_INIT
     PERTURB_MINUS
     PERTURB_POS
     PERTURB_END
-    STEADY_STATE
   end
   
   properties

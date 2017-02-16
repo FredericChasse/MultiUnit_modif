@@ -1,4 +1,11 @@
 function [] = InitSpeed( p, s )
+p.optPos.d      = 0;
+p.optPos.j      = 0;
+p.optPos.dminus = 0;
+p.optPos.dpos   = 0;
+p.optPos.jminus = 0;
+p.optPos.jpos   = 0;
+
 randValues = rand(1, 2);
 p.prevSpeed = p.curSpeed;
 p.curSpeed  = round                                                   ...

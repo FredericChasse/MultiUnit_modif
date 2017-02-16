@@ -239,6 +239,45 @@ classdef ParaPsoSwarm_t < handle
     RandomizeParticlesPos(s);
     %//////////////////////////////////////////////////////////////////////
     
+    %======================================================================
+    function SplitUnitArray(s, idxToRemove, pso)
+      if ~isempty(idxToRemove)
+        if length(idxToRemove) ~= s.unitArray.nUnits
+          s.RemoveParticles(idxToRemove);
+          
+          [aSplit, aKeep, idxToKeep] = pso.unitArray.SplitArray(idxToRemove, pso.nSwarms + 1);
+          
+          newSwarm = ParaPsoSwarm_t(pso.nSwarms, aSplit, PsoSimData_t);
+          
+          s.unitArray     = aKeep;
+
+          ss = s.steadyState;
+          s.SetSteadyState([s.nParticles 1], pso.swarms(1).steadyState.oscAmp, pso.swarms(1).steadyState.nSamplesForSteadyState);
+          ss.Del;
+          for i = 1 : s.steadyState.nSamplesForSteadyState
+            s.steadyState.AddSample(s.GetParticlesPos);
+          end
+          s.steadyState.EvaluateSteadyState;
+          if s.steadyState.oInSteadyState == 1
+            s.oMoveParticles = 0;
+          end
+
+          newSwarm.SetSteadyState([newSwarm.nParticles 1], pso.swarms(1).steadyState.oscAmp, pso.swarms(1).steadyState.nSamplesForSteadyState);
+          newSwarm.SetParam(pso.swarms(1).c1, pso.swarms(1).c2, pso.swarms(1).omega, pso.swarms(1).decimals, pso.swarms(1).posRes, pso.swarms(1).posMin, pso.swarms(1).posMax);
+          newSwarm.RandomizeParticlesPos();
+
+          pso.AddSwarm(newSwarm);
+          pso.nSimData = pso.nSimData+1;
+          pso.simData{pso.nSimData} = {newSwarm.simData};
+        else
+          s.RandomizeParticlesPos();
+          s.oResetParticles = 0;
+          s.oMoveParticles  = 1;
+        end
+      end
+    end
+    %//////////////////////////////////////////////////////////////////////
+    
   end
   
   methods (Access = private)

@@ -17,11 +17,20 @@ for iSwarm = 1 : pso.nSwarms
   %____________________________________________________________________
 end
 
-pso.realTimeElapsed = pso.realTimeElapsed + pso.unitEvalTime;
-
 for iSwarm = 1 : pso.nSwarms
   swarm = pso.swarms(iSwarm);
   swarm.swarmIteration = swarm.swarmIteration + 1;
+  
+  % Particles' FSM
+  %--------------------------------------------------------------------
+  idxToRemove = [];
+  for iParticle = 1 : swarm.nParticles
+    [pState, oRemoveFromSwarm] = swarm.particles(iParticle).FsmStep(swarm);
+    if oRemoveFromSwarm
+      idxToRemove = [idxToRemove iParticle]; %#ok<AGROW>
+    end
+  end
+  %____________________________________________________________________
   
   % Compute pbest and gbest
   %--------------------------------------------------------------------

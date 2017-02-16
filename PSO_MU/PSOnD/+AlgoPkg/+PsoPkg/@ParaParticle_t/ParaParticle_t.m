@@ -5,11 +5,13 @@ classdef ParaParticle_t < handle
     pbest
     pbestAbs
     pos
-    perturbPos % Used in Parallel PSO for perturbing the particle
+    optPos % Used in Parallel PSO for perturbing the particle
     curSpeed
     prevSpeed
+    jSteady
     oSentinelWarning
     state
+    nextState
     steadyState
   end
   
@@ -29,13 +31,15 @@ classdef ParaParticle_t < handle
       p.pbestAbs.fitness        = 0;
       p.oSentinelWarning        = 0;
       p.state                   = ParticleState.SEARCHING;
+      p.nextState               = ParticleState.VALIDATE_OPTIMUM;
       p.steadyState             = SteadyState_t.empty;
-      p.perturbPos.d            = 0;
-      p.perturbPos.j            = 0;
-      p.perturbPos.dminus       = 0;
-      p.perturbPos.dpos         = 0;
-      p.perturbPos.jminus       = 0;
-      p.perturbPos.jpos         = 0;
+      p.jSteady                 = 0;
+      p.optPos.dinit            = 0;
+      p.optPos.jinit            = 0;
+      p.optPos.dminus           = 0;
+      p.optPos.dpos             = 0;
+      p.optPos.jminus           = 0;
+      p.optPos.jpos             = 0;
     end
     
     % Destructor
@@ -56,6 +60,7 @@ classdef ParaParticle_t < handle
     % Compare previous pos/fitness to current pos/fitness
     function SentinelEval(p, margin)
       if p.pos.curPos == p.pos.prevPos
+%         if abs( (p.pos.curFitness - p.jSteady) / p.pos.curFitness ) >= margin
         if abs( (p.pos.curFitness - p.pos.prevFitness) / p.pos.curFitness ) >= margin
           p.oSentinelWarning = 1;
         else
@@ -76,6 +81,11 @@ classdef ParaParticle_t < handle
       import AlgoPkg.SteadyState_t;
       p.steadyState = SteadyState_t(1, oscAmp, nSamples);
     end
+    %//////////////////////////////////////////////////////////////////////
+    
+    % Finite State Machine of the particle
+    %======================================================================
+    [nextState, oRemoveParticle] = FsmStep(p, s);
     %//////////////////////////////////////////////////////////////////////
     
   end

@@ -98,10 +98,10 @@ for iSwarm = 1 : pso.nSwarms
             p.ComputePos  (swarm);
             
           case ParticleState.PERTURB_INIT
-            p.perturbPos.j  = p.pos.curFitness;
-            p.perturbPos.d  = p.pos.curPos;
-            p.perturbPos.dminus = p.pos.curPos - swarm.perturbAmp;
-            p.perturbPos.dpos   = p.pos.curPos + swarm.perturbAmp;
+            p.optPos.j      = p.pos.curFitness;
+            p.optPos.d      = p.pos.curPos;
+            p.optPos.dminus = p.pos.curPos - swarm.perturbAmp;
+            p.optPos.dpos   = p.pos.curPos + swarm.perturbAmp;
             
             p.pos.prevPos   = p.pos.curPos;
             p.pos.curPos    = p.pos.curPos - swarm.perturbAmp;
@@ -110,30 +110,30 @@ for iSwarm = 1 : pso.nSwarms
             p.state         = ParticleState.PERTURB_MINUS;
             
           case ParticleState.PERTURB_MINUS
-            p.perturbPos.jminus  = p.pos.curFitness;
+            p.optPos.jminus = p.pos.curFitness;
             
             p.pos.prevPos   = p.pos.curPos;
-            p.pos.curPos    = p.perturbPos.dpos;
+            p.pos.curPos    = p.optPos.dpos;
             p.prevSpeed     = p.curSpeed;
             p.curSpeed      = 2*swarm.perturbAmp;
             p.state         = ParticleState.PERTURB_POS;
             
           case ParticleState.PERTURB_POS
-            p.perturbPos.jpos  = p.pos.curFitness;
+            p.optPos.jpos  = p.pos.curFitness;
             
             p.pos.prevPos   = p.pos.curPos;
-            p.pos.curPos    = p.perturbPos.d;
+            p.pos.curPos    = p.optPos.d;
             p.prevSpeed     = p.curSpeed;
             p.curSpeed      = -swarm.perturbAmp;
             p.state         = ParticleState.PERTURB_END;
             
           case ParticleState.PERTURB_END
             % If no perturbation has occured
-            if     p.pos.curFitness < p.perturbPos.j * (1 + swarm.sentinelMargin) ...
-                && p.pos.curFitness > p.perturbPos.j * (1 - swarm.sentinelMargin)
+            if     p.pos.curFitness < p.optPos.j * (1 + swarm.sentinelMargin) ...
+                && p.pos.curFitness > p.optPos.j * (1 - swarm.sentinelMargin)
               
               % If the final position is an optimum
-              if p.perturbPos.jminus < p.pos.curFitness && p.perturbPos.jpos < p.pos.curFitness
+              if p.optPos.jminus < p.pos.curFitness && p.optPos.jpos < p.pos.curFitness
                 p.state = ParticleState.STEADY_STATE;
                 p.ComputeSpeed(swarm);
                 p.ComputePos  (swarm);
