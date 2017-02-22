@@ -1,4 +1,6 @@
 function [] = ComputeSpeed( p, s )
+p.ResetOptPos;
+
 if s.oMoveParticles == 1
   randValues = rand(1, 2);
   p.prevSpeed = p.curSpeed;

@@ -1,16 +1,20 @@
-function [ nextState, oRemoveParticle ] = FsmStep( p, swarm )
+function [ oRemoveParticle ] = FsmStep( p, swarm )
 import AlgoPkg.PsoPkg.*
+
+if p.oSentinelWarning == 1
+  p.state = PERTURB_OCCURED;
+end
 
 switch p.state
   case ParticleState.SEARCHING
     p.ComputeSpeed(swarm);
     p.ComputePos  (swarm);
-    p.nextState     = ParticleState.VALIDATE_OPTIMUM;
     oRemoveParticle = 0;
-    nextState       = ParticleState.SEARCHING;
             
   case ParticleState.PERTURB_OCCURED
-  case ParticleState.TEST_PBEST
+    p.InitSpeed(swarm);
+    oRemoveParticle = 0;
+    
   case ParticleState.VALIDATE_OPTIMUM
     if p.optPos.j == 0
       p.optPos.j      = p.pos.curFitness;
@@ -22,6 +26,8 @@ switch p.state
       p.pos.curPos    = p.pos.curPos - swarm.perturbAmp;
       p.prevSpeed     = p.curSpeed;
       p.curSpeed      = -swarm.perturbAmp;
+      
+      oRemoveParticle = 0;
 
     elseif p.optPos.jminus == 0
       p.optPos.jminus = p.pos.curFitness;
@@ -30,6 +36,8 @@ switch p.state
       p.pos.curPos    = p.optPos.dpos;
       p.prevSpeed     = p.curSpeed;
       p.curSpeed      = 2*swarm.perturbAmp;
+      
+      oRemoveParticle = 0;
 
     elseif p.optPos.jpos == 0
       p.optPos.jpos   = p.pos.curFitness;
@@ -38,6 +46,8 @@ switch p.state
       p.pos.curPos    = p.optPos.d;
       p.prevSpeed     = p.curSpeed;
       p.curSpeed      = -swarm.perturbAmp;
+      
+      oRemoveParticle = 0;
 
     else
       % If no perturbation has occured
@@ -47,25 +57,29 @@ switch p.state
         % If the final position is an optimum
         if p.optPos.jminus < p.pos.curFitness && p.optPos.jpos < p.pos.curFitness
           p.state = ParticleState.STEADY_STATE;
-          p.ComputeSpeed(swarm);
-          p.ComputePos  (swarm);
+          p.oAtOptimum = 1;
+          oRemoveParticle = 1;
+%           p.ComputeSpeed(swarm);
+%           p.ComputePos  (swarm);
         else
-          p.state = ParticleState.SEARCHING;
-          idxToRemove = [idxToRemove p.id]; %#ok<AGROW>
-          particlesToRemove = [particlesToRemove p]; %#ok<AGROW>
-%                 warning('And then?')
+          p.ResetOptPos;
+          if p.optPos.dinit == p.pbestAbs.pos % If we were testing for Pbest
+            p.state = ParticleState.SEARCHING;
+            oRemoveParticle = 1;
+          else
+            p.pos.prevPos = p.pos.curPos;
+            p.pos.curPos  = p.pbestAbs.pos;
+            oRemoveParticle = 0;
+          end
         end
       else % Perturbation has occured
         p.state = ParticleState.SEARCHING;
-        idxToRemove = [idxToRemove p.id]; %#ok<AGROW>
-        particlesToRemove = [particlesToRemove p]; %#ok<AGROW>
-        if swarm.swarmIteration == 1
-          warning('And then?')
-        end
+        oRemoveParticle = 0;
       end
     end
             
   case ParticleState.STEADY_STATE
+    oRemoveParticle = 0;
     
   otherwise
     error('Wrong state!')

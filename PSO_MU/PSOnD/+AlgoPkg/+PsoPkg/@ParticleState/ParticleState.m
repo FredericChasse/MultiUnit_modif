@@ -5,10 +5,10 @@ classdef ParticleState
   enumeration
     SEARCHING
     PERTURB_OCCURED
-    TEST_PBEST
     VALIDATE_OPTIMUM
     STEADY_STATE
     
+    % These are used in RunParaPso. To be removed.
     PERTURB_INIT
     PERTURB_MINUS
     PERTURB_POS

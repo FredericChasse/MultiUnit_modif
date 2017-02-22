@@ -3,6 +3,7 @@ classdef ParaParticle_t < handle
   properties
     id
     pbest
+    oAtOptimum
     pbestAbs
     pos
     optPos % Used in Parallel PSO for perturbing the particle
@@ -23,6 +24,7 @@ classdef ParaParticle_t < handle
       import AlgoPkg.PsoPkg.ParticleState;
       import AlgoPkg.SteadyState_t;
       p.id                      = id;
+      p.oAtOptimum              = 0;
       p.pbest                   = Position_t(1);
       p.pos                     = Position_t(1);
       p.curSpeed                = 0;
@@ -59,9 +61,13 @@ classdef ParaParticle_t < handle
     
     % Compare previous pos/fitness to current pos/fitness
     function SentinelEval(p, margin)
+      if p.state == ParticleState.STEADY_STATE
+        jCompare = p.jSteady;
+      else
+        jCompare = p.pos.prevFitness;
+      end
       if p.pos.curPos == p.pos.prevPos
-%         if abs( (p.pos.curFitness - p.jSteady) / p.pos.curFitness ) >= margin
-        if abs( (p.pos.curFitness - p.pos.prevFitness) / p.pos.curFitness ) >= margin
+        if abs( (p.pos.curFitness - jCompare) / p.pos.curFitness ) >= margin
           p.oSentinelWarning = 1;
         else
           p.oSentinelWarning = 0;
@@ -75,6 +81,15 @@ classdef ParaParticle_t < handle
       oSentinelWarning = p.oSentinelWarning;
     end
     
+    function ResetOptPos(p)
+      p.optPos.d      = 0;
+      p.optPos.j      = 0;
+      p.optPos.dminus = 0;
+      p.optPos.dpos   = 0;
+      p.optPos.jminus = 0;
+      p.optPos.jpos   = 0;
+    end
+    
     % Set steady state settings
     %======================================================================
     function SetSteadyState(p, oscAmp, nSamples)
@@ -85,7 +100,7 @@ classdef ParaParticle_t < handle
     
     % Finite State Machine of the particle
     %======================================================================
-    [nextState, oRemoveParticle] = FsmStep(p, s);
+    [oRemoveParticle] = FsmStep(p, s);
     %//////////////////////////////////////////////////////////////////////
     
   end

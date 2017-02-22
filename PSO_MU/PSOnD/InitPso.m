@@ -7,7 +7,7 @@ psoAlgo       = PsoType.PARALLEL_PSO;
 nParticles    = 3;
 psoId         = 1;
 
-if psoAlgo == PsoType.PARALLEL_PSO 
+if psoAlgo == PsoType.PARALLEL_PSO || psoAlgo == PsoType.PARALLEL_PSO_PBEST_ABS
   dimension  = 1;
   pso = ParaPso_t(psoId, array, psoAlgo);
 elseif psoAlgo == PsoType.PSO_1D
@@ -45,5 +45,11 @@ pso.swarms(1).SetSteadyState([pso.swarms(1).nParticles dimension], ssOscAmp, nSa
 pso.swarms(1).SetParam(c1, c2, omega, decimals, posRes, posMin, posMax);
 
 pso.swarms(1).RandomizeParticlesPos();
+
+if psoAlgo == PsoType.PARALLEL_PSO_PBEST_ABS
+  for iUnit = 1 : pso.swarms(1).unitArray.nUnits
+    pso.swarms(1).unitArray.units(iParticle).SetPos(p.pos.curPos);
+  end
+end
 
 algo = Algo_t(pso);

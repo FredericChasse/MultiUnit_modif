@@ -34,15 +34,22 @@ classdef ParaPso_t < AlgoPkg.AbstractAlgoInterface_t
       
       pso.id              = id;
       pso.unitArray       = unitArray;
-      pso.nSwarms         = 1;
-      pso.swarms          = ParaPsoSwarm_t.empty;
       pso.psoType         = psoType;
-      
-      pso.swarms(1)       = ParaPsoSwarm_t(1, unitArray, PsoSimData_t);
-      pso.simData{1}      = {pso.swarms(1).simData};
-      pso.nSimData        = 1;
       pso.realTimeElapsed = 0;
       pso.unitEvalTime    = unitArray.unitEvalTime;
+
+      if psoType == PsoType.PARALLEL_PSO
+        pso.nSwarms         = 1;
+        pso.swarms          = ParaPsoSwarm_t.empty;
+        pso.swarms(1)       = ParaPsoSwarm_t(1, unitArray, PsoSimData_t);
+        pso.simData{1}      = {pso.swarms(1).simData};
+        pso.nSimData        = 1;
+      else
+        pso.nSwarms         = 1;
+        pso.swarms(1)       = ParaPsoSwarm_t(1, unitArray, PsoSimData_t);
+        pso.simData{1}      = {pso.swarms(1).simData};
+        pso.nSimData        = 1;
+      end
       
       % Algo interface
       pso.id_if               = 'id';

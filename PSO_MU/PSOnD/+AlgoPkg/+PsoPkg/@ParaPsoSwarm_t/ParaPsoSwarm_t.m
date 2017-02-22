@@ -3,6 +3,7 @@ classdef ParaPsoSwarm_t < handle
  
   properties
     id
+    iParticle
     swarmIteration
     nParticles
     particles
@@ -37,6 +38,7 @@ classdef ParaPsoSwarm_t < handle
       import SimPkg.ArrayPkg.Array_t
       s.particles             = ParaParticle_t.empty;
       s.swarmIteration        = 0;
+      s.iParticle             = 0;
       s.c1                    = 0;
       s.c2                    = 0;
       s.posMin                = 0;
@@ -239,6 +241,8 @@ classdef ParaPsoSwarm_t < handle
     RandomizeParticlesPos(s);
     %//////////////////////////////////////////////////////////////////////
     
+    RandomizeCertainParticles(s, idx);
+    
     %======================================================================
     function SplitUnitArray(s, idxToRemove, pso)
       if ~isempty(idxToRemove)
@@ -274,6 +278,45 @@ classdef ParaPsoSwarm_t < handle
           s.oResetParticles = 0;
           s.oMoveParticles  = 1;
         end
+      end
+    end
+    %//////////////////////////////////////////////////////////////////////
+    
+    %======================================================================
+    function SplitUnitArrayInto1dArrays(s, idxToRemove, pso)
+      if ~isempty(idxToRemove)
+        s.RemoveParticles(idxToRemove);
+
+        idxToRemove = sort(idxToRemove, 'descend');
+
+        aSplit = s.unitArray.empty;
+
+        for iArray = 1 : length(idxToRemove)
+          [aSplit(iArray), aKeep, idxToKeep] = pso.unitArray.SplitArray(idxToRemove, pso.nSwarms + 1);
+          newSwarm = ParaPsoSwarm_t(pso.nSwarms, aSplit(iArray), PsoSimData_t);
+          s.unitArray = aKeep;
+
+          newSwarm.SetSteadyState([newSwarm.nParticles 1], pso.swarms(1).steadyState.oscAmp, pso.swarms(1).steadyState.nSamplesForSteadyState);
+          newSwarm.SetParam(pso.swarms(1).c1, pso.swarms(1).c2, pso.swarms(1).omega, pso.swarms(1).decimals, pso.swarms(1).posRes, pso.swarms(1).posMin, pso.swarms(1).posMax);
+          newSwarm.RandomizeParticlesPos();
+
+          pso.AddSwarm(newSwarm);
+          pso.nSimData = pso.nSimData+1;
+          pso.simData{pso.nSimData} = {newSwarm.simData};
+        end
+
+
+
+%           ss = s.steadyState;
+%           s.SetSteadyState([s.nParticles 1], pso.swarms(1).steadyState.oscAmp, pso.swarms(1).steadyState.nSamplesForSteadyState);
+%           ss.Del;
+%           for i = 1 : s.steadyState.nSamplesForSteadyState
+%             s.steadyState.AddSample(s.GetParticlesPos);
+%           end
+%           s.steadyState.EvaluateSteadyState;
+%           if s.steadyState.oInSteadyState == 1
+%             s.oMoveParticles = 0;
+%           end
       end
     end
     %//////////////////////////////////////////////////////////////////////
