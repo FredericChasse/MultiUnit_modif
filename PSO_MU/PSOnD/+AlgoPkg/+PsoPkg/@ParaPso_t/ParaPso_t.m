@@ -46,6 +46,7 @@ classdef ParaPso_t < AlgoPkg.AbstractAlgoInterface_t
         pso.nSimData        = 1;
       else
         pso.nSwarms         = 1;
+        pso.swarms          = ParaPsoSwarm_t.empty;
         pso.swarms(1)       = ParaPsoSwarm_t(1, unitArray, PsoSimData_t);
         pso.simData{1}      = {pso.swarms(1).simData};
         pso.nSimData        = 1;

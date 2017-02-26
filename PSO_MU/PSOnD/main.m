@@ -16,14 +16,14 @@
 
 % Setup workspace
 %==========================================================================
-% if exist('rngState')
-%   rng(rngState);
-% else
-%   rngState = rng;
-% end
-% clearvars -except rngState
+if exist('rngState')
+  rng(rngState);
+else
+  rngState = rng;
+end
+clearvars -except rngState
 % clear all %#ok<CLSCR>
-clear % This will not remove the breakpoints
+% clear % This will not remove the breakpoints
 close all
 % clearvars -except rngState
 
@@ -70,6 +70,7 @@ typeOfAlgo = psoType;
 
 if strcmp(typeOfAlgo, psoType)
   nIterations = 75;
+%   nIterations = 125;
   waitBarModulo = 5;
 elseif strcmp(typeOfAlgo, extremumSeekType)
   if strcmp(typeOfUnits, mfcType)
@@ -90,7 +91,7 @@ wbh = waitbar(0, ['Sim : ' num2str(0) '/' num2str(nIterations)]);  % Waitbar han
 
 % Unit array
 %==========================================================================
-nUnits = 8;
+nUnits = 4;
 
 if strcmp(typeOfUnits, mfcType)
   InitMfc
@@ -219,6 +220,7 @@ end
 % end
 
 figure
+set(gcf, 'Position', get(0,'Screensize')); % Maximize figure.
 subplot(2,1,1)
 hold on
 legendStr = {};

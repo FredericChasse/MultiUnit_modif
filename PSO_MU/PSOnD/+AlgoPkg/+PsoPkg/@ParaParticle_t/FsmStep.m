@@ -1,8 +1,18 @@
 function [ oRemoveParticle ] = FsmStep( p, swarm )
 import AlgoPkg.PsoPkg.*
 
+if p.steadyState.oInSteadyState && p.state == ParticleState.SEARCHING
+  if swarm.unitArray.nUnits == 1
+    p.jSteady = p.pos.curFitness;
+    p.oAtOptimum = 1;
+    p.state = ParticleState.STEADY_STATE;
+  else
+    p.state = ParticleState.VALIDATE_OPTIMUM;
+  end
+end
+
 if p.oSentinelWarning == 1
-  p.state = PERTURB_OCCURED;
+  p.state = ParticleState.PERTURB_OCCURED;
 end
 
 switch p.state
@@ -13,12 +23,13 @@ switch p.state
             
   case ParticleState.PERTURB_OCCURED
     p.InitSpeed(swarm);
+    p.InitPos  (swarm);
     oRemoveParticle = 0;
     
   case ParticleState.VALIDATE_OPTIMUM
-    if p.optPos.j == 0
-      p.optPos.j      = p.pos.curFitness;
-      p.optPos.d      = p.pos.curPos;
+    if p.optPos.jinit == 0
+      p.optPos.jinit  = p.pos.curFitness;
+      p.optPos.dinit  = p.pos.curPos;
       p.optPos.dminus = p.pos.curPos - swarm.perturbAmp;
       p.optPos.dpos   = p.pos.curPos + swarm.perturbAmp;
 
@@ -43,7 +54,7 @@ switch p.state
       p.optPos.jpos   = p.pos.curFitness;
 
       p.pos.prevPos   = p.pos.curPos;
-      p.pos.curPos    = p.optPos.d;
+      p.pos.curPos    = p.optPos.dinit;
       p.prevSpeed     = p.curSpeed;
       p.curSpeed      = -swarm.perturbAmp;
       
@@ -51,18 +62,19 @@ switch p.state
 
     else
       % If no perturbation has occured
-      if     p.pos.curFitness < p.optPos.j * (1 + swarm.sentinelMargin) ...
-          && p.pos.curFitness > p.optPos.j * (1 - swarm.sentinelMargin)
+      if     p.pos.curFitness < p.optPos.jinit * (1 + swarm.sentinelMargin) ...
+          && p.pos.curFitness > p.optPos.jinit * (1 - swarm.sentinelMargin)
 
         % If the final position is an optimum
         if p.optPos.jminus < p.pos.curFitness && p.optPos.jpos < p.pos.curFitness
           p.state = ParticleState.STEADY_STATE;
           p.oAtOptimum = 1;
-          oRemoveParticle = 1;
+          p.jSteady = p.pos.curFitness;
+          oRemoveParticle = 0;
 %           p.ComputeSpeed(swarm);
 %           p.ComputePos  (swarm);
-        else
-          p.ResetOptPos;
+
+        else % If the position is not an optimum
           if p.optPos.dinit == p.pbestAbs.pos % If we were testing for Pbest
             p.state = ParticleState.SEARCHING;
             oRemoveParticle = 1;
@@ -71,6 +83,7 @@ switch p.state
             p.pos.curPos  = p.pbestAbs.pos;
             oRemoveParticle = 0;
           end
+          p.ResetOptPos;
         end
       else % Perturbation has occured
         p.state = ParticleState.SEARCHING;
@@ -79,6 +92,9 @@ switch p.state
     end
             
   case ParticleState.STEADY_STATE
+    p.pos.prevPos = p.pos.curPos;
+    p.prevSpeed   = p.curSpeed;
+    p.curSpeed    = 0;
     oRemoveParticle = 0;
     
   otherwise

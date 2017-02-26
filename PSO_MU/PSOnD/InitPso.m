@@ -1,8 +1,8 @@
 % psoAlgo       = PsoType.PSO_ND_SINGLE_SWARM;
 % psoAlgo       = PsoType.PSO_ND_MULTI_SWARM;
 % psoAlgo       = PsoType.PSO_1D;
-psoAlgo       = PsoType.PARALLEL_PSO;
-% psoAlgo       = PsoType.PARALLEL_PSO_PBEST_ABS;
+% psoAlgo       = PsoType.PARALLEL_PSO;
+psoAlgo       = PsoType.PARALLEL_PSO_PBEST_ABS;
 
 nParticles    = 3;
 psoId         = 1;
@@ -48,7 +48,7 @@ pso.swarms(1).RandomizeParticlesPos();
 
 if psoAlgo == PsoType.PARALLEL_PSO_PBEST_ABS
   for iUnit = 1 : pso.swarms(1).unitArray.nUnits
-    pso.swarms(1).unitArray.units(iParticle).SetPos(p.pos.curPos);
+    pso.swarms(1).unitArray.units(iUnit).SetPos(pso.swarms(1).particles(iUnit).pos.curPos);
   end
 end
 

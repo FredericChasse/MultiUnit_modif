@@ -1,4 +1,5 @@
 function [  ] = ComputePbest( p )
+import AlgoPkg.PsoPkg.*
 
 p.pbest.prevPos       = p.pbest.curPos;
 p.pbest.prevFitness   = p.pbest.curFitness;
@@ -11,10 +12,12 @@ else
   p.pbest.curFitness  = p.pos.prevFitness;
 end
 
-if p.pbest.curFitness > p.pbestAbs.fitness
-  p.pbestAbs.pos      = p.pbest.curPos;
-  p.pbestAbs.fitness  = p.pbest.curFitness;
-end
+% if p.state ~= ParticleState.VALIDATE_OPTIMUM
+  if p.pbest.curFitness > p.pbestAbs.fitness
+    p.pbestAbs.pos      = p.pbest.curPos;
+    p.pbestAbs.fitness  = p.pbest.curFitness;
+  end
+% end
 
 end
 

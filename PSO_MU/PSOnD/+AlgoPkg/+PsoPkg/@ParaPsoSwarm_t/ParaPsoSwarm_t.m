@@ -49,7 +49,7 @@ classdef ParaPsoSwarm_t < handle
       s.id                    = id;
       s.minParticles          = 3;
       s.nUnitsPerParticle     = 1;
-      s.perturbAmp            = 10;
+      s.perturbAmp            = 5;
       s.sentinelMargin        = 0.05;    % 5% margin for sentinels
       s.steadyState           = SteadyState_t.empty;
       s.nParticles            = 0;
@@ -284,6 +284,7 @@ classdef ParaPsoSwarm_t < handle
     
     %======================================================================
     function SplitUnitArrayInto1dArrays(s, idxToRemove, pso)
+      import AlgoPkg.PsoPkg.*
       if ~isempty(idxToRemove)
         s.RemoveParticles(idxToRemove);
 
@@ -299,6 +300,7 @@ classdef ParaPsoSwarm_t < handle
           newSwarm.SetSteadyState([newSwarm.nParticles 1], pso.swarms(1).steadyState.oscAmp, pso.swarms(1).steadyState.nSamplesForSteadyState);
           newSwarm.SetParam(pso.swarms(1).c1, pso.swarms(1).c2, pso.swarms(1).omega, pso.swarms(1).decimals, pso.swarms(1).posRes, pso.swarms(1).posMin, pso.swarms(1).posMax);
           newSwarm.RandomizeParticlesPos();
+          newSwarm.unitArray.units(1).SetPos(newSwarm.particles(1).pos.curPos);
 
           pso.AddSwarm(newSwarm);
           pso.nSimData = pso.nSimData+1;

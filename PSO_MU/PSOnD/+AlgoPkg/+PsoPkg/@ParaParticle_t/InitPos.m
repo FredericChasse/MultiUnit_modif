@@ -1,12 +1,5 @@
-function [  ] = RandomizeCertainParticles( s, idx )
-
-import AlgoPkg.PsoPkg.*
-import AlgoPkg.*
-
-for iParticle = 1 : length(idx)
-  p = s.particles(idx(iParticle));
-  
-  p.pos.prevPos = s.particles(iParticle).pos.curPos;
+function [] = InitPos( p, s )
+  p.pos.prevPos = p.pos.curPos;
   p.pos.curPos = rand(1, 1) * (s.posMax - s.posMin) + s.posMin;
   
   residue = mod(p.pos.curPos, s.posRes);
@@ -21,10 +14,5 @@ for iParticle = 1 : length(idx)
   elseif p.pos.curPos < s.posMin
     p.pos.curPos = s.posMin;
   end
-  
-  p.pbest.curFitness  = 0;
-  p.pbestAbs.fitness  = 0;
-end
-
 end
 

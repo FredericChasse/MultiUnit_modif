@@ -60,7 +60,9 @@ classdef ParaParticle_t < handle
     end
     
     % Compare previous pos/fitness to current pos/fitness
+    %======================================================================
     function SentinelEval(p, margin)
+      import AlgoPkg.PsoPkg.ParticleState
       if p.state == ParticleState.STEADY_STATE
         jCompare = p.jSteady;
       else
@@ -76,19 +78,26 @@ classdef ParaParticle_t < handle
         p.oSentinelWarning = 0;
       end
     end
+    %======================================================================
     
+    %======================================================================
     function oSentinelWarning = GetSentinelState(p)
       oSentinelWarning = p.oSentinelWarning;
     end
+    %======================================================================
     
+    %======================================================================
     function ResetOptPos(p)
       p.optPos.d      = 0;
       p.optPos.j      = 0;
+      p.optPos.dinit  = 0;
+      p.optPos.jinit  = 0;
       p.optPos.dminus = 0;
       p.optPos.dpos   = 0;
       p.optPos.jminus = 0;
       p.optPos.jpos   = 0;
     end
+    %======================================================================
     
     % Set steady state settings
     %======================================================================
@@ -101,6 +110,11 @@ classdef ParaParticle_t < handle
     % Finite State Machine of the particle
     %======================================================================
     [oRemoveParticle] = FsmStep(p, s);
+    %//////////////////////////////////////////////////////////////////////
+    
+    % Randomize position of the particle
+    %======================================================================
+    InitPos(p, s);
     %//////////////////////////////////////////////////////////////////////
     
   end
