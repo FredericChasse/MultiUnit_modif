@@ -24,6 +24,7 @@ switch p.state
   case ParticleState.PERTURB_OCCURED
     p.InitSpeed(swarm);
     p.InitPos  (swarm);
+    p.state = ParticleState.SEARCHING;
     oRemoveParticle = 0;
     
   case ParticleState.VALIDATE_OPTIMUM
@@ -71,6 +72,8 @@ switch p.state
           p.oAtOptimum = 1;
           p.jSteady = p.pos.curFitness;
           oRemoveParticle = 0;
+          p.pos.prevPos     = p.pos.curPos;
+          p.pos.prevFitness = p.pos.curFitness;
 %           p.ComputeSpeed(swarm);
 %           p.ComputePos  (swarm);
 
@@ -92,10 +95,12 @@ switch p.state
     end
             
   case ParticleState.STEADY_STATE
-    p.pos.prevPos = p.pos.curPos;
-    p.prevSpeed   = p.curSpeed;
-    p.curSpeed    = 0;
-    oRemoveParticle = 0;
+    p.pos.prevPos     = p.pos.curPos;
+    p.prevSpeed       = p.curSpeed;
+    p.curSpeed        = 0;
+    p.pos.prevPos     = p.pos.curPos;
+    p.pos.prevFitness = p.pos.curFitness;
+    oRemoveParticle   = 0;
     
   otherwise
     error('Wrong state!')

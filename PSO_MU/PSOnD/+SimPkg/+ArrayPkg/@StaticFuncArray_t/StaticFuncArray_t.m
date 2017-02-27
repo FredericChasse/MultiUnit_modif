@@ -17,6 +17,7 @@ classdef StaticFuncArray_t < SimPkg.ArrayPkg.AbstractArrayInterface_t
     integrationTime_if
     EvaluateFunc_if
     SplitArrayFunc_if
+    AddUnitToArray_if
   end
   
   methods
@@ -43,6 +44,7 @@ classdef StaticFuncArray_t < SimPkg.ArrayPkg.AbstractArrayInterface_t
       array.integrationTime_if  = 'integrationTime';
       array.EvaluateFunc_if     = 'EvalUnit';
       array.SplitArrayFunc_if   = 'SplitArray';
+      array.AddUnitToArray_if   = 'AddUnitToArray';
     end
     
     function [aSplit, aKeep, idxToKeep] = SplitArray(array, idxToSplit, newId)
@@ -72,6 +74,11 @@ classdef StaticFuncArray_t < SimPkg.ArrayPkg.AbstractArrayInterface_t
         aKeep.units(iUnit).Del;
         aKeep.units(iUnit) = array.units(idxToKeep(iUnit));
       end
+    end
+    
+    function AddUnitToArray(array, unit)
+      array.nUnits = array.nUnits + 1;
+      array.units(array.nUnits) = unit;
     end
     
     % Destructor

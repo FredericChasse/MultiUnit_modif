@@ -5,20 +5,10 @@ for iUnit = 1 : pso.unitArray.nUnits
   pso.unitArray.EvalUnit(iUnit);
 end
 
-% for iSwarm = 1 : pso.nSwarms
-%   swarm = pso.swarms(iSwarm);
-%   
-%   % Compute the fitness of each unit
-%   %--------------------------------------------------------------------
-%   for iParticle = 1 : swarm.nParticles
-%     p = swarm.particles(iParticle);
-%     iUnit = mod(iParticle - 1, swarm.unitArray.nUnits) + 1;
-%     swarm.unitArray.units(iUnit).SetPos(p.pos.curPos);
-%     swarm.unitArray.EvalUnit(iUnit);
-%     p.SetFitness(swarm.unitArray.units(iUnit).fitness);
-%   end
-%   %____________________________________________________________________
-% end
+pso.nIterations = pso.nIterations + 1;
+if pso.nIterations >= 68
+  allo = 1;
+end
 
 pso.realTimeElapsed = pso.realTimeElapsed + pso.unitEvalTime;
 
@@ -31,6 +21,8 @@ swarm.swarmIteration = swarm.swarmIteration + 1;
 if swarm.swarmIteration == 17
   allo = 1;
 end
+
+nSwarmsMem = pso.nSwarms;
 
 if swarm.nParticles ~= 0
 
@@ -86,7 +78,7 @@ if swarm.nParticles ~= 0
   particlesPerturbed = [];
   for iParticle = 1 : swarm.nParticles
     p = swarm.particles(iParticle);
-    if swarm.swarmIteration >= 23 && iParticle == 2
+    if swarm.swarmIteration >= 22 && swarm.unitArray.units(iParticle).id == 4
       allo = 1;
     end
     oRemoveFromSwarm = p.FsmStep(swarm);
@@ -114,9 +106,15 @@ if swarm.nParticles ~= 0
 end
 %==========================================================================
 
-for iSwarm = 2 : pso.nSwarms
+swarmsToDelete = [];
+for iSwarm = 2 : nSwarmsMem
+% for iSwarm = 2 : pso.nSwarms
   swarm = pso.swarms(iSwarm);
   if swarm.nParticles ~= 0
+    
+    if swarm.unitArray.units(1).id == 4
+      allo = 1;
+    end
     
     swarm.iParticle = swarm.iParticle + 1;
     swarm.particles(swarm.iParticle).SetFitness(swarm.unitArray.units(1).fitness);
@@ -168,23 +166,52 @@ for iSwarm = 2 : pso.nSwarms
 
       % Particles' FSM
       %--------------------------------------------------------------------
-      idxToRemove = [];
+      idxInSteadyState = [];
       particlesPerturbed = [];
       for iParticle = 1 : swarm.nParticles
         p = swarm.particles(iParticle);
         p.FsmStep(swarm);
         if p.state == ParticleState.STEADY_STATE
-          idxToRemove = [idxToRemove iParticle]; %#ok<AGROW>
+          idxInSteadyState = [idxInSteadyState iParticle]; %#ok<AGROW>
         end
         if p.state == ParticleState.PERTURB_OCCURED
           particlesPerturbed = [particlesPerturbed iParticle]; %#ok<AGROW>
         end
       end
+%       if ~isempty(idxInSteadyState)
+      if length(idxInSteadyState) == swarm.nParticles
+        for iParticle = 1 : swarm.nParticles
+          p = swarm.particles(iParticle);
+          p.state           = ParticleState.STEADY_STATE;
+          p.pos.prevPos     = p.pos.curPos;
+          p.pos.prevFitness = p.pos.curFitness;
+          p.pos.curPos      = swarm.gbest.curPos;
+          p.pos.curFitness  = swarm.gbest.curFitness;
+          p.jSteady         = p.pos.curFitness;
+          p.oAtOptimum      = 1;
+        end
+      end
       %____________________________________________________________________
   
       if ~isempty(particlesPerturbed)
+        
         swarm.RandomizeParticlesPos;
         for iParticle = 1 : swarm.nParticles
+          swarm.particles(iParticle).InitSpeed;
+        end
+        
+        oFirstSwarmActive = 0;
+        for iParticle = 1 : pso.swarms(1).nParticles
+          if pso.swarms(1).particles(iParticle).state == ParticleState.SEARCHING
+            oFirstSwarmActive = 1;
+            break;
+          end
+        end
+        
+        if ~oFirstSwarmActive
+          pso.swarms(1).unitArray.AddUnitToArray(swarm.unitArray.units(1));
+          pso.swarms(1).AddParticle(swarm.particles(1));
+          swarmsToDelete = [swarmsToDelete swarm.id]; %#ok<AGROW>
         end
       end
       swarm.unitArray.units(1).SetPos(swarm.particles(1).pos.curPos);
@@ -193,6 +220,10 @@ for iSwarm = 2 : pso.nSwarms
       swarm.unitArray.units(1).SetPos(swarm.particles(swarm.iParticle + 1).pos.curPos);
     end
   end
+end
+
+if ~isempty(swarmsToDelete)
+  pso.RemoveSwarms(swarmsToDelete);
 end
 
 end

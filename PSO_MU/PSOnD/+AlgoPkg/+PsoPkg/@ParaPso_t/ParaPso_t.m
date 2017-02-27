@@ -9,6 +9,7 @@ classdef ParaPso_t < AlgoPkg.AbstractAlgoInterface_t
     unitArray
     simData
     nSimData
+    nIterations
     realTimeElapsed
     unitEvalTime
     psoType
@@ -31,6 +32,8 @@ classdef ParaPso_t < AlgoPkg.AbstractAlgoInterface_t
       if (psoType ~= PsoType.PARALLEL_PSO) && (psoType ~= PsoType.PARALLEL_PSO_PBEST_ABS)
         error('Wrong algorithm!')
       end
+      
+      pso.nIterations     = 0;
       
       pso.id              = id;
       pso.unitArray       = unitArray;

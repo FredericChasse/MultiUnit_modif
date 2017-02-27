@@ -22,8 +22,8 @@ else
   rngState = rng;
 end
 clearvars -except rngState
-% clear all %#ok<CLSCR>
 % clear % This will not remove the breakpoints
+% clear all %#ok<CLSCR>
 close all
 % clearvars -except rngState
 
@@ -70,7 +70,7 @@ typeOfAlgo = psoType;
 
 if strcmp(typeOfAlgo, psoType)
   nIterations = 75;
-%   nIterations = 125;
+  nIterations = 125;
   waitBarModulo = 5;
 elseif strcmp(typeOfAlgo, extremumSeekType)
   if strcmp(typeOfUnits, mfcType)
@@ -91,7 +91,7 @@ wbh = waitbar(0, ['Sim : ' num2str(0) '/' num2str(nIterations)]);  % Waitbar han
 
 % Unit array
 %==========================================================================
-nUnits = 4;
+nUnits = 8;
 
 if strcmp(typeOfUnits, mfcType)
   InitMfc

@@ -19,6 +19,7 @@ classdef MfcArray_t < SimPkg.ArrayPkg.AbstractArrayInterface_t
     integrationTime_if
     EvaluateFunc_if
     SplitArrayFunc_if
+    AddUnitToArray_if
   end
   
   methods (Access = public)
@@ -47,6 +48,7 @@ classdef MfcArray_t < SimPkg.ArrayPkg.AbstractArrayInterface_t
       array.integrationTime_if  = 'integrationTime';
       array.EvaluateFunc_if     = 'EvaluateMfc';
       array.SplitArrayFunc_if   = 'SplitArray';
+      array.AddUnitToArray_if   = 'AddUnitToArray';
     end
     
     % Destructor
@@ -98,6 +100,11 @@ classdef MfcArray_t < SimPkg.ArrayPkg.AbstractArrayInterface_t
       mfcs.realTimeElapsed = mfcs.realTimeElapsed+ timeElapsed;
       fh = str2func(mfcs.mfcModel);
       [~, mfcs.units(id).pout] = fh(mfcs.integrationTime, mfcs.units(id).dynamics, mfcs.odeOptions, mfcs.units(id).s0, mfcs.units(id).rext);
+    end
+    
+    function AddUnitToArray(mfcs, unit)
+      mfcs.nUnits = mfcs.nUnits + 1;
+      mfcs.units(mfcs.nUnits) = unit;
     end
     
   end

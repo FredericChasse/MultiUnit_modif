@@ -14,6 +14,7 @@ classdef Array_t < SimPkg.ArrayPkg.AbstractArrayInterface_t
     integrationTime_if
     EvaluateFunc_if
     SplitArrayFunc_if
+    AddUnitToArray_if
   end
   
   methods
@@ -32,6 +33,7 @@ classdef Array_t < SimPkg.ArrayPkg.AbstractArrayInterface_t
       array.integrationTime_if  = obj.integrationTime_if;
       array.EvaluateFunc_if     = obj.EvaluateFunc_if;
       array.SplitArrayFunc_if   = obj.SplitArrayFunc_if;
+      array.AddUnitToArray_if   = obj.AddUnitToArray_if;
       
       % Create array of units based on object received
       array.units = Unit_t.empty;
@@ -61,6 +63,14 @@ classdef Array_t < SimPkg.ArrayPkg.AbstractArrayInterface_t
 %       array.units(id).nUnitEval = array.units(id).nUnitEval + 1;
 %       array.units(id).jmem(array.units(id).nUnitEval) = array.units(id).fitness;
 %       array.units(id).dmem(array.units(id).nUnitEval) = array.units(id).pos;
+    end
+    
+    function AddUnitToArray(array, unit)
+      import SimPkg.*
+      import SimPkg.ArrayPkg.*
+      import SimPkg.UnitPkg.*
+      array.obj.(array.AddUnitToArray_if)(unit);
+      array.units(array.nUnits) = Unit_t(array.obj.(array.units_if)(array.nUnits));
     end
     
     function id = id(array)

@@ -8,6 +8,7 @@ classdef (Abstract) AbstractArrayInterface_t < handle & matlab.mixin.Heterogeneo
     integrationTime_if
     EvaluateFunc_if
     SplitArrayFunc_if
+    AddUnitToArray_if
   end
   
 %   methods

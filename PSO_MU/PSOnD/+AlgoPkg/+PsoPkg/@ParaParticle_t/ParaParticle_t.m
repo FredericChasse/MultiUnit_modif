@@ -88,13 +88,11 @@ classdef ParaParticle_t < handle
     
     %======================================================================
     function ResetOptPos(p)
-      p.optPos.d      = 0;
-      p.optPos.j      = 0;
       p.optPos.dinit  = 0;
       p.optPos.jinit  = 0;
       p.optPos.dminus = 0;
-      p.optPos.dpos   = 0;
       p.optPos.jminus = 0;
+      p.optPos.dpos   = 0;
       p.optPos.jpos   = 0;
     end
     %======================================================================

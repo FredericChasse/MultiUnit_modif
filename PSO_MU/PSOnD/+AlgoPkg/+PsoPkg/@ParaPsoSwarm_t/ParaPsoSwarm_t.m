@@ -49,7 +49,7 @@ classdef ParaPsoSwarm_t < handle
       s.id                    = id;
       s.minParticles          = 3;
       s.nUnitsPerParticle     = 1;
-      s.perturbAmp            = 5;
+      s.perturbAmp            = 15;
       s.sentinelMargin        = 0.05;    % 5% margin for sentinels
       s.steadyState           = SteadyState_t.empty;
       s.nParticles            = 0;
@@ -289,16 +289,23 @@ classdef ParaPsoSwarm_t < handle
         s.RemoveParticles(idxToRemove);
 
         idxToRemove = sort(idxToRemove, 'descend');
+        idxMem = idxToRemove;
+        
+        for i = 1 : length(idxMem)
+          idxToRemove(i) = s.unitArray.units(idxMem(i)).id;
+        end
 
         aSplit = s.unitArray.empty;
 
         for iArray = 1 : length(idxToRemove)
-          [aSplit(iArray), aKeep, idxToKeep] = pso.unitArray.SplitArray(idxToRemove, pso.nSwarms + 1);
+          [aSplit(iArray), aKeep, idxToKeep] = pso.unitArray.SplitArray(idxToRemove(iArray), pso.nSwarms + 1);
+%           [aSplit(iArray), aKeep, idxToKeep] = s.unitArray.SplitArray(idxToRemove(iArray), pso.nSwarms + 1);
           newSwarm = ParaPsoSwarm_t(pso.nSwarms, aSplit(iArray), PsoSimData_t);
-          s.unitArray = aKeep;
+%           s.unitArray = aKeep;
 
           newSwarm.SetSteadyState([newSwarm.nParticles 1], pso.swarms(1).steadyState.oscAmp, pso.swarms(1).steadyState.nSamplesForSteadyState);
-          newSwarm.SetParam(pso.swarms(1).c1, pso.swarms(1).c2, pso.swarms(1).omega, pso.swarms(1).decimals, pso.swarms(1).posRes, pso.swarms(1).posMin, pso.swarms(1).posMax);
+%           newSwarm.SetParam(pso.swarms(1).c1, pso.swarms(1).c2, pso.swarms(1).omega, pso.swarms(1).decimals, pso.swarms(1).posRes, pso.swarms(1).posMin, pso.swarms(1).posMax);
+          newSwarm.SetParam(pso.swarms(1).c1/2, pso.swarms(1).c2/2, pso.swarms(1).omega, pso.swarms(1).decimals, pso.swarms(1).posRes, pso.swarms(1).posMin, pso.swarms(1).posMax);
           newSwarm.RandomizeParticlesPos();
           newSwarm.unitArray.units(1).SetPos(newSwarm.particles(1).pos.curPos);
 
@@ -306,19 +313,14 @@ classdef ParaPsoSwarm_t < handle
           pso.nSimData = pso.nSimData+1;
           pso.simData{pso.nSimData} = {newSwarm.simData};
         end
-
-
-
-%           ss = s.steadyState;
-%           s.SetSteadyState([s.nParticles 1], pso.swarms(1).steadyState.oscAmp, pso.swarms(1).steadyState.nSamplesForSteadyState);
-%           ss.Del;
-%           for i = 1 : s.steadyState.nSamplesForSteadyState
-%             s.steadyState.AddSample(s.GetParticlesPos);
-%           end
-%           s.steadyState.EvaluateSteadyState;
-%           if s.steadyState.oInSteadyState == 1
-%             s.oMoveParticles = 0;
-%           end
+        
+        idxToKeep = zeros(pso.nSwarms-1, 1);
+        for iSwarm = 2 : pso.nSwarms
+          idxToKeep(iSwarm - 1) = pso.swarms(iSwarm).unitArray.units(1).id;
+        end
+        
+        [aSplit, aKeep, idxToKeep] = pso.unitArray.SplitArray(idxToKeep, 1);
+        s.unitArray = aKeep;
       end
     end
     %//////////////////////////////////////////////////////////////////////

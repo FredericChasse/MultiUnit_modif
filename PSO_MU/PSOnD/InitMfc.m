@@ -24,5 +24,5 @@ array = Array_t(mfcArray);
 nDiffUnits = floor(array.nUnits / 2);
 
 for i = 1 : nDiffUnits
-  mfcArray.units(i).s0 = 500;
+  mfcArray.units(i).s0 = 250;
 end

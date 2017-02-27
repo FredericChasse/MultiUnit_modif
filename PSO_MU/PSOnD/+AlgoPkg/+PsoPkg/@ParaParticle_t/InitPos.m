@@ -14,5 +14,8 @@ function [] = InitPos( p, s )
   elseif p.pos.curPos < s.posMin
     p.pos.curPos = s.posMin;
   end
+  
+  p.pbest.curFitness = 0;
+  p.pbestAbs = 0;
 end
 
