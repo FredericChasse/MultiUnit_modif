@@ -6,9 +6,6 @@ for iUnit = 1 : pso.unitArray.nUnits
 end
 
 pso.nIterations = pso.nIterations + 1;
-if pso.nIterations >= 68
-  allo = 1;
-end
 
 pso.realTimeElapsed = pso.realTimeElapsed + pso.unitEvalTime;
 
@@ -30,6 +27,10 @@ for iSwarm = 1 : pso.nSwarms
       end
       swarm.ComputeGbest;
       %____________________________________________________________________
+      
+      if iSwarm == 4 && swarm.swarmIteration >= 40
+        allo = 1;
+      end
 
       % Check for perturbations
       %--------------------------------------------------------------------
@@ -42,16 +43,19 @@ for iSwarm = 1 : pso.nSwarms
       end
       %____________________________________________________________________
 
-%       % Check for steady state
-%       %--------------------------------------------------------------------
-%       for iParticle = 1 : swarm.nParticles
-%         p = swarm.particles(iParticle);
-%         p.steadyState.AddSample(p.pos.curPos);
-%         p.steadyState.EvaluateSteadyState;
-%       end
-%       %____________________________________________________________________
+      % Check for steady state of the particles
+      %--------------------------------------------------------------------
+      for iParticle = 1 : swarm.nParticles
+        p = swarm.particles(iParticle);
+        p.steadyState.AddSample(p.pos.curPos);
+        p.steadyState.EvaluateSteadyState;
+        if p.steadyState.oInSteadyState
+          p.jSteady = p.pos.curFitness;
+        end
+      end
+      %____________________________________________________________________
 
-      % Check for steady state
+      % Check for steady state of the swarm
       %--------------------------------------------------------------------
       swarm.steadyState.AddSample(swarm.GetParticlesPos);
       swarm.steadyState.EvaluateSteadyState;
