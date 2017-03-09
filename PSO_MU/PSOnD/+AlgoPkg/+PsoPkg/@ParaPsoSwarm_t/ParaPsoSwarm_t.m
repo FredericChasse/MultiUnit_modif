@@ -60,9 +60,14 @@ classdef ParaPsoSwarm_t < handle
       s.simData               = simData;
       
       nParticles = unitArray.nUnits; %#ok<*PROP>
-      while nParticles < s.minParticles
-        s.nUnitsPerParticle = s.nUnitsPerParticle * 2;
-        nParticles          = nParticles        * 2;
+      if nParticles == 1
+        s.nUnitsPerParticle = 3;
+        nParticles = 3;
+      else
+        while nParticles < s.minParticles
+          s.nUnitsPerParticle = s.nUnitsPerParticle * 2;
+          nParticles          = nParticles        * 2;
+        end
       end
         
       s.CreateParticles(nParticles);
@@ -314,12 +319,15 @@ classdef ParaPsoSwarm_t < handle
           pso.simData{pso.nSimData} = {newSwarm.simData};
         end
         
+%         s.unitArray.RemoveUnit(idxToRemove);
         idxToKeep = zeros(pso.nSwarms-1, 1);
         for iSwarm = 2 : pso.nSwarms
           idxToKeep(iSwarm - 1) = pso.swarms(iSwarm).unitArray.units(1).id;
         end
         
-        [aSplit, aKeep, idxToKeep] = pso.unitArray.SplitArray(idxToKeep, 1);
+%         [aSplit, aKeep, idxToKeep] = pso.unitArray.SplitArray(idxToKeep, 1);
+%         [aSplit, aKeep, idxToKeep] = s.unitArray.SplitArray(idxToRemove, 1);
+        [aSplit, aKeep, idxToKeep] = s.unitArray.SplitArray(idxMem, 1);
         s.unitArray = aKeep;
       end
     end

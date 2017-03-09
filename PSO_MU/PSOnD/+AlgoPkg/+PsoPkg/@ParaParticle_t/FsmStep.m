@@ -26,6 +26,7 @@ switch p.state
     p.InitPos  (swarm);
     p.state = ParticleState.SEARCHING;
     oRemoveParticle = 0;
+%     oRemoveParticle = 1;
     
   case ParticleState.VALIDATE_OPTIMUM
     if p.optPos.jinit == 0
@@ -67,7 +68,7 @@ switch p.state
           && p.pos.curFitness > p.optPos.jinit * (1 - swarm.sentinelMargin)
 
         % If the final position is an optimum
-        if p.optPos.jminus < p.pos.curFitness && p.optPos.jpos < p.pos.curFitness
+        if p.optPos.jminus <= p.pos.curFitness && p.optPos.jpos <= p.pos.curFitness
           p.state = ParticleState.STEADY_STATE;
           p.oAtOptimum = 1;
           p.jSteady = p.pos.curFitness;

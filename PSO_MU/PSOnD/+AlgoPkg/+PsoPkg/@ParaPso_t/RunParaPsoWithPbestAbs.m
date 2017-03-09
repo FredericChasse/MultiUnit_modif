@@ -18,7 +18,7 @@ iSwarm = 1;
 swarm = pso.swarms(iSwarm);
 swarm.swarmIteration = swarm.swarmIteration + 1;
 
-if swarm.swarmIteration == 17
+if swarm.swarmIteration >= 139
   allo = 1;
 end
 
@@ -26,6 +26,10 @@ nSwarmsMem = pso.nSwarms;
 
 if swarm.nParticles ~= 0
 
+  if swarm.swarmIteration >= 110
+    allo = 1;
+  end
+  
   % Set the fitness of each particle
   %--------------------------------------------------------------------
   for iParticle = 1 : swarm.nParticles
@@ -53,6 +57,9 @@ if swarm.nParticles ~= 0
   % Check for steady state
   %--------------------------------------------------------------------
   for iParticle = 1 : swarm.nParticles
+    if swarm.swarmIteration >= 113 && swarm.unitArray.units(iParticle).id == 4
+      allo = 1;
+    end
     p = swarm.particles(iParticle);
     p.steadyState.AddSample(p.pos.curPos);
     p.steadyState.EvaluateSteadyState;
@@ -78,14 +85,14 @@ if swarm.nParticles ~= 0
   particlesPerturbed = [];
   for iParticle = 1 : swarm.nParticles
     p = swarm.particles(iParticle);
-    if swarm.swarmIteration >= 22 && swarm.unitArray.units(iParticle).id == 4
+    if swarm.swarmIteration >= 113 && swarm.unitArray.units(iParticle).id == 4
       allo = 1;
     end
     oRemoveFromSwarm = p.FsmStep(swarm);
     if oRemoveFromSwarm
       idxToRemove = [idxToRemove iParticle]; %#ok<AGROW>
     end
-    if p.state == ParticleState.PERTURB_OCCURED
+    if p.oSentinelWarning == 1
       particlesPerturbed = [particlesPerturbed iParticle]; %#ok<AGROW>
     end
     swarm.unitArray.units(iParticle).SetPos(p.pos.curPos);
@@ -93,9 +100,13 @@ if swarm.nParticles ~= 0
   %____________________________________________________________________
   
   if ~isempty(particlesPerturbed)
-    swarm.RandomizeCertainParticles(particlesPerturbed);
-    for iParticle = 1 : swarm.nParticles
-      swarm.unitArray.units(iParticle).SetPos(p.pos.curPos);
+    if length(particlesPerturbed) == swarm.nParticles
+      swarm.RandomizeCertainParticles(particlesPerturbed);
+      for iParticle = 1 : swarm.nParticles
+        swarm.unitArray.units(iParticle).SetPos(p.pos.curPos);
+      end
+    else
+      swarm.SplitUnitArrayInto1dArrays(particlesPerturbed, pso);
     end
   end
   
@@ -113,6 +124,10 @@ for iSwarm = 2 : nSwarmsMem
   if swarm.nParticles ~= 0
     
     if swarm.unitArray.units(1).id == 4
+      allo = 1;
+    end
+    
+    if pso.nIterations >= 113 && swarm.unitArray.units(1).id == 4
       allo = 1;
     end
     
@@ -174,7 +189,7 @@ for iSwarm = 2 : nSwarmsMem
         if p.state == ParticleState.STEADY_STATE
           idxInSteadyState = [idxInSteadyState iParticle]; %#ok<AGROW>
         end
-        if p.state == ParticleState.PERTURB_OCCURED
+        if p.oSentinelWarning == 1
           particlesPerturbed = [particlesPerturbed iParticle]; %#ok<AGROW>
         end
       end
@@ -197,7 +212,7 @@ for iSwarm = 2 : nSwarmsMem
         
         swarm.RandomizeParticlesPos;
         for iParticle = 1 : swarm.nParticles
-          swarm.particles(iParticle).InitSpeed;
+          swarm.particles(iParticle).InitSpeed(swarm);
         end
         
         oFirstSwarmActive = 0;
@@ -208,8 +223,11 @@ for iSwarm = 2 : nSwarmsMem
           end
         end
         
-        if ~oFirstSwarmActive
-          pso.swarms(1).unitArray.AddUnitToArray(swarm.unitArray.units(1));
+        if oFirstSwarmActive
+          pso.swarms(1).unitArray.AddUnitToArray(swarm.unitArray.units(1).obj);
+          for i = 1 : length(swarm.particles(1).steadyState.samples)
+            swarm.particles(1).steadyState.AddSample(rand*100);
+          end
           pso.swarms(1).AddParticle(swarm.particles(1));
           swarmsToDelete = [swarmsToDelete swarm.id]; %#ok<AGROW>
         end

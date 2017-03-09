@@ -29,7 +29,7 @@ classdef ParaPso_t < AlgoPkg.AbstractAlgoInterface_t
     function pso = ParaPso_t(id, unitArray, psoType)
       import AlgoPkg.PsoPkg.*
       
-      if (psoType ~= PsoType.PARALLEL_PSO) && (psoType ~= PsoType.PARALLEL_PSO_PBEST_ABS)
+      if (psoType ~= PsoType.PARALLEL_PSO) && (psoType ~= PsoType.PARALLEL_PSO_PBEST_ABS) && (psoType ~= PsoType.PSO_1D)
         error('Wrong algorithm!')
       end
       
@@ -47,7 +47,17 @@ classdef ParaPso_t < AlgoPkg.AbstractAlgoInterface_t
         pso.swarms(1)       = ParaPsoSwarm_t(1, unitArray, PsoSimData_t);
         pso.simData{1}      = {pso.swarms(1).simData};
         pso.nSimData        = 1;
-      else
+      elseif psoType == PsoType.PSO_1D
+        pso.nSwarms         = unitArray.nUnits;
+        pso.swarms          = ParaPsoSwarm_t.empty;
+        singleArrays = unitArray.empty;
+        for iUnit = 1 : unitArray.nUnits
+          [singleArrays(iUnit), aKeep, idxToKeep] = unitArray.SplitArray(iUnit, iUnit);
+          pso.swarms (iUnit) = ParaPsoSwarm_t(iUnit, singleArrays(iUnit), PsoSimData_t);
+          pso.simData{iUnit} = {pso.swarms(iUnit).simData};
+        end
+        pso.nSimData        = pso.nSwarms;
+      else % PARALLEL_PSO_PBEST_ABS
         pso.nSwarms         = 1;
         pso.swarms          = ParaPsoSwarm_t.empty;
         pso.swarms(1)       = ParaPsoSwarm_t(1, unitArray, PsoSimData_t);
@@ -64,7 +74,9 @@ classdef ParaPso_t < AlgoPkg.AbstractAlgoInterface_t
       
       if psoType == PsoType.PARALLEL_PSO
         pso.RunAlgoFunc_if    = 'RunParaPso';
-      else
+      elseif psoType == PsoType.PSO_1D
+        pso.RunAlgoFunc_if    = 'RunPso1D';
+      else % PARALLEL_PSO_PBEST_ABS
         pso.RunAlgoFunc_if    = 'RunParaPsoWithPbestAbs';
       end
     end

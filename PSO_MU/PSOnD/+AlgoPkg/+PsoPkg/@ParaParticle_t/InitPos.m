@@ -16,6 +16,6 @@ function [] = InitPos( p, s )
   end
   
   p.pbest.curFitness = 0;
-  p.pbestAbs = 0;
+  p.pbestAbs.fitness = 0;
 end
 

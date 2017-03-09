@@ -1,13 +1,13 @@
 % psoAlgo       = PsoType.PSO_ND_SINGLE_SWARM;
 % psoAlgo       = PsoType.PSO_ND_MULTI_SWARM;
-% psoAlgo       = PsoType.PSO_1D;
+psoAlgo       = PsoType.PSO_1D;
 % psoAlgo       = PsoType.PARALLEL_PSO;
-psoAlgo       = PsoType.PARALLEL_PSO_PBEST_ABS;
+% psoAlgo       = PsoType.PARALLEL_PSO_PBEST_ABS;
 
 nParticles    = 3;
 psoId         = 1;
 
-if psoAlgo == PsoType.PARALLEL_PSO || psoAlgo == PsoType.PARALLEL_PSO_PBEST_ABS
+if psoAlgo == PsoType.PARALLEL_PSO || psoAlgo == PsoType.PARALLEL_PSO_PBEST_ABS || psoAlgo == PsoType.PSO_1D
   dimension  = 1;
   pso = ParaPso_t(psoId, array, psoAlgo);
 elseif psoAlgo == PsoType.PSO_1D
@@ -19,6 +19,8 @@ end
 
 c1        = 1;
 c2        = 2;
+% c1        = .5;
+% c2        = 1;
 % c1        = 0.4;
 % c2        = 1.1;
 omega     = 0.4;
@@ -40,15 +42,18 @@ end
 
 ssOscAmp    = 0.01; % Steady-state defined @±1% oscillation
 nSamples4ss = 5;   % For that number of iterations
-pso.swarms(1).SetSteadyState([pso.swarms(1).nParticles dimension], ssOscAmp, nSamples4ss);
 
-pso.swarms(1).SetParam(c1, c2, omega, decimals, posRes, posMin, posMax);
+for iSwarm = 1 : pso.nSwarms
+  pso.swarms(iSwarm).SetSteadyState([pso.swarms(iSwarm).nParticles dimension], ssOscAmp, nSamples4ss);
 
-pso.swarms(1).RandomizeParticlesPos();
+  pso.swarms(iSwarm).SetParam(c1, c2, omega, decimals, posRes, posMin, posMax);
 
-if psoAlgo == PsoType.PARALLEL_PSO_PBEST_ABS
-  for iUnit = 1 : pso.swarms(1).unitArray.nUnits
-    pso.swarms(1).unitArray.units(iUnit).SetPos(pso.swarms(1).particles(iUnit).pos.curPos);
+  pso.swarms(iSwarm).RandomizeParticlesPos();
+
+  if psoAlgo == PsoType.PARALLEL_PSO_PBEST_ABS || psoAlgo == PsoType.PSO_1D
+    for iUnit = 1 : pso.swarms(iSwarm).unitArray.nUnits
+      pso.swarms(iSwarm).unitArray.units(iUnit).SetPos(pso.swarms(iSwarm).particles(iUnit).pos.curPos);
+    end
   end
 end
 

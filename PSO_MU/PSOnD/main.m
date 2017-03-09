@@ -16,13 +16,11 @@
 
 % Setup workspace
 %==========================================================================
-if exist('rngState')
-  rng(rngState);
-else
-  rngState = rng;
-end
 clearvars -except rngState
-% clear % This will not remove the breakpoints
+clear % This will not remove the breakpoints
+if exist('rngState', 'var')
+  rng(rngState);
+end
 % clear all %#ok<CLSCR>
 close all
 % clearvars -except rngState
@@ -56,8 +54,8 @@ import AlgoPkg.ExtSeekPkg.*
 mfcType             = 'mfc';
 staticFunctionType  = 'static function';
 
-typeOfUnits = mfcType;
-% typeOfUnits = staticFunctionType;
+% typeOfUnits = mfcType;
+typeOfUnits = staticFunctionType;
 %-------------------------------------------
 
 % Type of algo
@@ -69,8 +67,8 @@ typeOfAlgo = psoType;
 %-------------------------------------------
 
 if strcmp(typeOfAlgo, psoType)
-  nIterations = 75;
-  nIterations = 125;
+%   nIterations = 75;
+  nIterations = 200;
   waitBarModulo = 5;
 elseif strcmp(typeOfAlgo, extremumSeekType)
   if strcmp(typeOfUnits, mfcType)
@@ -117,37 +115,52 @@ end
 
 % Perturbations
 %==========================================================================
-oDoPerturb = 0;
+oDoPerturb = 1;
 
-nPerturbToApply = 1;
+nPerturbToApply = 2;
+
+nUnitsToPerturb = [4 8];
+perturbIteration = [40 110];
+
+if strcmp(typeOfUnits, mfcType)
+  perturbAmp = -10;
+%     perturbIteration = 4000;
+%     perturbIteration = 23;
+elseif strcmp(typeOfUnits, staticFunctionType)
+  perturbAmp = [70 -3];
+%     perturbIteration = 100;
+%     perturbIteration = 40;
+else
+  error('Must define a type of units!');
+end
 
 for iPerturb = 1 : nPerturbToApply
-  if mod(array.nUnits, 2)
-    nUnitsToPerturb = 1;
-  else
-%     nUnitsToPerturb = array.nUnits/2;
-    nUnitsToPerturb = array.nUnits;
-  end
-  idx = zeros(1, nUnitsToPerturb);
-  for i = 1 : nUnitsToPerturb
+%   if mod(array.nUnits, 2)
+%     nUnitsToPerturb = 1;
+%   else
+% %     nUnitsToPerturb = array.nUnits/2;
+%     nUnitsToPerturb = array.nUnits - 1;
+%   end
+  idx = zeros(1, nUnitsToPerturb(iPerturb));
+  for i = 1 : nUnitsToPerturb(iPerturb)
     idx(i) = array.units(i).id;
   end
   perturb(iPerturb) = Perturbation_t(1, array, idx, oDoPerturb); %#ok<SAGROW>
 
-  if strcmp(typeOfUnits, mfcType)
-    perturbAmp = -10;
-%     perturbIteration = 4000;
-    perturbIteration = 23;
-  elseif strcmp(typeOfUnits, staticFunctionType)
-    perturbAmp = [70 -3];
-%     perturbIteration = 100;
-    perturbIteration = 18;
-  else
-    error('Must define a type of units!');
-  end
+%   if strcmp(typeOfUnits, mfcType)
+%     perturbAmp = -10;
+% %     perturbIteration = 4000;
+% %     perturbIteration = 23;
+%   elseif strcmp(typeOfUnits, staticFunctionType)
+%     perturbAmp = [70 -3];
+% %     perturbIteration = 100;
+% %     perturbIteration = 40;
+%   else
+%     error('Must define a type of units!');
+%   end
 
   perturb(iPerturb).SetAmplitude(perturbAmp);
-  perturb(iPerturb).SetActiveIteration(perturbIteration);
+  perturb(iPerturb).SetActiveIteration(perturbIteration(iPerturb));
 end
 %//////////////////////////////////////////////////////////////////////////
 
@@ -157,6 +170,10 @@ end
 for iSim = 1 : nIterations
   if mod(iSim, waitBarModulo) == 0
     waitbar(iSim/nIterations, wbh, ['Sim iteration: ' num2str(iSim) '/' num2str(nIterations)])
+  end
+  
+  if iSim == 42
+    allo = 1;
   end
   
   % Run algorithm
