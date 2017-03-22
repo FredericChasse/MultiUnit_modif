@@ -92,6 +92,7 @@ switch p.state
       else % Perturbation has occured
         p.state = ParticleState.SEARCHING;
         oRemoveParticle = 0;
+        p.ResetOptPos;
       end
     end
             

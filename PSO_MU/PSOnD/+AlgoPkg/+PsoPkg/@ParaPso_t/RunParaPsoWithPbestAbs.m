@@ -23,7 +23,6 @@ if swarm.swarmIteration >= 139
 end
 
 nSwarmsMem = pso.nSwarms;
-
 if swarm.nParticles ~= 0
 
   if swarm.swarmIteration >= 110
