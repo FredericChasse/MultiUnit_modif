@@ -122,14 +122,6 @@ for iSwarm = 2 : nSwarmsMem
   swarm = pso.swarms(iSwarm);
   if swarm.nParticles ~= 0
     
-    if swarm.unitArray.units(1).id == 4
-      allo = 1;
-    end
-    
-    if pso.nIterations >= 113 && swarm.unitArray.units(1).id == 4
-      allo = 1;
-    end
-    
     swarm.iParticle = swarm.iParticle + 1;
     swarm.particles(swarm.iParticle).SetFitness(swarm.unitArray.units(1).fitness);
     
@@ -138,7 +130,6 @@ for iSwarm = 2 : nSwarmsMem
       swarm.swarmIteration = swarm.swarmIteration + 1;
 
       idxToRemove = [];
-      
 
       % Compute pbest and gbest
       %--------------------------------------------------------------------

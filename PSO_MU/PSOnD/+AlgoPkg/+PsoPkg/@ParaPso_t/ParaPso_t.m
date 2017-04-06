@@ -73,7 +73,7 @@ classdef ParaPso_t < AlgoPkg.AbstractAlgoInterface_t
       pso.nSimData_if         = 'nSimData';
       
       if psoType == PsoType.PARALLEL_PSO
-        pso.RunAlgoFunc_if    = 'RunParaPso';
+        pso.RunAlgoFunc_if    = 'RunParaPsoClassic';
       elseif psoType == PsoType.PSO_1D
         pso.RunAlgoFunc_if    = 'RunPso1D';
       else % PARALLEL_PSO_PBEST_ABS

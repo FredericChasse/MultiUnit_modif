@@ -1,12 +1,12 @@
 % clear all
 close all
 
-Rext = 75:.1:125;
+Rext = 25:.1:200;
 % Rext = 50:1:200;
 % Rext = 50:1000/255:400;
 
 % S0 = [250 300 350 400 450 500 550 600 650 700];
-S0 = [500];
+S0 = [600 540 480];
 % gamma = [0 0.0002 0.0004];
 gamma = [0 0];
 % beta = [0 10];
@@ -63,7 +63,7 @@ for j = 1 : length(S0)
 
   format long
   plot(Rext, Pout)
-  max(Pout)
+  maxPout = max(Pout)
   Ropt = Rext(find(Pout >= max(Pout)))
   
   legendStr{j} = ['S_0 = ', num2str(S0(j)), ' [mg/L]'];

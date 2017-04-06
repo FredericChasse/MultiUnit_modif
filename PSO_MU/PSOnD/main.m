@@ -54,8 +54,8 @@ import AlgoPkg.ExtSeekPkg.*
 mfcType             = 'mfc';
 staticFunctionType  = 'static function';
 
-% typeOfUnits = mfcType;
-typeOfUnits = staticFunctionType;
+typeOfUnits = mfcType;
+% typeOfUnits = staticFunctionType;
 %-------------------------------------------
 
 % Type of algo
@@ -115,15 +115,15 @@ end
 
 % Perturbations
 %==========================================================================
-oDoPerturb = 1;
+oDoPerturb = 0;
 
-nPerturbToApply = 2;
+nPerturbToApply = 1;
 
-nUnitsToPerturb = [4 8];
-perturbIteration = [40 110];
+nUnitsToPerturb = [1];
+perturbIteration = [90];
 
 if strcmp(typeOfUnits, mfcType)
-  perturbAmp = -10;
+  perturbAmp = -30;
 %     perturbIteration = 4000;
 %     perturbIteration = 23;
 elseif strcmp(typeOfUnits, staticFunctionType)
@@ -235,6 +235,8 @@ end
 %     [i1 ss1]
 %   end
 % end
+
+% Plot data
 
 figure
 set(gcf, 'Position', get(0,'Screensize')); % Maximize figure.
