@@ -51,7 +51,7 @@ mfcDynamics(:,2) = 0.030299840936202;
 % odeOptions = odeset('RelTol',1e-6,'AbsTol',1e-9);
 odeOptions = odeset('RelTol',1e-9,'AbsTol',1e-12);
 
-colors = {'r', 'b', 'k', 'm', 'g', 'y'};
+% colors = {'r', 'b', 'k', 'm', 'g', 'y'};
 lgdStr = {};
 for i = 1 : nRotations
   lgdStr(i) = {num2str(i)};
@@ -73,7 +73,8 @@ for i = 1 : nRotations
   
   [sortPos(i, :), idx] = sort(pos(i, :));
   sortPout(i,:) = Pout(i, idx);
-  plot(sortPos(i,:), sortPout(i,:), colors{i})
+%   plot(sortPos(i,:), sortPout(i,:), colors{i})
+  plot(sortPos(i,:), sortPout(i,:))
 end
 
 legend(lgdStr{:})

@@ -17,7 +17,7 @@
 % Setup workspace
 %==========================================================================
 clearvars -except rngState
-clear % This will not remove the breakpoints
+% clear % Commenting this will ensure the same rng is achieved.
 if exist('rngState', 'var')
   rng(rngState);
 end
@@ -43,6 +43,7 @@ import AlgoPkg.*
 import AlgoPkg.LinkPkg.*
 import AlgoPkg.PsoPkg.*
 import AlgoPkg.ExtSeekPkg.*
+import AlgoPkg.PnoPkg.*
 %//////////////////////////////////////////////////////////////////////////
 
 
@@ -62,8 +63,10 @@ typeOfUnits = mfcType;
 %-------------------------------------------
 psoType = 'pso';
 extremumSeekType = 'extSeek';
+pnoType = 'pno';
 typeOfAlgo = psoType;
 % typeOfAlgo = extremumSeekType;
+% typeOfAlgo = pnoType;
 %-------------------------------------------
 
 if strcmp(typeOfAlgo, psoType)
@@ -71,6 +74,15 @@ if strcmp(typeOfAlgo, psoType)
   nIterations = 200;
   waitBarModulo = 5;
 elseif strcmp(typeOfAlgo, extremumSeekType)
+  if strcmp(typeOfUnits, mfcType)
+    nIterations = 500;
+  elseif strcmp(typeOfUnits, staticFunctionType)
+    nIterations = 1000;
+  else
+    error('Must define a type of units!');
+  end
+  waitBarModulo = 50;
+elseif strcmp(typeOfAlgo, pnoType)
   if strcmp(typeOfUnits, mfcType)
     nIterations = 500;
   elseif strcmp(typeOfUnits, staticFunctionType)
@@ -89,7 +101,8 @@ wbh = waitbar(0, ['Sim : ' num2str(0) '/' num2str(nIterations)]);  % Waitbar han
 
 % Unit array
 %==========================================================================
-nUnits = 8;
+% nUnits = 8;
+nUnits = 6;
 
 if strcmp(typeOfUnits, mfcType)
   InitMfc
@@ -107,6 +120,8 @@ if strcmp(typeOfAlgo, psoType)
   InitPso
 elseif strcmp(typeOfAlgo, extremumSeekType)
   InitExtremumSeeking
+elseif strcmp(typeOfAlgo, pnoType)
+  InitPno
 else
   error('Must define a type of algorithm!');
 end
@@ -172,10 +187,6 @@ for iSim = 1 : nIterations
     waitbar(iSim/nIterations, wbh, ['Sim iteration: ' num2str(iSim) '/' num2str(nIterations)])
   end
   
-  if iSim == 42
-    allo = 1;
-  end
-  
   % Run algorithm
   %========================================================================
   algo.RunAlgoIteration(iSim);
@@ -239,7 +250,7 @@ end
 % Plot data
 
 figure
-set(gcf, 'Position', get(0,'Screensize')); % Maximize figure.
+% set(gcf, 'Position', get(0,'Screensize')); % Maximize figure.
 subplot(2,1,1)
 hold on
 legendStr = {};

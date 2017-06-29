@@ -1,8 +1,8 @@
 % psoAlgo       = PsoType.PSO_ND_SINGLE_SWARM;
 % psoAlgo       = PsoType.PSO_ND_MULTI_SWARM;
 % psoAlgo       = PsoType.PSO_1D;
-% psoAlgo       = PsoType.PARALLEL_PSO;
-psoAlgo       = PsoType.PARALLEL_PSO_PBEST_ABS;
+psoAlgo       = PsoType.PARALLEL_PSO;
+% psoAlgo       = PsoType.PARALLEL_PSO_PBEST_ABS;
 
 nParticles    = 3;
 psoId         = 1;
