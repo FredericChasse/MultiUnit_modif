@@ -1,4 +1,5 @@
-function [ ] = RunParaPsoWithPbestAbs( pso, iteration )
+function [ ] = RunParaPsoAbData( pso, iteration )
+
 import AlgoPkg.PsoPkg.*
 
 for iUnit = 1 : pso.unitArray.nUnits
@@ -6,9 +7,6 @@ for iUnit = 1 : pso.unitArray.nUnits
 end
 
 pso.nIterations = pso.nIterations + 1;
-if pso.nIterations >= 68
-  allo = 1;
-end
 
 pso.realTimeElapsed = pso.realTimeElapsed + pso.unitEvalTime;
 
@@ -219,6 +217,7 @@ end
 if ~isempty(swarmsToDelete)
   pso.RemoveSwarms(swarmsToDelete);
 end
+
 
 end
 

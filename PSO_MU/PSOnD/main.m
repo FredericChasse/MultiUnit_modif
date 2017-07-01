@@ -17,7 +17,8 @@
 % Setup workspace
 %==========================================================================
 clearvars -except rngState
-% clear % Commenting this will ensure the same rng is achieved.
+clear % Commenting this will ensure the same rng is achieved.
+clear RunPpsoPno  % Because of persistent variables
 if exist('rngState', 'var')
   rng(rngState);
 end
@@ -276,6 +277,33 @@ end
 legend(legendStr)
 title('j')
 
+% For debug
+%---------------
+d = zeros(nIterations, nUnits);
+j = zeros(nIterations, nUnits);
+dsort = zeros(nIterations, nUnits);
+jsort = zeros(nIterations, nUnits);
+dmax = zeros(1, nUnits);
+jmax = zeros(1, nUnits);
+for i = 1 : array.nUnits
+  d(:,i) = array.units(i).dmem(1,nIterations);
+  j(:,i) = array.units(i).jmem(1,nIterations);
+  
+  [dsort(:,i) idx] = sort(d(:,i));
+  jsort(:,i) = j(idx,i);
+  
+  [jmax(i) idx] = max(j(:,i));
+  dmax(i) = d(idx, i);
+end
+
+figure
+plot(dsort,jsort);
+hold on
+plot(dmax, jmax, 's')
+legendStr{end+1} = 'Max points';
+legend(legendStr)
+
+%---------------
 %//////////////////////////////////////////////////////////////////////////
 
 close(wbh)

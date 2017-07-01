@@ -1,13 +1,24 @@
+import SimPkg.*
+import SimPkg.UnitPkg.*
+import SimPkg.ArrayPkg.*
+
+import AlgoPkg.*
+import AlgoPkg.LinkPkg.*
+import AlgoPkg.PsoPkg.*
+import AlgoPkg.ExtSeekPkg.*
+import AlgoPkg.PnoPkg.*
+
 % psoAlgo       = PsoType.PSO_ND_SINGLE_SWARM;
 % psoAlgo       = PsoType.PSO_ND_MULTI_SWARM;
 % psoAlgo       = PsoType.PSO_1D;
-psoAlgo       = PsoType.PARALLEL_PSO;
+% psoAlgo       = PsoType.PARALLEL_PSO;
+psoAlgo       = PsoType.PARALLEL_PSO_PNO;
 % psoAlgo       = PsoType.PARALLEL_PSO_PBEST_ABS;
 
 nParticles    = 3;
 psoId         = 1;
 
-if psoAlgo == PsoType.PARALLEL_PSO || psoAlgo == PsoType.PARALLEL_PSO_PBEST_ABS || psoAlgo == PsoType.PSO_1D
+if psoAlgo == PsoType.PARALLEL_PSO || psoAlgo == PsoType.PARALLEL_PSO_PBEST_ABS || psoAlgo == PsoType.PSO_1D || psoAlgo == PsoType.PARALLEL_PSO_PNO
   dimension  = 1;
   pso = ParaPso_t(psoId, array, psoAlgo);
 elseif psoAlgo == PsoType.PSO_1D
@@ -50,7 +61,7 @@ for iSwarm = 1 : pso.nSwarms
 
   pso.swarms(iSwarm).RandomizeParticlesPos();
 
-  if psoAlgo == PsoType.PARALLEL_PSO_PBEST_ABS || psoAlgo == PsoType.PSO_1D || psoAlgo == PsoType.PARALLEL_PSO
+  if psoAlgo == PsoType.PARALLEL_PSO_PBEST_ABS || psoAlgo == PsoType.PSO_1D || psoAlgo == PsoType.PARALLEL_PSO || psoAlgo == PsoType.PARALLEL_PSO_PNO
     for iUnit = 1 : pso.swarms(iSwarm).unitArray.nUnits
       pso.swarms(iSwarm).unitArray.units(iUnit).SetPos(pso.swarms(iSwarm).particles(iUnit).pos.curPos);
     end

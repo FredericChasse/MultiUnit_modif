@@ -7,6 +7,7 @@ classdef PsoType
     PSO_1D
     PARALLEL_PSO
     PARALLEL_PSO_PBEST_ABS
+    PARALLEL_PSO_PNO
   end
   
   properties

@@ -1,3 +1,13 @@
+import SimPkg.*
+import SimPkg.UnitPkg.*
+import SimPkg.ArrayPkg.*
+
+import AlgoPkg.*
+import AlgoPkg.LinkPkg.*
+import AlgoPkg.PsoPkg.*
+import AlgoPkg.ExtSeekPkg.*
+import AlgoPkg.PnoPkg.*
+
 if strcmp(typeOfAlgo, psoType)
   integrationTime = 0.1;
 elseif strcmp(typeOfAlgo, extremumSeekType)
@@ -14,17 +24,21 @@ mfcModel = 'mfcModelFast';
 mfcArray = MfcArray_t(1, nUnits, integrationTime, mfcModel);
 
 s0Init = 600;
+s0min = 300;
+s0max = 600;
 % s0mfc = [371.25 443.85 322.68 508.75 434.34 370.27 383.58 662.06];
-s0mfc = [371.25 443.85 508.75 434.34 370.27 383.58];
+% s0mfc = [371.25 443.85 508.75 434.34 370.27 383.58];
 for iUnit = 1 : nUnits
 %   S0 = 300 => (Ropt, Popt) = (156.0, 0.001793880437409)
 %   S0 = 290 => (Ropt, Popt) = (162.2, 0.001743879612695)
 %   S0 = 600 => (Ropt, Popt) = (81.10, 0.002063069379472)
 %   mfcArray.units(iUnit).s0 = s0Init - (iUnit-1) * 20;
-  mfcArray.units(iUnit).s0 = s0mfc(iUnit);
+%   mfcArray.units(iUnit).s0 = s0mfc(iUnit);
 %   mfcArray.units(iUnit).s0 = 600;
+  mfcArray.units(iUnit).s0 = rand*(s0max-s0min)+s0min;
 end
 
+mfcArray.units(:).s0
 
 % mfcArray.units(1).s0 = 600;
 % mfcArray.units(2).s0 = 540;
