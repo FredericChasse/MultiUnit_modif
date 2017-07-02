@@ -1,4 +1,4 @@
-classdef ParaParticle_t < handle
+classdef PsoPnoParticle_t < handle
   
   properties
     id
@@ -19,7 +19,7 @@ classdef ParaParticle_t < handle
   methods (Access = public)
     
     % Constructor
-    function p = ParaParticle_t(id)
+    function p = PsoPnoParticle_t(id)
       import AlgoPkg.Position_t;
       import AlgoPkg.PsoPkg.ParticleState;
       import AlgoPkg.SteadyState_t;

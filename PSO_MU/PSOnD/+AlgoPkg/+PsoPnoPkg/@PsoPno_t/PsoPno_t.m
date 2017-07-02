@@ -1,4 +1,4 @@
-classdef ParaPso_t < AlgoPkg.AbstractAlgoInterface_t
+classdef PsoPno_t < AlgoPkg.AbstractAlgoInterface_t
 % classdef Pso_t < handle
   % Class Pso_t defines the attributes to be used for simulation
   
@@ -12,7 +12,7 @@ classdef ParaPso_t < AlgoPkg.AbstractAlgoInterface_t
     nIterations
     realTimeElapsed
     unitEvalTime
-    psoType
+    classifier
     pno
     
     % Algo interface
@@ -27,46 +27,23 @@ classdef ParaPso_t < AlgoPkg.AbstractAlgoInterface_t
   methods (Access = public)
     
     % Constructor
-    function pso = ParaPso_t(id, unitArray, psoType)
-      import AlgoPkg.PsoPkg.*
-      import AlgoPkg.PnoPkg.*
-      
-      if (psoType ~= PsoType.PARALLEL_PSO) && (psoType ~= PsoType.PARALLEL_PSO_PBEST_ABS) && (psoType ~= PsoType.PSO_1D) && (psoType ~= PsoType.PARALLEL_PSO_PNO)
-        error('Wrong algorithm!')
-      end
+    function pso = PsoPno_t(id, unitArray)
+      import AlgoPkg.PsoPnoPkg.*
       
       pso.nIterations     = 0;
       
       pso.id              = id;
       pso.unitArray       = unitArray;
-      pso.psoType         = psoType;
       pso.realTimeElapsed = 0;
       pso.unitEvalTime    = unitArray.unitEvalTime;
       pso.pno             = Pno_t.empty;
+      pso.classifier      = Classifier_t(unitArray);
 
-      if psoType == PsoType.PARALLEL_PSO || psoType == PsoType.PARALLEL_PSO_PNO
-        pso.nSwarms         = 1;
-        pso.swarms          = ParaPsoSwarm_t.empty;
-        pso.swarms(1)       = ParaPsoSwarm_t(1, unitArray, PsoSimData_t);
-        pso.simData{1}      = {pso.swarms(1).simData};
-        pso.nSimData        = 1;
-      elseif psoType == PsoType.PSO_1D
-        pso.nSwarms         = unitArray.nUnits;
-        pso.swarms          = ParaPsoSwarm_t.empty;
-        singleArrays = unitArray.empty;
-        for iUnit = 1 : unitArray.nUnits
-          [singleArrays(iUnit), aKeep, idxToKeep] = unitArray.SplitArray(iUnit, iUnit);
-          pso.swarms (iUnit) = ParaPsoSwarm_t(iUnit, singleArrays(iUnit), PsoSimData_t);
-          pso.simData{iUnit} = {pso.swarms(iUnit).simData};
-        end
-        pso.nSimData        = pso.nSwarms;
-      else % PARALLEL_PSO_PBEST_ABS
-        pso.nSwarms         = 1;
-        pso.swarms          = ParaPsoSwarm_t.empty;
-        pso.swarms(1)       = ParaPsoSwarm_t(1, unitArray, PsoSimData_t);
-        pso.simData{1}      = {pso.swarms(1).simData};
-        pso.nSimData        = 1;
-      end
+      pso.nSwarms         = 1;
+      pso.swarms          = ParaPsoSwarm_t.empty;
+      pso.swarms(1)       = ParaPsoSwarm_t(1, unitArray, PsoSimData_t);
+      pso.simData{1}      = {pso.swarms(1).simData};
+      pso.nSimData        = 1;
       
       % Algo interface
       pso.id_if               = 'id';
@@ -74,16 +51,7 @@ classdef ParaPso_t < AlgoPkg.AbstractAlgoInterface_t
       pso.realTimeElapsed_if  = 'realTimeElapsed';
       pso.simData_if          = 'simData';
       pso.nSimData_if         = 'nSimData';
-      
-      if psoType == PsoType.PARALLEL_PSO
-        pso.RunAlgoFunc_if    = 'RunParaPsoClassic';
-      elseif psoType == PsoType.PSO_1D
-        pso.RunAlgoFunc_if    = 'RunPso1D';
-      elseif psoType == PsoType.PARALLEL_PSO_PNO
-        pso.RunAlgoFunc_if    = 'RunPpsoPno';
-      else % PARALLEL_PSO_PBEST_ABS
-        pso.RunAlgoFunc_if    = 'RunParaPsoWithPbestAbs';
-      end
+      pso.RunAlgoFunc_if      = 'RunPpsoPno';
     end
     
     % Destructor

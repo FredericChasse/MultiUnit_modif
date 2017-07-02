@@ -1,5 +1,5 @@
 % classdef PsoSwarm_t < AlgoPkg.AbstractAlgoInterface_t
-classdef ParaPsoSwarm_t < handle
+classdef PsoPnoSwarm_t < handle
  
   properties
     id
@@ -30,7 +30,7 @@ classdef ParaPsoSwarm_t < handle
   
     % Constructor
     %======================================================================
-    function s = ParaPsoSwarm_t(id, unitArray, simData)
+    function s = PsoPnoSwarm_t(id, unitArray, simData)
       import AlgoPkg.SteadyState_t;
       import AlgoPkg.PsoPkg.*
       import AlgoPkg.Position_t;
