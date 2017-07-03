@@ -1,5 +1,5 @@
 % classdef PsoSwarm_t < AlgoPkg.AbstractAlgoInterface_t
-classdef PsoPnoSwarm_t < handle
+classdef ParaPsoSwarm_t < handle
  
   properties
     id
@@ -30,12 +30,13 @@ classdef PsoPnoSwarm_t < handle
   
     % Constructor
     %======================================================================
-    function s = PsoPnoSwarm_t(id, unitArray, simData)
+    function s = ParaPsoSwarm_t(id, unitArray, simData)
       import AlgoPkg.SteadyState_t;
-      import AlgoPkg.PsoPkg.*
+      import AlgoPkg.PsoPnoPkg.*
       import AlgoPkg.Position_t;
-      import AlgoPkg.PsoPkg.ParticleState;
+      import AlgoPkg.PsoPnoPkg.ParticleState;
       import SimPkg.ArrayPkg.Array_t
+      
       s.particles             = ParaParticle_t.empty;
       s.swarmIteration        = 0;
       s.iParticle             = 0;
@@ -66,7 +67,7 @@ classdef PsoPnoSwarm_t < handle
       else
         while nParticles < s.minParticles
           s.nUnitsPerParticle = s.nUnitsPerParticle * 2;
-          nParticles          = nParticles        * 2;
+          nParticles          = nParticles          * 2;
         end
       end
         
@@ -104,7 +105,7 @@ classdef PsoPnoSwarm_t < handle
     % Create particles
     %======================================================================
     function CreateParticles(s, nParticles)
-      import AlgoPkg.PsoPkg.*
+      import AlgoPkg.PsoPnoPkg.*
       for iParticle = s.nParticles + 1 : s.nParticles + nParticles
         s.particles(iParticle) = ParaParticle_t(iParticle);
         s.nParticles = s.nParticles + 1;
@@ -146,7 +147,7 @@ classdef PsoPnoSwarm_t < handle
     % Get the content of certain particles
     %======================================================================
     function p = GetParticles(s,idx)
-      import AlgoPkg.PsoPkg.Particle_t
+      import AlgoPkg.PsoPnoPkg.Particle_t
       if ~isempty(find(idx > s.nParticles)) || ~isempty(find(idx < 0))
         error('No particles with at one or more of these indexes.');
       end
@@ -289,7 +290,7 @@ classdef PsoPnoSwarm_t < handle
     
     %======================================================================
     function SplitUnitArrayInto1dArrays(s, idxToRemove, pso)
-      import AlgoPkg.PsoPkg.*
+      import AlgoPkg.PsoPnoPkg.*
       if ~isempty(idxToRemove)
         s.RemoveParticles(idxToRemove);
 

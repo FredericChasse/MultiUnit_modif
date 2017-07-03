@@ -1,4 +1,5 @@
-classdef PsoPnoParticleState
+classdef ParticleState
+ 
   %PARTICLESTATE defines the possible states of a particle used in
   %Parallel PSO.
   

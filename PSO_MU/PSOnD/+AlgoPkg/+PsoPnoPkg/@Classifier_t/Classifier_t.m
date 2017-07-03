@@ -51,7 +51,7 @@ classdef Classifier_t < handle
       end
     end
     
-    function ClearOptPos(c, idx)
+    function ClearValues(c, idx)
       if isempty(idx)
         error('Must specify an index value')
       end
@@ -61,7 +61,7 @@ classdef Classifier_t < handle
       end
     end
     
-    function [groups, nGroups] = Classify(c)
+    function [groups, nGroups] = ClassifyAll(c)
       
       g= round(c.optPos(:).curPos/c.margin);
 
@@ -72,6 +72,29 @@ classdef Classifier_t < handle
 
       for i = 1 : length(g_u)
         groupValues{end+1} = c.optPos(:).curPos(g_u(i) == g); %#ok<AGROW>
+        groups{end+1} = find(g_u(i) == g); %#ok<AGROW>
+      end
+      
+      nGroups = length(groups);
+    end
+    
+    function [groups, nGroups] = ClassifySome(c, idx)
+      
+      if isempty(idx)
+        error('Empty index')
+      end
+      
+      optPos = c.optPos(idx);
+      
+      g= round(optPos(:).curPos/c.margin);
+
+      groupValues = {};
+      groups = {};
+
+      g_u = unique(g);
+
+      for i = 1 : length(g_u)
+        groupValues{end+1} = optPos(:).curPos(g_u(i) == g); %#ok<AGROW>
         groups{end+1} = find(g_u(i) == g); %#ok<AGROW>
       end
       

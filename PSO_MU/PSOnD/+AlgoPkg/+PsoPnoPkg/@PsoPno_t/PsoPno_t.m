@@ -4,8 +4,10 @@ classdef PsoPno_t < AlgoPkg.AbstractAlgoInterface_t
   
   properties
     id
-    swarms
-    nSwarms
+    paraSwarms
+    nParaSwarms
+    seqSwarms
+    nSeqSwarms
     unitArray
     simData
     nSimData
@@ -14,8 +16,10 @@ classdef PsoPno_t < AlgoPkg.AbstractAlgoInterface_t
     unitEvalTime
     classifier
     pno
+  end
     
-    % Algo interface
+  % Algo interface
+  properties
     id_if
     unitArray_if
     simData_if
@@ -39,9 +43,11 @@ classdef PsoPno_t < AlgoPkg.AbstractAlgoInterface_t
       pso.pno             = Pno_t.empty;
       pso.classifier      = Classifier_t(unitArray);
 
-      pso.nSwarms         = 1;
-      pso.swarms          = ParaPsoSwarm_t.empty;
-      pso.swarms(1)       = ParaPsoSwarm_t(1, unitArray, PsoSimData_t);
+      pso.nSeqSwarms      = 0;
+      pso.nParaSwarms     = 1;
+      pso.paraSwarms      = ParaPsoSwarm_t.empty;
+      pso.seqSwarms       = ParaPsoSwarm_t.empty;
+      pso.paraSwarms(1)   = ParaPsoSwarm_t(1, unitArray, PsoSimData_t);
       pso.simData{1}      = {pso.swarms(1).simData};
       pso.nSimData        = 1;
       
@@ -51,7 +57,7 @@ classdef PsoPno_t < AlgoPkg.AbstractAlgoInterface_t
       pso.realTimeElapsed_if  = 'realTimeElapsed';
       pso.simData_if          = 'simData';
       pso.nSimData_if         = 'nSimData';
-      pso.RunAlgoFunc_if      = 'RunPpsoPno';
+      pso.RunAlgoFunc_if      = 'RunPsoPno';
     end
     
     % Destructor
@@ -59,18 +65,28 @@ classdef PsoPno_t < AlgoPkg.AbstractAlgoInterface_t
       delete(pso);
     end
     
-    % Add existing swarm
-    function AddSwarm(pso, s)
+    % Add existing para swarm
+    function AddParaSwarm(pso, s)
       if isempty(s)
         error('Empty swarm');
       end
-      pso.nSwarms = pso.nSwarms + 1;
-      pso.swarms(pso.nSwarms) = s;
-      pso.swarms(pso.nSwarms).id = pso.nSwarms;
+      pso.nParaSwarms = pso.nParaSwarms + 1;
+      pso.paraSwarms(pso.nParaSwarms) = s;
+      pso.paraSwarms(pso.nParaSwarms).id = pso.nParaSwarms;
     end
     
-    % Create swarms
-    function CreateSwarms(pso, nSwarms, nParticles, unitArrays)
+    % Add existing seq swarm
+    function AddSeqSwarm(pso, s)
+      if isempty(s)
+        error('Empty swarm');
+      end
+      pso.nSeqSwarms = pso.nSeqSwarms + 1;
+      pso.seqSwarms(pso.nSeqSwarms) = s;
+      pso.seqSwarms(pso.nSeqSwarms).id = pso.nSeqSwarms;
+    end
+    
+    % Create para swarms
+    function CreateParaSwarms(pso, nSwarms, nParticles, unitArrays)
       if length(nParticles) ~= nSwarms
         error('Must specify nParticles for all swarms');
       end
@@ -78,51 +94,102 @@ classdef PsoPno_t < AlgoPkg.AbstractAlgoInterface_t
         error('Must specify a unit array for each swarm!');
       end
       
-      for iSwarm = pso.nSwarms + 1 : pso.nSwarms + nSwarms
-        pso.swarms(iSwarm) = ParaPsoSwarm_t(iSwarm, nParticles(iSwarm), unitArrays(iSwarm));
-        pso.nSwarms = pso.nSwarms + 1;
+      for iSwarm = pso.nParaSwarms + 1 : pso.nParaSwarms + nSwarms
+        pso.paraSwarms(iSwarm) = ParaPsoSwarm_t(iSwarm, nParticles(iSwarm), unitArrays(iSwarm));
+        pso.nParaSwarms = pso.nParaSwarms + 1;
       end
     end
     
-    % Remove certain swarms
-    function RemoveSwarms(pso,idx)
-      if ~isempty(find(idx > pso.nSwarms)) || ~isempty(find(idx < 0))
+    % Create seq swarms
+    function CreateSeqSwarms(pso, nSwarms, nParticles, unitArrays)
+      if length(nParticles) ~= nSwarms
+        error('Must specify nParticles for all swarms');
+      end
+      if length(unitArrays) ~= nSwarms
+        error('Must specify a unit array for each swarm!');
+      end
+      
+      for iSwarm = pso.nSeqSwarms + 1 : pso.nSeqSwarms + nSwarms
+        pso.seqSwarms(iSwarm) = ParaPsoSwarm_t(iSwarm, nParticles(iSwarm), unitArrays(iSwarm));
+        pso.nSeqSwarms = pso.nSeqSwarms + 1;
+      end
+    end
+    
+    % Remove certain para swarms
+    function RemoveParaSwarms(pso,idx)
+      if ~isempty(find(idx > pso.nParaSwarms)) || ~isempty(find(idx < 0))
         error('No swarms with at one or more of these indexes.');
       end
       idx = sort(idx);
       for i = length(idx) : -1 : 1
-        pso.ShiftSwarmsIdLeft(idx(i));
-        pso.swarms(idx(i)).Del;
-        pso.swarms(idx(i)) = [];
-        pso.nSwarms = pso.nSwarms - 1;
+        pso.ShiftParaSwarmsIdLeft(idx(i));
+        pso.paraSwarms(idx(i)).Del;
+        pso.paraSwarms(idx(i)) = [];
+        pso.nParaSwarms = pso.nParaSwarms - 1;
       end
     end
     
-    % Set swarm coefficients
-    function SetSwarmParam(pso, swarmId, c1, c2, omega, decimals, posRes, posMin, posMax)
-      if swarmId > pso.nSwarms || swarmId <= 0
+    % Remove certain seq swarms
+    function RemoveSeqSwarms(pso,idx)
+      if ~isempty(find(idx > pso.nSeqSwarms)) || ~isempty(find(idx < 0))
+        error('No swarms with at one or more of these indexes.');
+      end
+      idx = sort(idx);
+      for i = length(idx) : -1 : 1
+        pso.ShiftSeqSwarmsIdLeft(idx(i));
+        pso.seqSwarms(idx(i)).Del;
+        pso.seqSwarms(idx(i)) = [];
+        pso.nSeqSwarms = pso.nSeqSwarms - 1;
+      end
+    end
+    
+    % Set para swarm coefficients
+    function SetParaSwarmParam(pso, swarmId, c1, c2, omega, decimals, posRes, posMin, posMax)
+      if swarmId > pso.nParaSwarms || swarmId <= 0
         error('Wrong ID.');
       end
       
-      pso.swarms(swarmId).SetParam(c1, c2, omega, decimals, posRes, posMin, posMax);
+      pso.paraSwarms(swarmId).SetParam(c1, c2, omega, decimals, posRes, posMin, posMax);
+    end
+    
+    % Set seq swarm coefficients
+    function SetSeqSwarmParam(pso, swarmId, c1, c2, omega, decimals, posRes, posMin, posMax)
+      if swarmId > pso.nSeqSwarms || swarmId <= 0
+        error('Wrong ID.');
+      end
+      
+      pso.seqSwarms(swarmId).SetParam(c1, c2, omega, decimals, posRes, posMin, posMax);
     end
     
     % Run Algorithm    
-    RunParaPso(pso, iteration);
+    RunPsoPno(pso, iteration);
     
   end
   
   methods (Access = private)
     
-    % Shift the IDs of the swarms from a certain index to the left
+    % Shift the IDs of the para swarms from a certain index to the left
     % To be called when removing swarms
-    function ShiftSwarmsIdLeft(s,idx)
-      if (idx > s.nSwarms) || (idx <= 0)
+    function ShiftParaSwarmsIdLeft(s,idx)
+      if (idx > s.nParaSwarms) || (idx <= 0)
         error('Wrong index.');
       end
-      if idx < s.nSwarms
-        for iSwarm = s.nSwarms : -1 : idx + 1
-          s.swarms(iSwarm).id = s.swarms(iSwarm - 1).id;
+      if idx < s.nParaSwarms
+        for iSwarm = s.nParaSwarms : -1 : idx + 1
+          s.paraSwarms(iSwarm).id = s.paraSwarms(iSwarm - 1).id;
+        end
+      end
+    end
+    
+    % Shift the IDs of the seq swarms from a certain index to the left
+    % To be called when removing swarms
+    function ShiftSeqSwarmsIdLeft(s,idx)
+      if (idx > s.nSeqSwarms) || (idx <= 0)
+        error('Wrong index.');
+      end
+      if idx < s.nSeqSwarms
+        for iSwarm = s.nSeqSwarms : -1 : idx + 1
+          s.seqSwarms(iSwarm).id = s.seqSwarms(iSwarm - 1).id;
         end
       end
     end

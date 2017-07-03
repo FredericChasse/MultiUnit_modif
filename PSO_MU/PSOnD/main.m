@@ -1,14 +1,3 @@
-% TBD
-%==========================================================================
-% Stop when steady-state achieved       DONE
-% React to perturbations                DONE
-% Implement PSO 1D after nD
-% Compare to P&O
-% Evaluate MFCs in parallel
-%   (mfcModelFastParallel)
-% Implement inheritance/polymorphism    DONE
-%//////////////////////////////////////////////////////////////////////////
-
 
 %**************************************************************************
 %********************    Main simulation    *******************************
@@ -19,14 +8,11 @@
 clearvars -except rngState
 clear % Commenting this will ensure the same rng is achieved.
 clear RunPpsoPno  % Because of persistent variables
+close all
+
 if exist('rngState', 'var')
   rng(rngState);
-end
-% clear all %#ok<CLSCR>
-close all
-% clearvars -except rngState
-
-if ~exist('rngState', 'var')
+else
   rngState = rng;
 end
 
@@ -62,12 +48,15 @@ typeOfUnits = mfcType;
 
 % Type of algo
 %-------------------------------------------
-psoType = 'pso';
-extremumSeekType = 'extSeek';
-pnoType = 'pno';
-typeOfAlgo = psoType;
-% typeOfAlgo = extremumSeekType;
-% typeOfAlgo = pnoType;
+psoType           = 'pso';
+extremumSeekType  = 'extSeek';
+pnoType           = 'pno';
+psoPnoType        = 'psoPno';
+
+typeOfAlgo        = psoType;
+% typeOfAlgo        = psoPnoType;
+% typeOfAlgo        = extremumSeekType;
+% typeOfAlgo        = pnoType;
 %-------------------------------------------
 
 if strcmp(typeOfAlgo, psoType)

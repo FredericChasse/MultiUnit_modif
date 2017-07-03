@@ -1,0 +1,58 @@
+
+-------------------------
+Parallel PSO
+-------------------------
+
+Run ppso
+
+if perturbation
+  if nperturb == nparticles
+    restart ppso
+  else
+    keep perturbed particles in memory for scheduler
+  end
+end
+
+if particle in steady state
+  validate optimum
+  if not in optimum
+    P&O
+  end
+end
+-------------------------
+
+
+-------------------------
+P&O
+-------------------------
+Run pno
+
+if instance in steady state
+  set at optimum
+end
+
+if perturbation
+  keep perturbed instances in memory for scheduler
+end
+-------------------------
+
+
+-------------------------
+PSO 1D
+-------------------------
+Run PSO 1D
+
+if perturbation
+  notify scheduler
+end
+-------------------------
+
+
+-------------------------
+Scheduler
+-------------------------
+Classify perturbed units
+Reset classifier values for these units
+Create PPSO swarms with similar units (>3)
+Create PSO1D swarms with unique units (1)
+-------------------------

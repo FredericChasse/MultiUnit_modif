@@ -1,4 +1,4 @@
-classdef PsoPnoParticle_t < handle
+classdef ParaParticle_t < handle
   
   properties
     id
@@ -19,9 +19,9 @@ classdef PsoPnoParticle_t < handle
   methods (Access = public)
     
     % Constructor
-    function p = PsoPnoParticle_t(id)
+    function p = ParaParticle_t(id)
       import AlgoPkg.Position_t;
-      import AlgoPkg.PsoPkg.ParticleState;
+      import AlgoPkg.PsoPnoPkg.ParticleState;
       import AlgoPkg.SteadyState_t;
       p.id                      = id;
       p.oAtOptimum              = 0;
@@ -62,7 +62,7 @@ classdef PsoPnoParticle_t < handle
     % Compare previous pos/fitness to current pos/fitness
     %======================================================================
     function SentinelEval(p, margin)
-      import AlgoPkg.PsoPkg.ParticleState
+      import AlgoPkg.PsoPnoPkg.ParticleState
       if p.state == ParticleState.STEADY_STATE
         jCompare = p.jSteady;
       else

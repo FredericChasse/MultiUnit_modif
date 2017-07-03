@@ -91,6 +91,47 @@ classdef Pno_t < AlgoPkg.AbstractAlgoInterface_t
       end
     end
     %//////////////////////////////////////////////////////////////////////
+    
+    % Add existing pno instance
+    function AddInstance(pno, inst)
+      if isempty(inst)
+        error('Empty instance');
+      end
+      pno.nInstances = pno.nInstances + 1;
+      pno.instances(pno.nInstances) = inst;
+      pno.instances(pno.nInstances).id = pno.nInstances;
+    end
+    
+    % Remove certain pno instances
+    function RemoveInstances(pno,idx)
+      if ~isempty(find(idx > pno.nInstances)) || ~isempty(find(idx < 0))
+        error('No instances at one or more of these indexes.');
+      end
+      idx = sort(idx);
+      for i = length(idx) : -1 : 1
+        pno.ShiftInstancesIdLeft(idx(i));
+        pno.instances(idx(i)).Del;
+        pno.instances(idx(i)) = [];
+        pno.nInstances = pno.nInstances - 1;
+      end
+    end
+    
+  end
+  
+  methods (Access = private)
+    
+    % Shift the IDs of the instances from a certain index to the left
+    % To be called when removing swarms
+    function ShiftInstancesIdLeft(pno,idx)
+      if (idx > pno.nInstances) || (idx <= 0)
+        error('Wrong index.');
+      end
+      if idx < pno.nInstances
+        for iInstance = pno.nInstances : -1 : idx + 1
+          pno.instances(iInstance).id = pno.instances(iInstance - 1).id;
+        end
+      end
+    end
 
   end
     
