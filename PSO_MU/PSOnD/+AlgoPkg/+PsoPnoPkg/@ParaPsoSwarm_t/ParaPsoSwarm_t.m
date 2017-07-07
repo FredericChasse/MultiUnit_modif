@@ -147,7 +147,7 @@ classdef ParaPsoSwarm_t < handle
     % Get the content of certain particles
     %======================================================================
     function p = GetParticles(s,idx)
-      import AlgoPkg.PsoPnoPkg.Particle_t
+      import AlgoPkg.PsoPnoPkg.ParaParticle_t
       if ~isempty(find(idx > s.nParticles)) || ~isempty(find(idx < 0))
         error('No particles with at one or more of these indexes.');
       end

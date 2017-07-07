@@ -1,5 +1,5 @@
 function [ oRemoveParticle ] = FsmStep( p, swarm )
-import AlgoPkg.PsoPkg.*
+import AlgoPkg.PsoPnoPkg.*
 
 if p.steadyState.oInSteadyState && p.state == ParticleState.SEARCHING
   if swarm.unitArray.nUnits == 1
@@ -8,11 +8,13 @@ if p.steadyState.oInSteadyState && p.state == ParticleState.SEARCHING
     p.state = ParticleState.STEADY_STATE;
   else
     p.state = ParticleState.VALIDATE_OPTIMUM;
+    p.oTestOptPos = 0;
   end
 end
 
 if p.oSentinelWarning == 1
   p.state = ParticleState.PERTURB_OCCURED;
+  p.oTestOptPos = 0;
 end
 
 switch p.state
@@ -79,12 +81,14 @@ switch p.state
 %           p.ComputePos  (swarm);
 
         else % If the position is not an optimum
-          if p.optPos.dinit == p.pbestAbs.pos % If we were testing for Pbest
+          if p.oTestOptPos == 1  % If we were testing for Pbest
             p.state = ParticleState.SEARCHING;
+            p.oTestOptPos = 0;
             oRemoveParticle = 1;
           else
             p.pos.prevPos = p.pos.curPos;
             p.pos.curPos  = p.pbestAbs.pos;
+            p.oTestOptPos = 1;
             oRemoveParticle = 0;
           end
           p.ResetOptPos;

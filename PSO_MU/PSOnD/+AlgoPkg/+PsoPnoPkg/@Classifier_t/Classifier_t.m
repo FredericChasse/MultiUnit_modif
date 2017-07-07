@@ -47,7 +47,7 @@ classdef Classifier_t < handle
           c.optPos(i).prevPos     = c.optPos(i).curPos;
           c.optPos(i).prevFitness = c.optPos(i).curFitness;
           c.optPos(i).curFitness  = c.posMem(i).curFitness;
-          c.optPos(i).pos         = c.posMem(i).curPos;
+          c.optPos(i).curPos      = c.posMem(i).curPos;
         end
       end
     end
@@ -114,7 +114,7 @@ classdef Classifier_t < handle
       d = zeros(1, length(idx));
       
       for i = 1 : length(idx)
-        d(i) = c.optPos(idx(i));
+        d(i) = c.optPos(idx(i)).curPos;
       end
     end
     

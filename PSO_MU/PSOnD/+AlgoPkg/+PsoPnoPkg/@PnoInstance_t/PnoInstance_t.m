@@ -19,7 +19,7 @@ classdef PnoInstance_t < handle
 
     % Constructor
     function pnoi = PnoInstance_t(id, simData)
-      import AlgoPkg.PnoPkg.*
+      import AlgoPkg.PsoPnoPkg.*
       
       pnoi.id     = id;
       pnoi.k      = 1;
@@ -51,7 +51,7 @@ classdef PnoInstance_t < handle
     % Set steady state settings
     %======================================================================
     function SetSteadyState(pnoi, oscAmp, nSamples)
-      import AlgoPkg.PnoPkg.*;
+      import AlgoPkg.PsoPnoPkg.*;
       pnoi.steadyState = SteadyStatePno_t(1, oscAmp, nSamples, pnoi.delta);
     end
     %//////////////////////////////////////////////////////////////////////

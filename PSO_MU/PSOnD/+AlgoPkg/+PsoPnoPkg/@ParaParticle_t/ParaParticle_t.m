@@ -4,6 +4,7 @@ classdef ParaParticle_t < handle
     id
     pbest
     oAtOptimum
+    oTestOptPos
     pbestAbs
     pos
     optPos % Used in Parallel PSO for perturbing the particle
@@ -25,6 +26,7 @@ classdef ParaParticle_t < handle
       import AlgoPkg.SteadyState_t;
       p.id                      = id;
       p.oAtOptimum              = 0;
+      p.oTestOptPos             = 0;
       p.pbest                   = Position_t(1);
       p.pos                     = Position_t(1);
       p.curSpeed                = 0;

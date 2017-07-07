@@ -6,7 +6,7 @@
 % Setup workspace
 %==========================================================================
 clearvars -except rngState
-clear % Commenting this will ensure the same rng is achieved.
+% clear % Commenting this will ensure the same rng is achieved.
 clear RunPpsoPno  % Because of persistent variables
 close all
 
@@ -53,14 +53,14 @@ extremumSeekType  = 'extSeek';
 pnoType           = 'pno';
 psoPnoType        = 'psoPno';
 
-typeOfAlgo        = psoType;
-% typeOfAlgo        = psoPnoType;
+% typeOfAlgo        = psoType;
+typeOfAlgo        = psoPnoType;
 % typeOfAlgo        = extremumSeekType;
 % typeOfAlgo        = pnoType;
 %-------------------------------------------
 
-if strcmp(typeOfAlgo, psoType)
-%   nIterations = 75;
+if strcmp(typeOfAlgo, psoType) || strcmp(typeOfAlgo, psoPnoType)
+%   nIterations = 75; 
   nIterations = 200;
   waitBarModulo = 5;
 elseif strcmp(typeOfAlgo, extremumSeekType)
@@ -91,8 +91,8 @@ wbh = waitbar(0, ['Sim : ' num2str(0) '/' num2str(nIterations)]);  % Waitbar han
 
 % Unit array
 %==========================================================================
-% nUnits = 8;
-nUnits = 6;
+nUnits = 8;
+% nUnits = 6;
 
 if strcmp(typeOfUnits, mfcType)
   InitMfc
@@ -108,6 +108,8 @@ end
 %==========================================================================
 if strcmp(typeOfAlgo, psoType)
   InitPso
+elseif strcmp(typeOfAlgo, psoPnoType)
+  InitPsoPno
 elseif strcmp(typeOfAlgo, extremumSeekType)
   InitExtremumSeeking
 elseif strcmp(typeOfAlgo, pnoType)
@@ -120,15 +122,15 @@ end
 
 % Perturbations
 %==========================================================================
-oDoPerturb = 0;
+oDoPerturb = 1;
 
 nPerturbToApply = 1;
 
-nUnitsToPerturb = [1];
-perturbIteration = [90];
+nUnitsToPerturb = [8];
+perturbIteration = [60];
 
 if strcmp(typeOfUnits, mfcType)
-  perturbAmp = -30;
+  perturbAmp = -40;
 %     perturbIteration = 4000;
 %     perturbIteration = 23;
 elseif strcmp(typeOfUnits, staticFunctionType)
@@ -266,31 +268,31 @@ end
 legend(legendStr)
 title('j')
 
-% For debug
-%---------------
-d = zeros(nIterations, nUnits);
-j = zeros(nIterations, nUnits);
-dsort = zeros(nIterations, nUnits);
-jsort = zeros(nIterations, nUnits);
-dmax = zeros(1, nUnits);
-jmax = zeros(1, nUnits);
-for i = 1 : array.nUnits
-  d(:,i) = array.units(i).dmem(1,nIterations);
-  j(:,i) = array.units(i).jmem(1,nIterations);
-  
-  [dsort(:,i) idx] = sort(d(:,i));
-  jsort(:,i) = j(idx,i);
-  
-  [jmax(i) idx] = max(j(:,i));
-  dmax(i) = d(idx, i);
-end
-
-figure
-plot(dsort,jsort);
-hold on
-plot(dmax, jmax, 's')
-legendStr{end+1} = 'Max points';
-legend(legendStr)
+% % For debug
+% %---------------
+% d = zeros(nIterations, nUnits);
+% j = zeros(nIterations, nUnits);
+% dsort = zeros(nIterations, nUnits);
+% jsort = zeros(nIterations, nUnits);
+% dmax = zeros(1, nUnits);
+% jmax = zeros(1, nUnits);
+% for i = 1 : array.nUnits
+%   d(:,i) = array.units(i).dmem(1,nIterations);
+%   j(:,i) = array.units(i).jmem(1,nIterations);
+%   
+%   [dsort(:,i) idx] = sort(d(:,i));
+%   jsort(:,i) = j(idx,i);
+%   
+%   [jmax(i) idx] = max(j(:,i));
+%   dmax(i) = d(idx, i);
+% end
+% 
+% figure
+% plot(dsort,jsort);
+% hold on
+% plot(dmax, jmax, 's')
+% legendStr{end+1} = 'Max points';
+% legend(legendStr)
 
 %---------------
 %//////////////////////////////////////////////////////////////////////////

@@ -19,7 +19,7 @@ classdef PsoPno_t < AlgoPkg.AbstractAlgoInterface_t
     nPnos
     nAlgos
     swarmParam
-    pnoPara
+    pnoParam
   end
     
   % Algo interface
@@ -45,16 +45,15 @@ classdef PsoPno_t < AlgoPkg.AbstractAlgoInterface_t
       pso.realTimeElapsed = 0;
       pso.unitEvalTime    = unitArray.unitEvalTime;
       pso.pno             = Pno_t.empty;
-      pso.nPnos           = 0;
-      pso.classifier      = Classifier_t(unitArray);
+      pso.classifier      = Classifier_t(unitArray, 20);
 
-      pso.nPno            = 0;
+      pso.nPnos           = 0;
       pso.nSeqSwarms      = 0;
       pso.nParaSwarms     = 1;
       pso.paraSwarms      = ParaPsoSwarm_t.empty;
       pso.seqSwarms       = ParaPsoSwarm_t.empty;
       pso.paraSwarms(1)   = ParaPsoSwarm_t(1, unitArray, PsoSimData_t);
-      pso.simData{1}      = {pso.swarms(1).simData};
+      pso.simData{1}      = {pso.paraSwarms(1).simData};
       pso.nSimData        = 1;
       pso.nAlgos          = 1;
       
@@ -111,7 +110,8 @@ classdef PsoPno_t < AlgoPkg.AbstractAlgoInterface_t
     end
     
     % Create para swarms
-    function CreateParaSwarms(pso, nSwarms, nParticles, unitArrays)
+    function swarms = CreateParaSwarms(pso, nSwarms, nParticles, unitArrays)
+      swarms = [];
       if length(nParticles) ~= nSwarms
         error('Must specify nParticles for all swarms');
       end
@@ -122,11 +122,13 @@ classdef PsoPno_t < AlgoPkg.AbstractAlgoInterface_t
       for iSwarm = pso.nParaSwarms + 1 : pso.nParaSwarms + nSwarms
         pso.paraSwarms(iSwarm) = ParaPsoSwarm_t(iSwarm, nParticles(iSwarm), unitArrays(iSwarm));
         pso.nParaSwarms = pso.nParaSwarms + 1;
+        swarms(end+1) = pso.paraSwarms(pso.nParaSwarms);
       end
     end
     
     % Create seq swarms
-    function CreateSeqSwarms(pso, nSwarms, nParticles, unitArrays)
+    function swarms = CreateSeqSwarms(pso, nSwarms, nParticles, unitArrays)
+      swarms = [];
       if length(nParticles) ~= nSwarms
         error('Must specify nParticles for all swarms');
       end
@@ -137,6 +139,7 @@ classdef PsoPno_t < AlgoPkg.AbstractAlgoInterface_t
       for iSwarm = pso.nSeqSwarms + 1 : pso.nSeqSwarms + nSwarms
         pso.seqSwarms(iSwarm) = ParaPsoSwarm_t(iSwarm, nParticles(iSwarm), unitArrays(iSwarm));
         pso.nSeqSwarms = pso.nSeqSwarms + 1;
+        swarms(end+1) = pso.seqSwarms(pso.nSeqSwarms);
       end
     end
     
@@ -144,7 +147,7 @@ classdef PsoPno_t < AlgoPkg.AbstractAlgoInterface_t
     function pno = CreatePno(pso, unitArray)
       import AlgoPkg.PsoPnoPkg.*
       pso.nPnos = pso.nPnos + 1;
-      pso.pno(pso.nPnos) = Pno_t(pso.nPnos, unitArrays);
+      pso.pno(pso.nPnos) = Pno_t(pso.nPnos, unitArray);
       pno = pso.pno(pso.nPnos);
     end
     
