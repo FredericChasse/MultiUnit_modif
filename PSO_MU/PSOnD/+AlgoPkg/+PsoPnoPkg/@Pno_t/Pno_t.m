@@ -4,6 +4,7 @@ classdef Pno_t < AlgoPkg.AbstractAlgoInterface_t
 
   properties
     id
+    iteration
     unitArray
     simData
     nSimData
@@ -25,21 +26,21 @@ classdef Pno_t < AlgoPkg.AbstractAlgoInterface_t
 
     % Constructor
     function pno = Pno_t(id, unitArray)
-      import AlgoPkg.PnoPkg.*
+      import AlgoPkg.PsoPnoPkg.*
 
-      pno.id               = id;
-      pno.realTimeElapsed  = 0;
-      pno.unitEvalTime     = unitArray.unitEvalTime;
-      pno.unitArray        = unitArray;
-  %       es.simData          = {};
-      pno.nSimData         = 0;
-      pno.nInstances       = unitArray.nUnits;
+      pno.iteration         = 0;
+      pno.id                = id;
+      pno.realTimeElapsed   = 0;
+      pno.unitEvalTime      = unitArray.unitEvalTime;
+      pno.unitArray         = unitArray;
+      pno.nSimData          = 0;
+      pno.nInstances        = unitArray.nUnits;
 
       pno.instances = PnoInstance_t.empty;
       for i = 1 : pno.nInstances
-        pno.instances(i) = PnoInstance_t(i, PnoSimData_t);
-        pno.nSimData = pno.nSimData + 1;
-        pno.simData{i} = {pno.instances(i).simData};
+        pno.instances(i)  = PnoInstance_t(i, PnoSimData_t);
+        pno.nSimData      = pno.nSimData + 1;
+        pno.simData{i}    = {pno.instances(i).simData};
       end
 
       % Algo interface
@@ -85,7 +86,7 @@ classdef Pno_t < AlgoPkg.AbstractAlgoInterface_t
     % Set steady state settings
     %======================================================================
     function SetSteadyState(pno, oscAmp, nSamples)
-      import AlgoPkg.PnoPkg.*
+      import AlgoPkg.PsoPnoPkg.*
       for iInstance = 1 : pno.nInstances
         pno.instances(iInstance).SetSteadyState(oscAmp, nSamples);
       end

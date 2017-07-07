@@ -28,7 +28,7 @@ classdef PnoInstance_t < handle
       pnoi.umax   = 1000;
       pnoi.uInit  = 0;
       pnoi.j      = [0 0];
-      pnoi.u      = 0;
+      pnoi.u      = [0 0];
       pnoi.steadyState = SteadyStatePno_t.empty;
 
       pnoi.simData   = simData;
@@ -44,7 +44,7 @@ classdef PnoInstance_t < handle
       pnoi.delta  = delta;
       pnoi.umin 	= umin;
       pnoi.umax   = umax;
-      pnoi.u      = uInit;
+      pnoi.u(2)   = uInit;
       pnoi.uInit  = uInit;
     end
     

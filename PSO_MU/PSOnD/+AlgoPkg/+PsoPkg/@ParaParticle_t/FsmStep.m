@@ -1,6 +1,8 @@
 function [ oRemoveParticle ] = FsmStep( p, swarm )
 import AlgoPkg.PsoPkg.*
 
+%% Check for steady state 
+%--------------------------------------------------------------------
 if p.steadyState.oInSteadyState && p.state == ParticleState.SEARCHING
   if swarm.unitArray.nUnits == 1
     p.jSteady = p.pos.curFitness;
@@ -10,25 +12,33 @@ if p.steadyState.oInSteadyState && p.state == ParticleState.SEARCHING
     p.state = ParticleState.VALIDATE_OPTIMUM;
   end
 end
+%--------------------------------------------------------------------
 
+%% Check for perturbations 
+%--------------------------------------------------------------------
 if p.oSentinelWarning == 1
   p.state = ParticleState.PERTURB_OCCURED;
 end
+%--------------------------------------------------------------------
 
+%% State machine 
+%--------------------------------------------------------------------
 switch p.state
-  case ParticleState.SEARCHING
+  
+  case ParticleState.SEARCHING 
     p.ComputeSpeed(swarm);
     p.ComputePos  (swarm);
     oRemoveParticle = 0;
             
-  case ParticleState.PERTURB_OCCURED
-    p.InitSpeed(swarm);
-    p.InitPos  (swarm);
-    p.state = ParticleState.SEARCHING;
+  case ParticleState.PERTURB_OCCURED 
+    p.pos.prevPos     = p.pos.curPos;
+    p.prevSpeed       = p.curSpeed;
+    p.curSpeed        = 0;
+    p.state = ParticleState.STEADY_STATE;
     oRemoveParticle = 0;
 %     oRemoveParticle = 1;
     
-  case ParticleState.VALIDATE_OPTIMUM
+  case ParticleState.VALIDATE_OPTIMUM 
     if p.optPos.jinit == 0
       p.optPos.jinit  = p.pos.curFitness;
       p.optPos.dinit  = p.pos.curPos;
@@ -96,17 +106,17 @@ switch p.state
       end
     end
             
-  case ParticleState.STEADY_STATE
+  case ParticleState.STEADY_STATE 
     p.pos.prevPos     = p.pos.curPos;
     p.prevSpeed       = p.curSpeed;
     p.curSpeed        = 0;
-    p.pos.prevPos     = p.pos.curPos;
-    p.pos.prevFitness = p.pos.curFitness;
     oRemoveParticle   = 0;
     
-  otherwise
+  otherwise 
     error('Wrong state!')
+
 end
+%--------------------------------------------------------------------
 
 end
 

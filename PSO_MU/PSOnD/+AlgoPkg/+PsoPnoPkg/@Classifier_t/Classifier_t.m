@@ -35,6 +35,7 @@ classdef Classifier_t < handle
       delete(c);
     end
     
+    % Update values of all units
     function UpdateValues(c)
       for i = 1 : c.nUnits
         c.posMem(i).prevPos       = c.posMem(i).curPos;
@@ -51,16 +52,18 @@ classdef Classifier_t < handle
       end
     end
     
-    function ClearValues(c, idx)
+    % Reset values after a perturbation
+    function ResetValues(c, idx)
       if isempty(idx)
         error('Must specify an index value')
       end
       for i = 1 : length(idx)
-        c.optPos(idx(i)).curPos     = 0;
-        c.optPos(idx(i)).curFitness = 0;
+        c.optPos(idx(i)).curPos     = c.posMem(idx(i)).curPos;
+        c.optPos(idx(i)).curFitness = c.posMem(idx(i)).curFitness;
       end
     end
     
+    % Classify all units
     function [groups, nGroups] = ClassifyAll(c)
       
       g= round(c.optPos(:).curPos/c.margin);
@@ -78,6 +81,7 @@ classdef Classifier_t < handle
       nGroups = length(groups);
     end
     
+    % Classify certains units together
     function [groups, nGroups] = ClassifySome(c, idx)
       
       if isempty(idx)
@@ -99,6 +103,19 @@ classdef Classifier_t < handle
       end
       
       nGroups = length(groups);
+    end
+    
+    % Get best position of a unit
+    function d = GetBestPos(c, idx)
+      if isempty(idx)
+        error('Empty index')
+      end
+      
+      d = zeros(1, length(idx));
+      
+      for i = 1 : length(idx)
+        d(i) = c.optPos(idx(i));
+      end
     end
     
   end

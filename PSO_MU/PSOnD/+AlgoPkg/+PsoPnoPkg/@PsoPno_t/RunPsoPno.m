@@ -1,26 +1,34 @@
-function [ ] = RunPsoPno( pso, iteration )
+function [ ] = RunPsoPno( algo, iteration )
 import AlgoPkg.PsoPnoPkg.*
 
-for iUnit = 1 : pso.unitArray.nUnits
-  pso.unitArray.EvalUnit(iUnit);
+nUnitsPerturbed = {};
+nUnitsToRemove = {};
+iAlgo = 0;
+
+%% Eval units, update real time elapsed, and update classifier 
+for iUnit = 1 : algo.unitArray.nUnits
+  algo.unitArray.EvalUnit(iUnit);
 end
 
-pso.classifier.UpdateValues;
+algo.nIterations = algo.nIterations + 1;
 
-pso.nIterations = pso.nIterations + 1;
+algo.realTimeElapsed = algo.realTimeElapsed + algo.unitEvalTime;
 
-pso.realTimeElapsed = pso.realTimeElapsed + pso.unitEvalTime;
+algo.classifier.UpdateValues;
 
-% Parallel PSO
+
+%% Parallel PSO 
 %==========================================================================
-for iSwarm = 1 : pso.nParaSwarms
-  swarm = pso.paraSwarms(iSwarm);
+
+for iSwarm = 1 : algo.nParaSwarms
+  iAlgo = iAlgo + 1;
+  
+  swarm = algo.paraSwarms(iSwarm);
   swarm.swarmIteration = swarm.swarmIteration + 1;
 
-  nSeqSwarmsMem = pso.nSeqSwarms;
   if swarm.nParticles ~= 0
 
-    % Set the fitness of each particle
+    %% Set the fitness of each particle
     %--------------------------------------------------------------------
     for iParticle = 1 : swarm.nParticles
       p = swarm.particles(iParticle);
@@ -28,7 +36,7 @@ for iSwarm = 1 : pso.nParaSwarms
     end
     %____________________________________________________________________
 
-    % Compute pbest and gbest
+    %% Compute pbest and gbest
     %--------------------------------------------------------------------
     for iParticle = 1 : swarm.nParticles
       swarm.particles(iParticle).ComputePbest;
@@ -36,7 +44,7 @@ for iSwarm = 1 : pso.nParaSwarms
     swarm.ComputeGbest;
     %____________________________________________________________________
 
-    % Check for perturbations
+    %% Check for perturbations
     %--------------------------------------------------------------------
     for iParticle = 1 : swarm.nParticles
       p = swarm.particles(iParticle);
@@ -44,7 +52,7 @@ for iSwarm = 1 : pso.nParaSwarms
     end
     %____________________________________________________________________
 
-    % Check for steady state
+    %% Check for steady state
     %--------------------------------------------------------------------
     oSwarmInSs = 1;
     for iParticle = 1 : swarm.nParticles
@@ -56,7 +64,7 @@ for iSwarm = 1 : pso.nParaSwarms
     end
     %____________________________________________________________________
 
-    % SimData
+    %% SimData
     %--------------------------------------------------------------------
     swarm.simData.AddData ( swarm.GetParticlesSpeed           ...
                           , swarm.GetParticlesPos             ...
@@ -69,7 +77,7 @@ for iSwarm = 1 : pso.nParaSwarms
                           );
     %____________________________________________________________________
 
-    % Particles' FSM
+    %% Particles' FSM
     %--------------------------------------------------------------------
     idxToRemove = [];
     particlesPerturbed = [];
@@ -86,54 +94,94 @@ for iSwarm = 1 : pso.nParaSwarms
     end
     %____________________________________________________________________
 
+    %% Analyze perturbations
+    %--------------------------------------------------------------------
     if ~isempty(particlesPerturbed)
-      
-      idPerturbed = zeros(1,length(particlesPerturbed));
-      
-      for iParticle = 1 : lenght(particlesPerturbed)
-        idPerturbed(iParticle) = swarm.unitArray.units(particlesPerturbed(iParticle)).id;
-      end
-      pso.classifier.ClearValues(idPerturbed);
-      
-      if length(particlesPerturbed) == swarm.nParticles
-        swarm.RandomizeCertainParticles(particlesPerturbed);
-        for iParticle = 1 : swarm.nParticles
-          swarm.unitArray.units(iParticle).SetPos(p.pos.curPos);
-        end
-      else
-        [groups, nGroups] = pso.classifier.ClassifySome(idPerturbed);
-        
-        swarm.SplitUnitArrayInto1dArrays(particlesPerturbed, pso);
-      end
-      
+      nUnitsPerturbed{iAlgo} = particlesPerturbed;
     end
+    %--------------------------------------------------------------------
 
+    %% Check particles which need to be removed
+    %--------------------------------------------------------------------
     if ~isempty(idxToRemove)
-      swarm.SplitUnitArrayInto1dArrays(idxToRemove, pso);
+      nUnitsToRemove{iAlgo} = idxToRemove;
     end
+    %--------------------------------------------------------------------
 
   end
 end
 %==========================================================================
 
 
-% P&O
+%% P&O 
 %==========================================================================
-%==========================================================================
+for iPno = 1 : algo.nPnos
+  iAlgo = iAlgo + 1;
+  
+  pno = algo.pno(iPno);
+  
+  idxToRemove = [];
+  
+  if pno.nInstances ~= 0
+    pno.iteration = pno.iteration + 1;
+    
+    for iInstance = 1 : pno.nInstances
+      pnoi = pno.instances(iInstance);
+      simData = pnoi.simData;
 
+      % Compute the fitness of the unit
+      %--------------------------------------------------------------------
+      pno.unitArray.units(iInstance).SetPos(pnoi.u(2));
+      pno.unitArray.EvalUnit(iInstance);
+      pnoi.j(1) = pnoi.j(2);
+      pnoi.j(2) = pno.unitArray.units(iInstance).fitness;
+      if pno.iteration == 1
+        pnoi.j(1) = pnoi.j(2);
+      end
+      %--------------------------------------------------------------------
 
-% Sequential PSO
-%==========================================================================
-for iSwarm = 1 : pso.nSeqSwarms
-  swarm = pso.seqSwarms(iSwarm);
+      pnoi.steadyState.AddSample(pnoi.u);
+      
+      if pnoi.j(1) > pnoi.j(2)  % If we were better before
+        pnoi.k = -pnoi.k;       % Go the other way
+      end
+
+      simData.AddData(pnoi.u(2), pnoi.j(2), pno.iteration);
+
+      pnoi.u(1) = pnoi.u(2);
+      if ~pnoi.steadyState.EvaluateSteadyState
+        pnoi.u(2) = pnoi.u(2) + pnoi.delta*pnoi.k;
+        if pnoi.u(2) < pnoi.umin
+          pnoi.u(2) = pnoi.umin;
+        elseif pnoi.u(2) > pnoi.umax
+          pnoi.u(2) = pnoi.umax;
+        end
+      else
+        pnoi.u(2) = algo.classifier.GetBestPos(pno.unitArray.units(iInstance).id);
+        if pnoi.u(2) == pnoi.u(1)
+          if pnoi.j(2) > pnoi.j(1)*1.05 || pnoi.j(2) < pnoi.j(1)*0.95
+            idxToRemove = [idxToRemove iInstance];
+          end
+        end
+      end
+      
+      pno.unitArray.units(iInstance).SetPos(pnoi.u);
+    end
+  end
+  
+  if ~isempty(idxToRemove)
+    nUnitsPerturbed{iAlgo} = idxToRemove;
+  end
 end
 %==========================================================================
 
 
-swarmsToDelete = [];
-for iSwarm = 1 : nSeqSwarmsMem
-% for iSwarm = 2 : pso.nSwarms
-  swarm = pso.swarms(iSwarm);
+%% Sequential PSO 
+
+for iSwarm = 1 : so.nSeqSwarms
+  swarm = algo.seqSwarms(iSwarm);
+  iAlgo = iAlgo + 1;
+  
   if swarm.nParticles ~= 0
     
     swarm.iParticle = swarm.iParticle + 1;
@@ -143,9 +191,7 @@ for iSwarm = 1 : nSeqSwarmsMem
       swarm.iParticle = 0;
       swarm.swarmIteration = swarm.swarmIteration + 1;
 
-      idxToRemove = [];
-
-      % Compute pbest and gbest
+      %% Compute pbest and gbest
       %--------------------------------------------------------------------
       for iParticle = 1 : swarm.nParticles
         swarm.particles(iParticle).ComputePbest;
@@ -153,7 +199,7 @@ for iSwarm = 1 : nSeqSwarmsMem
       swarm.ComputeGbest;
       %____________________________________________________________________
 
-      % Check for perturbations
+      %% Check for perturbations
       %--------------------------------------------------------------------
       for iParticle = 1 : swarm.nParticles
         p = swarm.particles(iParticle);
@@ -161,7 +207,7 @@ for iSwarm = 1 : nSeqSwarmsMem
       end
       %____________________________________________________________________
 
-      % Check for steady state
+      %% Check for steady state
       %--------------------------------------------------------------------
       for iParticle = 1 : swarm.nParticles
         p = swarm.particles(iParticle);
@@ -170,7 +216,7 @@ for iSwarm = 1 : nSeqSwarmsMem
       end
       %____________________________________________________________________
 
-      % SimData
+      %% SimData
       %--------------------------------------------------------------------
       swarm.simData.AddData ( swarm.GetParticlesSpeed           ...
                             , swarm.GetParticlesPos             ...
@@ -183,7 +229,7 @@ for iSwarm = 1 : nSeqSwarmsMem
                             );
       %____________________________________________________________________
 
-      % Particles' FSM
+      %% Particles' FSM
       %--------------------------------------------------------------------
       idxInSteadyState = [];
       particlesPerturbed = [];
@@ -212,30 +258,12 @@ for iSwarm = 1 : nSeqSwarmsMem
       end
       %____________________________________________________________________
   
+      %% Analyze perturbations
+      %--------------------------------------------------------------------
       if ~isempty(particlesPerturbed)
-        
-        swarm.RandomizeParticlesPos;
-        for iParticle = 1 : swarm.nParticles
-          swarm.particles(iParticle).InitSpeed(swarm);
-        end
-        
-        oFirstSwarmActive = 0;
-        for iParticle = 1 : pso.swarms(1).nParticles
-          if pso.swarms(1).particles(iParticle).state == ParticleState.SEARCHING
-            oFirstSwarmActive = 1;
-            break;
-          end
-        end
-        
-        if oFirstSwarmActive
-          pso.swarms(1).unitArray.AddUnitToArray(swarm.unitArray.units(1).obj);
-          for i = 1 : length(swarm.particles(1).steadyState.samples)
-            swarm.particles(1).steadyState.AddSample(rand*100);
-          end
-          pso.swarms(1).AddParticle(swarm.particles(1));
-          swarmsToDelete = [swarmsToDelete swarm.id]; %#ok<AGROW>
-        end
+        nUnitsPerturbed{iAlgo} = particlesPerturbed;
       end
+      %--------------------------------------------------------------------
       swarm.unitArray.units(1).SetPos(swarm.particles(1).pos.curPos);
       
     else
@@ -245,8 +273,105 @@ for iSwarm = 1 : nSeqSwarmsMem
 end
 
 if ~isempty(swarmsToDelete)
-  pso.RemoveSwarms(swarmsToDelete);
+  algo.RemoveSwarms(swarmsToDelete);
 end
+
+
+%% Classifier decisions 
+%--------------------------------------------------------------------
+
+unitsPerturbed = [];
+
+for iPno = 1 : algo.nPno 
+  pno = algo.pno(iPno);
+  if ~isempty(nUnitsPerturbed{iPno})
+    unitsPerturbed = [unitsPerturbed pno.unitArray.units(nUnitsPerturbed{iPno}).id];
+    
+    if length(unitsPerturbed) == pno.nInstances
+      pso.RemovePno(pno.id);
+    else
+      pno.RemoveInstances(nUnitsPerturbed{iPno});
+      pno.unitArray.units(nUnitsPerturbed{iPno}) = [];
+    end
+  end
+end
+
+for iSeqSwarm = 1 : algo.nSeqSwarms 
+  swarm = algo.seqSwarms(iSeqSwarm);
+  if ~isempty(nUnitsPerturbed{iPno + iSeqSwarm})
+    unitsPerturbed = [unitsPerturbed swarm.unitArray.units(nUnitsPerturbed{iSeqSwarm + iPno}).id];
+    pso.RemoveSeqSwarms(swarm.id);
+  end
+end
+
+for iParaSwarm = 1 : algo.nParaSwarms 
+  swarm = algo.paraSwarms(iParaSwarm);
+  
+  if ~isempty(nUnitsToRemove{iParaSwarm})
+    pos = [];
+    for i = 1 : length(nUnitsToRemove{iSeqSwarm + iPno + iParaSwarm})
+      pos(end+1) = swarm.particles(nUnitsToRemove{iSeqSwarm + iPno + iParaSwarm}(i)).pos.curPos;
+    end
+    swarm.DeleteParticles(nUnitsToRemove{iSeqSwarm + iPno + iParaSwarm});
+    idxToRemove = [];
+    for iUnit = 1 : length(nUnitsToRemove{iSeqSwarm + iPno + iParaSwarm})
+      idxToRemove(end+1) = swarm.unitArray.units(nUnitsToRemove{iSeqSwarm + iPno + iParaSwarm}(iUnit)).id;
+    end
+    [aSplit, aKeep, idxToKeep] = swarm.unitArray.SplitArray(idxToRemove, 0);
+    swarm.unitArray = aKeep;
+    pno = pso.CreatePno(aSplit);
+    pno.SetInstancesParameters(pso.pnoParam.delta, pso.pnoParam.umin, pso.pnoParam.umax, pso.pnoParam.uInit)
+    pno.SetSteadyState(pso.pnoParam.oscAmp, pso.pnoParam.nSamples);
+    for i = 1 : pno.nInstances
+      pno.instances(i).u(2) = pos(i);
+    end
+  end
+  
+  if ~isempty(nUnitsPerturbed{iParaSwarm})
+    unitsPerturbed = [unitsPerturbed swarm.unitArray.units(nUnitsPerturbed{iSeqSwarm + iPno + iParaSwarm}).id];
+    
+    if length(nUnitsPerturbed) == swarm.nParticles
+      algo.RemoveParaSwarms(swarm.id);
+    else
+      swarm.DeleteParticles(nUnitsPerturbed{iSeqSwarm + iPno + iParaSwarm});
+      swarm.unitArray.units(nUnitsPerturbed{iSeqSwarm + iPno + iParaSwarm}) = [];
+      
+      if swarm.nParticles < 3
+        pos = [];
+        for iParticle = 1 : swarm.nParticles
+          pos(iParticle) = swarm.particles(iParticle).pos.curPos;
+        end
+        unitArray = swarm.unitArray;
+        pso.RemoveSeqSwarms(swarm.id);
+        pno = pso.CreatePno(unitArray);
+        pno.SetInstancesParameters(pso.pnoParam.delta, pso.pnoParam.umin, pso.pnoParam.umax, pso.pnoParam.uInit)
+        pno.SetSteadyState(pso.pnoParam.oscAmp, pso.pnoParam.nSamples);
+        for i = 1 : pno.nInstances
+          pno.instances(i).u(2) = pos(i);
+        end
+      end
+    end
+  end
+end
+
+
+if ~isempty(unitsPerturbed) 
+  [groups, nGroups] = algo.classifier.ClassifySome(unitsPerturbed);
+  algo.classifier.ResetValues(unitsPerturbed);
+  
+  for iGroup = 1 : nGroups
+    group = groups{iGroup};
+    nUnits = length(group);
+    if nUnits < 3 % Sequential PSO
+      algo.CreateSeqSwarms(nUnits, 3, arrays);
+    else % Parallel PSO
+      algo.CreateParaSwarms(nUnits, 3, arrays);
+    end
+  end
+end
+
+%--------------------------------------------------------------------
+
 
 end
 

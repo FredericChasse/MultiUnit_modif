@@ -16,6 +16,10 @@ classdef PsoPno_t < AlgoPkg.AbstractAlgoInterface_t
     unitEvalTime
     classifier
     pno
+    nPnos
+    nAlgos
+    swarmParam
+    pnoPara
   end
     
   % Algo interface
@@ -41,8 +45,10 @@ classdef PsoPno_t < AlgoPkg.AbstractAlgoInterface_t
       pso.realTimeElapsed = 0;
       pso.unitEvalTime    = unitArray.unitEvalTime;
       pso.pno             = Pno_t.empty;
+      pso.nPnos           = 0;
       pso.classifier      = Classifier_t(unitArray);
 
+      pso.nPno            = 0;
       pso.nSeqSwarms      = 0;
       pso.nParaSwarms     = 1;
       pso.paraSwarms      = ParaPsoSwarm_t.empty;
@@ -50,6 +56,25 @@ classdef PsoPno_t < AlgoPkg.AbstractAlgoInterface_t
       pso.paraSwarms(1)   = ParaPsoSwarm_t(1, unitArray, PsoSimData_t);
       pso.simData{1}      = {pso.swarms(1).simData};
       pso.nSimData        = 1;
+      pso.nAlgos          = 1;
+      
+      % Swarm parameters
+      pso.swarmParam.c1          = 1;
+      pso.swarmParam.c2          = 2;
+      pso.swarmParam.omega       = 0.4;
+      pso.swarmParam.decimals    = 4;
+      pso.swarmParam.posRes      = 0.1;
+      pso.swarmParam.posMin      = 10;
+      pso.swarmParam.posMax      = 500;
+      pso.swarmParam.ssOscAmp    = 0.01; % Steady-state defined @±1% oscillation
+      pso.swarmParam.nSamples4ss = 5;   % For that number of iterations
+      
+      % P&O parameters
+      pso.pnoParam.delta     = 5;
+      pso.pnoParam.umin      = 10;
+      pso.pnoParam.umax      = 500;
+      pso.pnoParam.oscAmp    = 2;
+      pso.pnoParam.nSamples  = 7;
       
       % Algo interface
       pso.id_if               = 'id';
@@ -115,6 +140,14 @@ classdef PsoPno_t < AlgoPkg.AbstractAlgoInterface_t
       end
     end
     
+    % Create P&O
+    function pno = CreatePno(pso, unitArray)
+      import AlgoPkg.PsoPnoPkg.*
+      pso.nPnos = pso.nPnos + 1;
+      pso.pno(pso.nPnos) = Pno_t(pso.nPnos, unitArrays);
+      pno = pso.pno(pso.nPnos);
+    end
+    
     % Remove certain para swarms
     function RemoveParaSwarms(pso,idx)
       if ~isempty(find(idx > pso.nParaSwarms)) || ~isempty(find(idx < 0))
@@ -133,6 +166,20 @@ classdef PsoPno_t < AlgoPkg.AbstractAlgoInterface_t
     function RemoveSeqSwarms(pso,idx)
       if ~isempty(find(idx > pso.nSeqSwarms)) || ~isempty(find(idx < 0))
         error('No swarms with at one or more of these indexes.');
+      end
+      idx = sort(idx);
+      for i = length(idx) : -1 : 1
+        pso.ShiftSeqSwarmsIdLeft(idx(i));
+        pso.seqSwarms(idx(i)).Del;
+        pso.seqSwarms(idx(i)) = [];
+        pso.nSeqSwarms = pso.nSeqSwarms - 1;
+      end
+    end
+    
+    % Remove certain P&O
+    function RemovePno(pso,idx)
+      if ~isempty(find(idx > pso.nPnos)) || ~isempty(find(idx < 0))
+        error('No P&O with at one or more of these indexes.');
       end
       idx = sort(idx);
       for i = length(idx) : -1 : 1
@@ -167,6 +214,19 @@ classdef PsoPno_t < AlgoPkg.AbstractAlgoInterface_t
   end
   
   methods (Access = private)
+    
+    % Shift the IDs of the P&O instances from a certain index to the left
+    % To be called when removing swarms
+    function ShiftPnoIdLeft(s,idx)
+      if (idx > s.nPnos) || (idx <= 0)
+        error('Wrong index.');
+      end
+      if idx < s.nPnos
+        for iPno = s.nPnos : -1 : idx + 1
+          s.pno(iPno).id = s.pno(iPno - 1).id;
+        end
+      end
+    end
     
     % Shift the IDs of the para swarms from a certain index to the left
     % To be called when removing swarms

@@ -7,8 +7,6 @@ Run ppso
 
 if perturbation
   if nperturb == nparticles
-    restart ppso
-  else
     keep perturbed particles in memory for scheduler
   end
 end
