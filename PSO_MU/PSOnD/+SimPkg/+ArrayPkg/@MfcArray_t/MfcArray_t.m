@@ -8,6 +8,7 @@ classdef MfcArray_t < SimPkg.ArrayPkg.AbstractArrayInterface_t
     realTimeElapsed
     integrationTime
     odeOptions
+    nEval
   end
   
   %Class interface
@@ -27,6 +28,8 @@ classdef MfcArray_t < SimPkg.ArrayPkg.AbstractArrayInterface_t
     % Constructor
     function array = MfcArray_t(id, nUnits, integrationTime, mfcModel)
       import SimPkg.UnitPkg.*
+      
+      array.nEval           = zeros(1, nUnits);
       
       array.id              = id;
       array.realTimeElapsed = 0;
@@ -94,6 +97,7 @@ classdef MfcArray_t < SimPkg.ArrayPkg.AbstractArrayInterface_t
     end
     
     function timeElapsed = EvaluateMfc(mfcs, id)
+      mfcs.nEval(id) = mfcs.nEval(id) + 1;
       [time, dynamics] = ode15s(mfcs.mfcModel, [0 mfcs.integrationTime], mfcs.units(id).dynamics, mfcs.odeOptions, mfcs.units(id).s0, mfcs.units(id).rext);
       mfcs.units(id).dynamics = dynamics(end, :);
       timeElapsed = time(end);

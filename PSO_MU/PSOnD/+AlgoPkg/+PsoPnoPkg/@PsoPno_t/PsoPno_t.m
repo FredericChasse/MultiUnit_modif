@@ -111,7 +111,8 @@ classdef PsoPno_t < AlgoPkg.AbstractAlgoInterface_t
     
     % Create para swarms
     function swarms = CreateParaSwarms(pso, nSwarms, nParticles, unitArrays)
-      swarms = [];
+      import AlgoPkg.PsoPnoPkg.*
+      swarms = ParaPsoSwarm_t.empty;
       if length(nParticles) ~= nSwarms
         error('Must specify nParticles for all swarms');
       end
@@ -119,8 +120,10 @@ classdef PsoPno_t < AlgoPkg.AbstractAlgoInterface_t
         error('Must specify a unit array for each swarm!');
       end
       
+      iArray = 0;
       for iSwarm = pso.nParaSwarms + 1 : pso.nParaSwarms + nSwarms
-        pso.paraSwarms(iSwarm) = ParaPsoSwarm_t(iSwarm, nParticles(iSwarm), unitArrays(iSwarm));
+        iArray = iArray + 1;
+        pso.paraSwarms(iSwarm) = ParaPsoSwarm_t(iSwarm, unitArrays(iArray), PsoSimData_t);
         pso.nParaSwarms = pso.nParaSwarms + 1;
         swarms(end+1) = pso.paraSwarms(pso.nParaSwarms);
       end
@@ -128,7 +131,8 @@ classdef PsoPno_t < AlgoPkg.AbstractAlgoInterface_t
     
     % Create seq swarms
     function swarms = CreateSeqSwarms(pso, nSwarms, nParticles, unitArrays)
-      swarms = [];
+      import AlgoPkg.PsoPnoPkg.*
+      swarms = ParaPsoSwarm_t.empty;
       if length(nParticles) ~= nSwarms
         error('Must specify nParticles for all swarms');
       end
@@ -136,8 +140,10 @@ classdef PsoPno_t < AlgoPkg.AbstractAlgoInterface_t
         error('Must specify a unit array for each swarm!');
       end
       
+      iArray = 0;
       for iSwarm = pso.nSeqSwarms + 1 : pso.nSeqSwarms + nSwarms
-        pso.seqSwarms(iSwarm) = ParaPsoSwarm_t(iSwarm, nParticles(iSwarm), unitArrays(iSwarm));
+        iArray = iArray + 1;
+        pso.seqSwarms(iSwarm) = ParaPsoSwarm_t(iSwarm, unitArrays(iArray), PsoSimData_t);
         pso.nSeqSwarms = pso.nSeqSwarms + 1;
         swarms(end+1) = pso.seqSwarms(pso.nSeqSwarms);
       end
@@ -186,10 +192,10 @@ classdef PsoPno_t < AlgoPkg.AbstractAlgoInterface_t
       end
       idx = sort(idx);
       for i = length(idx) : -1 : 1
-        pso.ShiftSeqSwarmsIdLeft(idx(i));
-        pso.seqSwarms(idx(i)).Del;
-        pso.seqSwarms(idx(i)) = [];
-        pso.nSeqSwarms = pso.nSeqSwarms - 1;
+        pso.ShiftPnoIdLeft(idx(i));
+        pso.pno(idx(i)).Del;
+        pso.pno(idx(i)) = [];
+        pso.nPnos = pso.nPnos - 1;
       end
     end
     

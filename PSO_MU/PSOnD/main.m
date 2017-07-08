@@ -127,10 +127,10 @@ oDoPerturb = 1;
 nPerturbToApply = 1;
 
 nUnitsToPerturb = [8];
-perturbIteration = [60];
+perturbIteration = [100];
 
 if strcmp(typeOfUnits, mfcType)
-  perturbAmp = -40;
+  perturbAmp = -100;
 %     perturbIteration = 4000;
 %     perturbIteration = 23;
 elseif strcmp(typeOfUnits, staticFunctionType)

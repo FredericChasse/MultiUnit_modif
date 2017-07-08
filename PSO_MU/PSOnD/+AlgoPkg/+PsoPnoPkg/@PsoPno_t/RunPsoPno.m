@@ -135,8 +135,6 @@ for iPno = 1 : algo.nPnos
 
       % Compute the fitness of the unit
       %--------------------------------------------------------------------
-      pno.unitArray.units(iInstance).SetPos(pnoi.u(2));
-      pno.unitArray.EvalUnit(iInstance);
       pnoi.j(1) = pnoi.j(2);
       pnoi.j(2) = pno.unitArray.units(iInstance).fitness;
       if pno.iteration == 1
@@ -285,19 +283,38 @@ if 1
 idxPerturbed = [];
 iAlgo = 0;
 
+algoIdxPerturbed = [];
+
+if algo.nPnos ~= 0
+  algoIdxPerturbed = [algoIdxPerturbed (algo.nParaSwarms + 1 : algo.nParaSwarms +  algo.nPnos)];
+end
+if algo.nSeqSwarms ~= 0
+  algoIdxPerturbed = [algoIdxPerturbed (algo.nParaSwarms + algo.nPnos + 1 : algo.nParaSwarms + algo.nPnos + algo.nSeqSwarms)];
+end
+if algo.nParaSwarms ~= 0
+  algoIdxPerturbed = [algoIdxPerturbed (1 : algo.nParaSwarms)];
+end
+
 %% Assess perturbed P&O units 
 %--------------------------------------------------------------------
+
+pnoIdx = 1 : algo.nPnos;
 for iPno = 1 : algo.nPnos 
-  iAlgo = iPno
-  pno = algo.pno(iPno);
-  if nUnitsPerturbed(iAlgo) ~= 0
-    idxPerturbed = [idxPerturbed pno.unitArray.units(unitsPerturbed{iAlgo}).id];
+  iAlgo = iAlgo + 1;
+  idx = algoIdxPerturbed(iAlgo);
+  pno = algo.pno(pnoIdx(iPno));
+  if nUnitsPerturbed(idx) ~= 0
+    for iUnit = 1 : pno.unitArray.nUnits
+      idxPerturbed = [idxPerturbed pno.unitArray.units(unitsPerturbed{idx}(iUnit)).id];
+    end
+%     idxPerturbed = [idxPerturbed pno.unitArray.units(unitsPerturbed{idx}).id];
     
     if length(idxPerturbed) == pno.nInstances
       algo.RemovePno(pno.id);
+      pnoIdx = pnoIdx - 1;
     else
-      pno.RemoveInstances(unitsPerturbed{iAlgo});
-      pno.unitArray.units(unitsPerturbed{iAlgo}) = [];
+      pno.RemoveInstances(unitsPerturbed{idx});
+      pno.unitArray.units(unitsPerturbed{idx}) = [];
     end
   end
 end
@@ -307,9 +324,13 @@ end
 %--------------------------------------------------------------------
 for iSeqSwarm = 1 : algo.nSeqSwarms 
   iAlgo = iAlgo + 1;
+  idx = algoIdxPerturbed(iAlgo);
   swarm = algo.seqSwarms(iSeqSwarm);
-  if nUnitsPerturbed(iAlgo) ~= 0
-    idxPerturbed = [idxPerturbed swarm.unitArray.units(unitsPerturbed{iAlgo}).id];
+  if nUnitsPerturbed(idx) ~= 0
+    for iUnit = 1 : swarm.unitArray.nUnits
+      idxPerturbed = [idxPerturbed swarm.unitArray.units(unitsPerturbed{idx}(iUnit)).id];
+    end
+%     idxPerturbed = [idxPerturbed swarm.unitArray.units(unitsPerturbed{idx}).id];
     algo.RemoveSeqSwarms(swarm.id);
   end
 end
@@ -319,6 +340,7 @@ end
 %--------------------------------------------------------------------
 for iParaSwarm = 1 : algo.nParaSwarms 
   iAlgo = iAlgo + 1;
+  idx = algoIdxPerturbed(iAlgo);
   swarm = algo.paraSwarms(iParaSwarm);
   
   if nUnitsToRemove(iParaSwarm) ~= 0
@@ -328,10 +350,11 @@ for iParaSwarm = 1 : algo.nParaSwarms
     end
     swarm.DeleteParticles(unitsToRemove{iParaSwarm});
     idxToRemove = [];
-    for iUnit = 1 : length(unitsToRemove{iParaSwarm})
-      idxToRemove(end+1) = swarm.unitArray.units(unitsToRemove{iParaSwarm}(iUnit)).id;
-    end
-    [aSplit, aKeep, idxToKeep] = swarm.unitArray.SplitArray(idxToRemove, 0);
+%     for iUnit = 1 : length(unitsToRemove{iParaSwarm})
+%       idxToRemove(end+1) = swarm.unitArray.units(unitsToRemove{iParaSwarm}(iUnit)).id;
+%     end
+%     [aSplit, aKeep, idxToKeep] = swarm.unitArray.SplitArray(idxToRemove, 0);
+    [aSplit, aKeep, idxToKeep] = swarm.unitArray.SplitArray(unitsToRemove{iParaSwarm}, 0);
     swarm.unitArray = aKeep;
     pno = algo.CreatePno(aSplit);
     pno.SetInstancesParameters(algo.pnoParam.delta, algo.pnoParam.umin, algo.pnoParam.umax, 0)
@@ -342,14 +365,18 @@ for iParaSwarm = 1 : algo.nParaSwarms
     end
   end
   
-  if nUnitsPerturbed(iAlgo) ~= 0
-    idxPerturbed = [idxPerturbed swarm.unitArray.units(unitsPerturbed{iAlgo}).id];
+  if nUnitsPerturbed(idx) ~= 0
+    for iUnit = 1 : length(unitsPerturbed{idx})
+      idxPerturbed = [idxPerturbed swarm.unitArray.units(unitsPerturbed{idx}(iUnit)).id];
+    end
+%     idxPerturbed = [idxPerturbed swarm.unitArray.units(unitsPerturbed{idx}).id];
     
-    if length(unitsPerturbed) == swarm.nParticles
+    if length(unitsPerturbed{idx}) == swarm.nParticles
       algo.RemoveParaSwarms(swarm.id);
     else
-      swarm.DeleteParticles(unitsPerturbed{iAlgo});
-      swarm.unitArray.units(unitsPerturbed{iAlgo}) = [];
+      swarm.DeleteParticles(unitsPerturbed{idx});
+      [aSplit, aKeep, idxToKeep] = swarm.unitArray.SplitArray(unitsPerturbed{idx}, 0);
+      swarm.unitArray = aKeep;
       
       if swarm.nParticles < 3
         pos = [];
@@ -357,11 +384,14 @@ for iParaSwarm = 1 : algo.nParaSwarms
           pos(iParticle) = swarm.particles(iParticle).pos.curPos;
         end
         unitArray = swarm.unitArray;
-        algo.RemoveSeqSwarms(swarm.id);
+        algo.RemoveParaSwarms(swarm.id);
         pno = algo.CreatePno(unitArray);
         pno.SetInstancesParameters(algo.pnoParam.delta, algo.pnoParam.umin, algo.pnoParam.umax, 0)
         pno.SetSteadyState(algo.pnoParam.oscAmp, algo.pnoParam.nSamples);
         for i = 1 : pno.nInstances
+          if iteration == 101
+            allo = 1;
+          end
           pno.instances(i).u(2) = pos(i);
           pno.unitArray.units(i).SetPos(pos(i));
         end
@@ -385,7 +415,7 @@ if ~isempty(idxPerturbed)
         [aSplit, aKeep, idxToKeep] = algo.unitArray.SplitArray(group(iSwarm), 0);
         swarm = algo.CreateSeqSwarms(1, 3, aSplit);
         swarm.SetParam(algo.swarmParam.c1, algo.swarmParam.c2, algo.swarmParam.omega, algo.swarmParam.decimals, algo.swarmParam.posRes, algo.swarmParam.posMin, algo.swarmParam.posMax);
-        swarm.SetSteadyState(algo.swarmParam.sizeOfSample, algo.swarmParam.oscAmp, algo.swarmParam.nSamples);
+        swarm.SetSteadyState([swarm.nParticles 1], algo.swarmParam.ssOscAmp, algo.swarmParam.nSamples4ss);
         swarm.RandomizeParticlesPos;
         swarm.unitArray.units(1).SetPos(swarm.particles(1).pos.curPos);
       end
@@ -394,10 +424,10 @@ if ~isempty(idxPerturbed)
       [aSplit, aKeep, idxToKeep] = algo.unitArray.SplitArray(group, 0);
       swarm = algo.CreateParaSwarms(1, 3, aSplit);
       swarm.SetParam(algo.swarmParam.c1, algo.swarmParam.c2, algo.swarmParam.omega, algo.swarmParam.decimals, algo.swarmParam.posRes, algo.swarmParam.posMin, algo.swarmParam.posMax);
-      swarm.SetSteadyState(algo.swarmParam.sizeOfSample, algo.swarmParam.oscAmp, algo.swarmParam.nSamples);
+      swarm.SetSteadyState([swarm.nParticles 1], algo.swarmParam.ssOscAmp, algo.swarmParam.nSamples4ss);
       swarm.RandomizeParticlesPos;
-      for iUnit = 1 : swarm.nUnits
-        swarm.unitArray.units(iUnit).SetPos(swarm.particles(iUnit).pos.curPos);
+      for iParticle = 1 : swarm.nParticles
+        swarm.unitArray.units(iParticle).SetPos(swarm.particles(iParticle).pos.curPos);
       end
     end
   end

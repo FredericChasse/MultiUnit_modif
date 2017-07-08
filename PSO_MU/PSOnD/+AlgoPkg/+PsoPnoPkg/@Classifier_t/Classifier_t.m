@@ -88,9 +88,15 @@ classdef Classifier_t < handle
         error('Empty index')
       end
       
-      optPos = c.optPos(idx);
+      idx = sort(idx);
       
-      g= round(optPos(:).curPos/c.margin);
+      optPos = zeros(1,length(idx));
+      for i = 1 : length(idx)
+        optPos(i) = c.optPos(idx(i)).curPos;
+      end
+%       optPos = c.optPos(idx);
+      
+      g= round(optPos/c.margin);
 
       groupValues = {};
       groups = {};
@@ -98,7 +104,7 @@ classdef Classifier_t < handle
       g_u = unique(g);
 
       for i = 1 : length(g_u)
-        groupValues{end+1} = optPos(:).curPos(g_u(i) == g); %#ok<AGROW>
+        groupValues{end+1} = optPos(g_u(i) == g); %#ok<AGROW>
         groups{end+1} = find(g_u(i) == g); %#ok<AGROW>
       end
       
