@@ -88,27 +88,68 @@ classdef Classifier_t < handle
         error('Empty index')
       end
       
-      idx = sort(idx);
-      
       optPos = zeros(1,length(idx));
       for i = 1 : length(idx)
         optPos(i) = c.optPos(idx(i)).curPos;
       end
-%       optPos = c.optPos(idx);
       
-      g= round(optPos/c.margin);
-
-      groupValues = {};
+      optPosSort = sort(optPos);iGroup = 1;
+      
+      nGroups = 1;
       groups = {};
+      groups{iGroup} = optPosSort(1);
+      for iUnit = 2 : length(optPos)
+        if (optPosSort(iUnit) - groups{iGroup}(1)) <= c.margin
+          groups{iGroup} = [groups{iGroup} optPosSort(iUnit)];
+        else
+          iGroup = iGroup + 1;
+          nGroups = nGroups + 1;
+          if length(groups{iGroup - 1}) > 1
+            if (optPosSort(iUnit) - groups{iGroup - 1}(end)) < (groups{iGroup - 1}(end) - groups{iGroup - 1}(end - 1))
+              groups{iGroup} = [groups{iGroup - 1}(end) optPosSort(iUnit)];
+              groups{iGroup - 1}(end) = [];
+            else
+              groups{iGroup} = optPosSort(iUnit);
+            end
+          else
+            groups{iGroup} = optPosSort(iUnit);
+          end
+        end
+      end
 
-      g_u = unique(g);
-
-      for i = 1 : length(g_u)
-        groupValues{end+1} = optPos(g_u(i) == g); %#ok<AGROW>
-        groups{end+1} = find(g_u(i) == g); %#ok<AGROW>
+      groupsIdx = cell(1, length(groups));
+      for i = 1 : length(groups)
+        iSame = 0;
+        for iUnit = 1 : length(optPos)
+          if find(optPos(iUnit) == groups{i}, 1)
+            iSame = iSame + 1;
+            groupsIdx{i}(iSame) = idx(iUnit);
+          end
+        end
       end
       
-      nGroups = length(groups);
+      groups = groupsIdx;
+      
+%       idx = sort(idx);
+%       
+%       optPos = zeros(1,length(idx));
+%       for i = 1 : length(idx)
+%         optPos(i) = c.optPos(idx(i)).curPos;
+%       end
+%       
+%       g= round(optPos/c.margin);
+% 
+%       groupValues = {};
+%       groups = {};
+% 
+%       g_u = unique(g);
+% 
+%       for i = 1 : length(g_u)
+%         groupValues{end+1} = optPos(g_u(i) == g); %#ok<AGROW>
+%         groups{end+1} = find(g_u(i) == g); %#ok<AGROW>
+%       end
+%       
+%       nGroups = length(groups);
     end
     
     % Get best position of a unit

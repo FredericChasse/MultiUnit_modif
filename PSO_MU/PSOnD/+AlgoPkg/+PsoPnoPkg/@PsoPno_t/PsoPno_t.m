@@ -45,7 +45,7 @@ classdef PsoPno_t < AlgoPkg.AbstractAlgoInterface_t
       pso.realTimeElapsed = 0;
       pso.unitEvalTime    = unitArray.unitEvalTime;
       pso.pno             = Pno_t.empty;
-      pso.classifier      = Classifier_t(unitArray, 20);
+      pso.classifier      = Classifier_t(unitArray, 10);
 
       pso.nPnos           = 0;
       pso.nSeqSwarms      = 0;
@@ -60,7 +60,7 @@ classdef PsoPno_t < AlgoPkg.AbstractAlgoInterface_t
       % Swarm parameters
       pso.swarmParam.c1          = 1;
       pso.swarmParam.c2          = 2;
-      pso.swarmParam.omega       = 0.4;
+      pso.swarmParam.omega       = 0.5;
       pso.swarmParam.decimals    = 4;
       pso.swarmParam.posRes      = 0.1;
       pso.swarmParam.posMin      = 10;
@@ -71,7 +71,7 @@ classdef PsoPno_t < AlgoPkg.AbstractAlgoInterface_t
       % P&O parameters
       pso.pnoParam.delta     = 5;
       pso.pnoParam.umin      = 10;
-      pso.pnoParam.umax      = 500;
+      pso.pnoParam.umax      = 700;
       pso.pnoParam.oscAmp    = 2;
       pso.pnoParam.nSamples  = 7;
       

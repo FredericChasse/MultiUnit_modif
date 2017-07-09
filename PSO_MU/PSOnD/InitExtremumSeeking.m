@@ -1,3 +1,6 @@
+import AlgoPkg.*
+import AlgoPkg.ExtSeekPkg.*
+
 extSeekId   = 1;
 extSeek = ExtSeek_t(extSeekId, array);
 

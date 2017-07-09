@@ -31,6 +31,7 @@ import AlgoPkg.LinkPkg.*
 import AlgoPkg.PsoPkg.*
 import AlgoPkg.ExtSeekPkg.*
 import AlgoPkg.PnoPkg.*
+import AlgoPkg.PsoPnoPkg.*
 %//////////////////////////////////////////////////////////////////////////
 
 
@@ -74,13 +75,13 @@ elseif strcmp(typeOfAlgo, extremumSeekType)
   waitBarModulo = 50;
 elseif strcmp(typeOfAlgo, pnoType)
   if strcmp(typeOfUnits, mfcType)
-    nIterations = 500;
+    nIterations = 200;
   elseif strcmp(typeOfUnits, staticFunctionType)
     nIterations = 1000;
   else
     error('Must define a type of units!');
   end
-  waitBarModulo = 50;
+  waitBarModulo = 5;
 else
   error('Must define a type of algorithm!');
 end
@@ -91,7 +92,7 @@ wbh = waitbar(0, ['Sim : ' num2str(0) '/' num2str(nIterations)]);  % Waitbar han
 
 % Unit array
 %==========================================================================
-nUnits = 8;
+nUnits = 20;
 % nUnits = 6;
 
 if strcmp(typeOfUnits, mfcType)
@@ -126,11 +127,11 @@ oDoPerturb = 1;
 
 nPerturbToApply = 1;
 
-nUnitsToPerturb = [8];
+nUnitsToPerturb = [nUnits];
 perturbIteration = [100];
 
 if strcmp(typeOfUnits, mfcType)
-  perturbAmp = -100;
+  perturbAmp = -40;
 %     perturbIteration = 4000;
 %     perturbIteration = 23;
 elseif strcmp(typeOfUnits, staticFunctionType)

@@ -17,7 +17,7 @@ decimals  = 4;
 posRes    = 0.1;
 if strcmp(typeOfUnits, mfcType)
   posMin    = 10;
-  posMax    = 500;
+  posMax    = 700;
 %   posMin    = 70;
 %   posMax    = 90;
 elseif strcmp(typeOfUnits, staticFunctionType)

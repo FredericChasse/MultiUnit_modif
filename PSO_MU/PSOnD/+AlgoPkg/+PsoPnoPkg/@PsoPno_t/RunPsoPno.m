@@ -81,6 +81,18 @@ for iSwarm = 1 : algo.nParaSwarms
 
     %% Particles' FSM
     %--------------------------------------------------------------------
+%     if iteration >= 122
+%       oIdxPresent = 0;
+%       for aa = 1 : swarm.unitArray.nUnits
+%         if swarm.unitArray.units(aa).id == 3
+%           oIdxPresent = 1;
+%           break;
+%         end
+%       end
+%       if oIdxPresent
+%         allo =1;
+%       end
+%     end
     idxToRemove = [];
     particlesPerturbed = [];
     for iParticle = 1 : swarm.nParticles
@@ -123,6 +135,9 @@ for iPno = 1 : algo.nPnos
   iAlgo = iAlgo + 1;
   
   pno = algo.pno(iPno);
+%   if iteration >= 122 && pno.unitArray.units(1).id == 3
+%     allo = 1;
+%   end
   
   idxToRemove = [];
   
@@ -150,8 +165,8 @@ for iPno = 1 : algo.nPnos
 
       simData.AddData(pnoi.u(2), pnoi.j(2), pno.iteration);
 
-      pnoi.u(1) = pnoi.u(2);
       if ~pnoi.steadyState.EvaluateSteadyState
+        pnoi.u(1) = pnoi.u(2);
         pnoi.u(2) = pnoi.u(2) + pnoi.delta*pnoi.k;
         if pnoi.u(2) < pnoi.umin
           pnoi.u(2) = pnoi.umin;
@@ -159,12 +174,16 @@ for iPno = 1 : algo.nPnos
           pnoi.u(2) = pnoi.umax;
         end
       else
-        pnoi.u(2) = algo.classifier.GetBestPos(pno.unitArray.units(iInstance).id);
         if pnoi.u(2) == pnoi.u(1)
           if pnoi.j(2) > pnoi.j(1)*1.05 || pnoi.j(2) < pnoi.j(1)*0.95
+            if iteration == 40
+              allo = 1;
+            end
             idxToRemove = [idxToRemove iInstance];
           end
         end
+        pnoi.u(1) = pnoi.u(2);
+        pnoi.u(2) = algo.classifier.GetBestPos(pno.unitArray.units(iInstance).id);
       end
       
       pno.unitArray.units(iInstance).SetPos(pnoi.u(2));
@@ -189,6 +208,10 @@ for iSwarm = 1 : algo.nSeqSwarms
     
     swarm.iParticle = swarm.iParticle + 1;
     swarm.particles(swarm.iParticle).SetFitness(swarm.unitArray.units(1).fitness);
+    
+%     if iteration >= 122 && swarm.unitArray.units(1).id == 4
+%       allo = 1;
+%     end
     
     if swarm.iParticle == swarm.nParticles
       swarm.iParticle = 0;
@@ -304,7 +327,7 @@ for iPno = 1 : algo.nPnos
   idx = algoIdxPerturbed(iAlgo);
   pno = algo.pno(pnoIdx(iPno));
   if nUnitsPerturbed(idx) ~= 0
-    for iUnit = 1 : pno.unitArray.nUnits
+    for iUnit = 1 : length(unitsPerturbed{idx})
       idxPerturbed = [idxPerturbed pno.unitArray.units(unitsPerturbed{idx}(iUnit)).id];
     end
 %     idxPerturbed = [idxPerturbed pno.unitArray.units(unitsPerturbed{idx}).id];
@@ -327,7 +350,7 @@ for iSeqSwarm = 1 : algo.nSeqSwarms
   idx = algoIdxPerturbed(iAlgo);
   swarm = algo.seqSwarms(iSeqSwarm);
   if nUnitsPerturbed(idx) ~= 0
-    for iUnit = 1 : swarm.unitArray.nUnits
+    for iUnit = 1 : length(unitsPerturbed{idx})
       idxPerturbed = [idxPerturbed swarm.unitArray.units(unitsPerturbed{idx}(iUnit)).id];
     end
 %     idxPerturbed = [idxPerturbed swarm.unitArray.units(unitsPerturbed{idx}).id];
@@ -405,6 +428,9 @@ end
 %--------------------------------------------------------------------
 if ~isempty(idxPerturbed) 
   [groups, nGroups] = algo.classifier.ClassifySome(idxPerturbed);
+  for i = 1 : nGroups
+    fprintf(['Group ' num2str(i) ' = ' num2str(groups{i}) '\n']);
+  end
   algo.classifier.ResetValues(idxPerturbed);
   
   for iGroup = 1 : nGroups

@@ -1,13 +1,16 @@
+import AlgoPkg.PnoPkg.*
+import AlgoPkg.*
+
 pnoId   = 1;
 pno = Pno_t(pnoId, array);
 
 if strcmp(typeOfUnits, mfcType)
-  delta = 20;
+  delta = 10;
   umin = 1;
   umax = 1000;
   uInit = 500;
 elseif strcmp(typeOfUnits, staticFunctionType)
-  delta = 20;
+  delta = 10;
   umin = 1;
   umax = 1000;
   uInit = 500;
