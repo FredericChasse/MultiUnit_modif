@@ -43,6 +43,10 @@ classdef Classifier_t < handle
         c.posMem(i).curPos        = c.unitArray.units(i).pos;
         c.posMem(i).curFitness    = c.unitArray.units(i).fitness;
         
+        if c.optPos(i).curPos == c.posMem(i).curPos && c.optPos(i).curFitness ~= c.posMem(i).curFitness
+          c.optPos(i).curFitness = c.posMem(i).curFitness;
+        end
+        
         if c.posMem(i).curFitness > c.optPos(i).curFitness
           c.optPos(i).prevPos     = c.optPos(i).curPos;
           c.optPos(i).prevFitness = c.optPos(i).curFitness;

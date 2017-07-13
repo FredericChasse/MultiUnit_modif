@@ -32,7 +32,7 @@ classdef Mfc_t < SimPkg.UnitPkg.AbstractUnitInterface_t
     function mfc = Mfc_t(id, mfcModel)
       import SimEnvironmentPkg.UnitPkg.*
       mfc.id          = id;
-      mfc.rext        = 0;
+      mfc.rext        = 100;
       mfc.s0          = 0;
       mfc.pout        = 0;
       mfc.beta        = 0;

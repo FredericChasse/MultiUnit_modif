@@ -58,9 +58,9 @@ classdef PsoPno_t < AlgoPkg.AbstractAlgoInterface_t
       pso.nAlgos          = 1;
       
       % Swarm parameters
-      pso.swarmParam.c1          = 1;
-      pso.swarmParam.c2          = 2;
-      pso.swarmParam.omega       = 0.5;
+      pso.swarmParam.c1          = 0.8;
+      pso.swarmParam.c2          = 1.5;
+      pso.swarmParam.omega       = 0.4;
       pso.swarmParam.decimals    = 4;
       pso.swarmParam.posRes      = 0.1;
       pso.swarmParam.posMin      = 10;

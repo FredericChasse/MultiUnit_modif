@@ -10,7 +10,7 @@ import AlgoPkg.PnoPkg.*
 import AlgoPkg.PsoPnoPkg.*
 
 if strcmp(typeOfAlgo, psoType) || strcmp(typeOfAlgo, psoPnoType)
-  integrationTime = 0.15;
+  integrationTime = 0.1;
 elseif strcmp(typeOfAlgo, extremumSeekType)
   integrationTime = .1;
 elseif strcmp(typeOfAlgo, pnoType)
@@ -37,8 +37,8 @@ for iUnit = 1 : nUnits
 %   S0 = 600 => (Ropt, Popt) = (81.10, 0.002063069379472)
 %   mfcArray.units(iUnit).s0 = s0Init - (iUnit-1) * 20;
 %   mfcArray.units(iUnit).s0 = s0mfc(iUnit);
-%   mfcArray.units(iUnit).s0 = 600;
-  mfcArray.units(iUnit).s0 = rand*(s0max-s0min)+s0min;
+  mfcArray.units(iUnit).s0 = 600;
+%   mfcArray.units(iUnit).s0 = rand*(s0max-s0min)+s0min;
   unitsS0(iUnit) = mfcArray.units(iUnit).s0;
 end
 % for iUnit = nUnits/2+1 : nUnits
@@ -57,6 +57,12 @@ unitsS0
 % mfcArray.units(3).s0 = 480;
 % mfcArray.integrationTime = .8;
 mfcArray.odeOptions = odeset('RelTol',1e-6,'AbsTol',1e-9);
+
+for iUnitSettle = 1 : 5
+  for iUnit = 1 : mfcArray.nUnits
+    mfcArray.EvaluateMfc(iUnit);
+  end
+end
 
 array = Array_t(mfcArray);
 

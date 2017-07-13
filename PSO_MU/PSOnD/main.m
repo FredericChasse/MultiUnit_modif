@@ -6,7 +6,7 @@
 % Setup workspace
 %==========================================================================
 clearvars -except rngState
-% clear % Commenting this will ensure the same rng is achieved.
+clear % Commenting this will ensure the same rng is achieved.
 clear RunPpsoPno  % Because of persistent variables
 close all
 
@@ -92,8 +92,8 @@ wbh = waitbar(0, ['Sim : ' num2str(0) '/' num2str(nIterations)]);  % Waitbar han
 
 % Unit array
 %==========================================================================
+% nUnits = 40;
 nUnits = 20;
-% nUnits = 6;
 
 if strcmp(typeOfUnits, mfcType)
   InitMfc
@@ -240,7 +240,50 @@ end
 %   end
 % end
 
-% Plot data
+%% Analyze efficiency
+%--------------------------------------------------------------------------
+if oDoPerturb && length(perturbIteration) == 1
+  dBefore = zeros(perturbIteration(1), nUnits);
+  dAfter = zeros(nIterations - perturbIteration(1), nUnits);
+  jBefore = zeros(perturbIteration(1), nUnits);
+  jAfter = zeros(nIterations - perturbIteration(1), nUnits);
+  optPosBefore = zeros(1, nUnits);
+  optPosAfter = zeros(1, nUnits);
+  optPowerBefore = zeros(1, nUnits);
+  optPowerAfter = zeros(1, nUnits);
+  for iUnit = 1 : nUnits
+    dBefore (:, iUnit) = array.units(i).dmem(1, perturbIteration(1));
+    dAfter  (:, iUnit) = array.units(i).dmem(perturbIteration(1)+1, nIterations);
+    jBefore (:, iUnit) = array.units(i).jmem(1, perturbIteration(1));
+    jAfter  (:, iUnit) = array.units(i).jmem(perturbIteration(1)+1, nIterations);
+    [optPowerBefore(iUnit), idx] = max(jBefore(:,iUnit));
+    optPosBefore(iUnit) = dBefore(idx, iUnit);
+    [optPowerAfter(iUnit), idx] = max(jAfter(:,iUnit));
+    optPosAfter(iUnit) = dAfter(idx, iUnit);
+  end
+  
+  convTimeBefore = zeros(1, nUnits);
+  convTimeAfter = zeros(1, nUnits);
+  precisionBefore = zeros(1, nUnits);
+  precisionAfter = zeros(1, nUnits);
+  efficiencyBefore = zeros(1, nUnits);
+  efficiencyAfter = zeros(1, nUnits);
+  
+  oscAmp = 0.05;
+  for iUnit = 1 : nUnits
+    for iIteration = 1 : perturbIteration(1)
+      clear meanD
+      meanD = mean(dBefore(iIteration:end, iUnit));
+      if (max(dBefore(iIteration:end, iUnit)) - meanD) / meanD < oscAmp && (meanD - min(dBefore(iIteration:end, iUnit)))/meanD < 0.05
+        break;
+      end
+    end
+    convTimeBefore(iUnit) = iIteration;
+  end
+end
+
+%% Plot data
+%--------------------------------------------------------------------------
 
 figure
 % set(gcf, 'Position', get(0,'Screensize')); % Maximize figure.
