@@ -37,8 +37,8 @@ for iUnit = 1 : nUnits
 %   S0 = 600 => (Ropt, Popt) = (81.10, 0.002063069379472)
 %   mfcArray.units(iUnit).s0 = s0Init - (iUnit-1) * 20;
 %   mfcArray.units(iUnit).s0 = s0mfc(iUnit);
-  mfcArray.units(iUnit).s0 = 600;
-%   mfcArray.units(iUnit).s0 = rand*(s0max-s0min)+s0min;
+%   mfcArray.units(iUnit).s0 = 600;
+  mfcArray.units(iUnit).s0 = rand*(s0max-s0min)+s0min;
   unitsS0(iUnit) = mfcArray.units(iUnit).s0;
 end
 % for iUnit = nUnits/2+1 : nUnits

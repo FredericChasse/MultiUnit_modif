@@ -3,10 +3,10 @@
 %********************    Main simulation    *******************************
 %**************************************************************************
 
-% Setup workspace
+%% Setup workspace
 %==========================================================================
 clearvars -except rngState
-clear % Commenting this will ensure the same rng is achieved.
+% clear % Commenting this will ensure the same rng is achieved.
 clear RunPpsoPno  % Because of persistent variables
 close all
 
@@ -35,7 +35,7 @@ import AlgoPkg.PsoPnoPkg.*
 %//////////////////////////////////////////////////////////////////////////
 
 
-% Simulation environment
+%% Simulation environment
 %==========================================================================
 
 % Type of unit
@@ -55,9 +55,9 @@ pnoType           = 'pno';
 psoPnoType        = 'psoPno';
 
 % typeOfAlgo        = psoType;
-typeOfAlgo        = psoPnoType;
+% typeOfAlgo        = psoPnoType;
 % typeOfAlgo        = extremumSeekType;
-% typeOfAlgo        = pnoType;
+typeOfAlgo        = pnoType;
 %-------------------------------------------
 
 if strcmp(typeOfAlgo, psoType) || strcmp(typeOfAlgo, psoPnoType)
@@ -90,10 +90,10 @@ wbh = waitbar(0, ['Sim : ' num2str(0) '/' num2str(nIterations)]);  % Waitbar han
 %//////////////////////////////////////////////////////////////////////////
 
 
-% Unit array
+%% Unit array
 %==========================================================================
 % nUnits = 40;
-nUnits = 20;
+nUnits = 5;
 
 if strcmp(typeOfUnits, mfcType)
   InitMfc
@@ -105,7 +105,7 @@ end
 %//////////////////////////////////////////////////////////////////////////
 
 
-% Algo init
+%% Algo init
 %==========================================================================
 if strcmp(typeOfAlgo, psoType)
   InitPso
@@ -121,7 +121,7 @@ end
 %//////////////////////////////////////////////////////////////////////////
 
 
-% Perturbations
+%% Perturbations
 %==========================================================================
 oDoPerturb = 1;
 
@@ -173,7 +173,7 @@ end
 %//////////////////////////////////////////////////////////////////////////
 
 
-% Simulation
+%% Simulation
 %==========================================================================
 for iSim = 1 : nIterations
   if mod(iSim, waitBarModulo) == 0
@@ -240,47 +240,6 @@ end
 %   end
 % end
 
-%% Analyze efficiency
-%--------------------------------------------------------------------------
-if oDoPerturb && length(perturbIteration) == 1
-  dBefore = zeros(perturbIteration(1), nUnits);
-  dAfter = zeros(nIterations - perturbIteration(1), nUnits);
-  jBefore = zeros(perturbIteration(1), nUnits);
-  jAfter = zeros(nIterations - perturbIteration(1), nUnits);
-  optPosBefore = zeros(1, nUnits);
-  optPosAfter = zeros(1, nUnits);
-  optPowerBefore = zeros(1, nUnits);
-  optPowerAfter = zeros(1, nUnits);
-  for iUnit = 1 : nUnits
-    dBefore (:, iUnit) = array.units(i).dmem(1, perturbIteration(1));
-    dAfter  (:, iUnit) = array.units(i).dmem(perturbIteration(1)+1, nIterations);
-    jBefore (:, iUnit) = array.units(i).jmem(1, perturbIteration(1));
-    jAfter  (:, iUnit) = array.units(i).jmem(perturbIteration(1)+1, nIterations);
-    [optPowerBefore(iUnit), idx] = max(jBefore(:,iUnit));
-    optPosBefore(iUnit) = dBefore(idx, iUnit);
-    [optPowerAfter(iUnit), idx] = max(jAfter(:,iUnit));
-    optPosAfter(iUnit) = dAfter(idx, iUnit);
-  end
-  
-  convTimeBefore = zeros(1, nUnits);
-  convTimeAfter = zeros(1, nUnits);
-  precisionBefore = zeros(1, nUnits);
-  precisionAfter = zeros(1, nUnits);
-  efficiencyBefore = zeros(1, nUnits);
-  efficiencyAfter = zeros(1, nUnits);
-  
-  oscAmp = 0.05;
-  for iUnit = 1 : nUnits
-    for iIteration = 1 : perturbIteration(1)
-      clear meanD
-      meanD = mean(dBefore(iIteration:end, iUnit));
-      if (max(dBefore(iIteration:end, iUnit)) - meanD) / meanD < oscAmp && (meanD - min(dBefore(iIteration:end, iUnit)))/meanD < 0.05
-        break;
-      end
-    end
-    convTimeBefore(iUnit) = iIteration;
-  end
-end
 
 %% Plot data
 %--------------------------------------------------------------------------
@@ -312,33 +271,129 @@ end
 legend(legendStr)
 title('j')
 
-% % For debug
-% %---------------
-% d = zeros(nIterations, nUnits);
-% j = zeros(nIterations, nUnits);
-% dsort = zeros(nIterations, nUnits);
-% jsort = zeros(nIterations, nUnits);
-% dmax = zeros(1, nUnits);
-% jmax = zeros(1, nUnits);
-% for i = 1 : array.nUnits
-%   d(:,i) = array.units(i).dmem(1,nIterations);
-%   j(:,i) = array.units(i).jmem(1,nIterations);
-%   
-%   [dsort(:,i) idx] = sort(d(:,i));
-%   jsort(:,i) = j(idx,i);
-%   
-%   [jmax(i) idx] = max(j(:,i));
-%   dmax(i) = d(idx, i);
-% end
-% 
-% figure
-% plot(dsort,jsort);
-% hold on
-% plot(dmax, jmax, 's')
-% legendStr{end+1} = 'Max points';
-% legend(legendStr)
 
-%---------------
+%% Analyze convergence time, precision, and tracking efficiency of algorithm
+%--------------------------------------------------------------------------
+fprintf('\n')
+if strcmp(typeOfAlgo, psoType)
+  import AlgoPkg.PsoPkg.PsoType
+  if psoAlgo == PsoType.PARALLEL_PSO
+    fprintf('\n');
+    fprintf('***********************************************\n')
+    fprintf('*********** PARALLEL PSO ANALYSIS *************\n')
+    fprintf('***********************************************\n')
+  elseif psoAlgo == PsoType.PSO_1D
+    fprintf('\n');
+    fprintf('***********************************************\n')
+    fprintf('*********** SEQUENTIAL PSO ANALYSIS ***********\n')
+    fprintf('***********************************************\n')
+  elseif psoAlgo == PsoType.PARALLEL_PSO_PBEST_ABS
+    fprintf('\n');
+    fprintf('***********************************************\n')
+    fprintf('****** PARALLEL PSO PBEST ABS ANALYSIS ********\n')
+    fprintf('***********************************************\n')
+  else
+    error('Whaat');
+  end
+elseif strcmp(typeOfAlgo, psoPnoType)
+  fprintf('\n');
+  fprintf('***********************************************\n')
+  fprintf('************** PSO-P&O ANALYSIS ***************\n')
+  fprintf('***********************************************\n')
+elseif strcmp(typeOfAlgo, extremumSeekType)
+  fprintf('\n');
+  fprintf('***********************************************\n')
+  fprintf('********* EXTREMUM SEEKING ANALYSIS ***********\n')
+  fprintf('***********************************************\n')
+elseif strcmp(typeOfAlgo, pnoType)
+  fprintf('\n');
+  fprintf('***********************************************\n')
+  fprintf('**************** P&O ANALYSIS *****************\n')
+  fprintf('***********************************************\n')
+else
+  error('Must define a type of algorithm!');
+end
+
+if oDoPerturb && length(perturbIteration) == 1
+  dBefore = zeros(perturbIteration(1), nUnits);
+  dAfter = zeros(nIterations - perturbIteration(1), nUnits);
+  jBefore = zeros(perturbIteration(1), nUnits);
+  jAfter = zeros(nIterations - perturbIteration(1), nUnits);
+  optPosBefore = zeros(1, nUnits);
+  optPosAfter = zeros(1, nUnits);
+  optPowerBefore = zeros(1, nUnits);
+  optPowerAfter = zeros(1, nUnits);
+  for iUnit = 1 : nUnits
+    dBefore (:, iUnit) = array.units(iUnit).dmem(1, perturbIteration(1));
+    dAfter  (:, iUnit) = array.units(iUnit).dmem(perturbIteration(1)+1, nIterations);
+    jBefore (:, iUnit) = array.units(iUnit).jmem(1, perturbIteration(1));
+    jAfter  (:, iUnit) = array.units(iUnit).jmem(perturbIteration(1)+1, nIterations);
+    [optPowerBefore(iUnit), idx] = max(jBefore(:,iUnit));
+    optPosBefore(iUnit) = dBefore(idx, iUnit);
+    [optPowerAfter(iUnit), idx] = max(jAfter(:,iUnit));
+    optPosAfter(iUnit) = dAfter(idx, iUnit);
+  end
+  
+  convTimeBefore = zeros(1, nUnits);
+  convTimeAfter = zeros(1, nUnits);
+  precisionBefore = zeros(1, nUnits);
+  precisionAfter = zeros(1, nUnits);
+  efficiencyBefore = zeros(1, nUnits);
+  efficiencyAfter = zeros(1, nUnits);
+  
+  oscAmp = 0.05;
+  for iUnit = 1 : nUnits
+    for iIteration = 1 : perturbIteration(1)
+      clear meanJ
+      meanJ = mean(jBefore(iIteration:end, iUnit));
+      if (max(jBefore(iIteration:end, iUnit)) - meanJ) / meanJ < oscAmp && (meanJ - min(jBefore(iIteration:end, iUnit)))/meanJ < oscAmp
+        break;
+      end
+    end
+    convTimeBefore(iUnit) = iIteration;
+    precisionBefore(iUnit) = 100 - abs((mean(dBefore(iIteration:end, iUnit) - optPosBefore(iUnit)))) / optPosBefore(iUnit) * 100;
+    efficiencyBefore(iUnit) = 100 - abs(mean(dBefore(:,iUnit)) - optPosBefore(iUnit)) / optPosBefore(iUnit) * 100;
+    
+    for iIteration = 1 : nIterations - perturbIteration(1)
+      clear meanJ
+      meanJ = mean(jAfter(iIteration:end, iUnit));
+      if (max(jAfter(iIteration:end, iUnit)) - meanJ) / meanJ < oscAmp && (meanJ - min(jAfter(iIteration:end, iUnit)))/meanJ < oscAmp
+        break;
+      end
+    end
+    convTimeAfter(iUnit) = iIteration;
+    precisionAfter(iUnit) = 100 - abs((mean(dAfter(iIteration:end, iUnit) - optPosAfter(iUnit)))) / optPosAfter(iUnit) * 100;
+    efficiencyAfter(iUnit) = 100 - abs(mean(dAfter(:,iUnit)) - optPosAfter(iUnit)) / optPosAfter(iUnit) * 100;
+  end
+  
+  fprintf('\nBefore perturbation\n')
+  fprintf(['Unit\tPrecision\t\tConvergence\t\tEfficiency\n']);
+  for iUnit = 1 : nUnits
+    fprintf([num2str(uint16(iUnit)) '\t\t' num2str(precisionBefore(iUnit), '%.2f') '\t\t\t' num2str(uint16(convTimeBefore(iUnit))) '\t\t\t\t' num2str(efficiencyBefore(iUnit), '%.2f') '\n']);
+  end
+  
+  fprintf('\nAfter perturbation\n')
+  fprintf(['Unit\tPrecision\t\tConvergence\t\tEfficiency\n']);
+  for iUnit = 1 : nUnits
+    fprintf([num2str(uint16(iUnit)) '\t\t' num2str(precisionAfter(iUnit), '%.2f') '\t\t\t' num2str(uint16(convTimeAfter(iUnit))) '\t\t\t\t' num2str(efficiencyAfter(iUnit), '%.2f') '\n']);
+  end
+%   disp({'Unit' 'Precision' 'Convergence' 'Efficiency'});
+%   for iUnit = 1 : nUnits
+%     tableVal = [iUnit precisionBefore(iUnit) convTimeBefore(iUnit) efficiencyBefore(iUnit)];
+%     disp(tableVal);
+%   end
+%   
+%   fprintf('\nAfter perturbation\n')
+%   disp({'Unit' 'Precision' 'Convergence' 'Efficiency'});
+%   for iUnit = 1 : nUnits
+%     tableVal = [iUnit precisionAfter(iUnit) convTimeAfter(iUnit) efficiencyAfter(iUnit)];
+%     disp(tableVal);
+%   end
+end
+
+
+
+%% Close waitbar handle
 %//////////////////////////////////////////////////////////////////////////
 
 close(wbh)
