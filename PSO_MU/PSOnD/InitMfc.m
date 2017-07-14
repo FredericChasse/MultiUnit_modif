@@ -51,7 +51,8 @@ end
 % %   mfcArray.units(iUnit).s0 = rand*(s0max-s0min)+s0min;
 %   unitsS0(iUnit) = mfcArray.units(iUnit).s0;
 % end
-unitsS0
+% unitsS0
+
 % mfcArray.units(1).s0 = 600;
 % mfcArray.units(2).s0 = 540;
 % mfcArray.units(3).s0 = 480;

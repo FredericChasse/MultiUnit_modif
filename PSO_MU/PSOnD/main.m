@@ -86,14 +86,16 @@ else
   error('Must define a type of algorithm!');
 end
 
+nIterations = 200;
+
 wbh = waitbar(0, ['Sim : ' num2str(0) '/' num2str(nIterations)]);  % Waitbar handle
 %//////////////////////////////////////////////////////////////////////////
 
 
 %% Unit array
 %==========================================================================
-% nUnits = 40;
-nUnits = 5;
+nUnits = 40;
+% nUnits = 5;
 
 if strcmp(typeOfUnits, mfcType)
   InitMfc
@@ -131,7 +133,7 @@ nUnitsToPerturb = [nUnits];
 perturbIteration = [100];
 
 if strcmp(typeOfUnits, mfcType)
-  perturbAmp = -40;
+  perturbAmp = -150;
 %     perturbIteration = 4000;
 %     perturbIteration = 23;
 elseif strcmp(typeOfUnits, staticFunctionType)
@@ -274,45 +276,28 @@ title('j')
 
 %% Analyze convergence time, precision, and tracking efficiency of algorithm
 %--------------------------------------------------------------------------
-fprintf('\n')
+fprintf('\n\t\t\t\t\t\t\t***********************************************\n')
 if strcmp(typeOfAlgo, psoType)
   import AlgoPkg.PsoPkg.PsoType
   if psoAlgo == PsoType.PARALLEL_PSO
-    fprintf('\n');
-    fprintf('***********************************************\n')
-    fprintf('*********** PARALLEL PSO ANALYSIS *************\n')
-    fprintf('***********************************************\n')
+    fprintf('\t\t\t\t\t\t\t*********** PARALLEL PSO ANALYSIS *************\n')
   elseif psoAlgo == PsoType.PSO_1D
-    fprintf('\n');
-    fprintf('***********************************************\n')
-    fprintf('*********** SEQUENTIAL PSO ANALYSIS ***********\n')
-    fprintf('***********************************************\n')
+    fprintf('\t\t\t\t\t\t\t*********** SEQUENTIAL PSO ANALYSIS ***********\n')
   elseif psoAlgo == PsoType.PARALLEL_PSO_PBEST_ABS
-    fprintf('\n');
-    fprintf('***********************************************\n')
-    fprintf('****** PARALLEL PSO PBEST ABS ANALYSIS ********\n')
-    fprintf('***********************************************\n')
+    fprintf('\t\t\t\t\t\t\t****** PARALLEL PSO PBEST ABS ANALYSIS ********\n')
   else
     error('Whaat');
   end
 elseif strcmp(typeOfAlgo, psoPnoType)
-  fprintf('\n');
-  fprintf('***********************************************\n')
-  fprintf('************** PSO-P&O ANALYSIS ***************\n')
-  fprintf('***********************************************\n')
+  fprintf('\t\t\t\t\t\t\t************** PSO-P&O ANALYSIS ***************\n')
 elseif strcmp(typeOfAlgo, extremumSeekType)
-  fprintf('\n');
-  fprintf('***********************************************\n')
-  fprintf('********* EXTREMUM SEEKING ANALYSIS ***********\n')
-  fprintf('***********************************************\n')
+  fprintf('\t\t\t\t\t\t\t********* EXTREMUM SEEKING ANALYSIS ***********\n')
 elseif strcmp(typeOfAlgo, pnoType)
-  fprintf('\n');
-  fprintf('***********************************************\n')
-  fprintf('**************** P&O ANALYSIS *****************\n')
-  fprintf('***********************************************\n')
+  fprintf('\t\t\t\t\t\t\t**************** P&O ANALYSIS *****************\n')
 else
   error('Must define a type of algorithm!');
 end
+fprintf('\t\t\t\t\t\t\t***********************************************\n')
 
 if oDoPerturb && length(perturbIteration) == 1
   dBefore = zeros(perturbIteration(1), nUnits);
@@ -334,12 +319,22 @@ if oDoPerturb && length(perturbIteration) == 1
     optPosAfter(iUnit) = dAfter(idx, iUnit);
   end
   
-  convTimeBefore = zeros(1, nUnits);
-  convTimeAfter = zeros(1, nUnits);
+  steadyStateBefore = zeros(1, nUnits);
+  steadyStateAfter = zeros(1, nUnits);
+  convergenceBefore = zeros(1, nUnits);
+  convergenceAfter = zeros(1, nUnits);
+  meanPowerBefore = zeros(1, nUnits);
+  meanPowerAfter = zeros(1, nUnits);
+  ssOscBefore = zeros(1, nUnits);
+  ssOscAfter = zeros(1, nUnits);
   precisionBefore = zeros(1, nUnits);
   precisionAfter = zeros(1, nUnits);
   efficiencyBefore = zeros(1, nUnits);
   efficiencyAfter = zeros(1, nUnits);
+  joulesBefore = zeros(1, nUnits);
+  joulesAfter = zeros(1, nUnits);
+  tBefore = (1:perturbIteration(1)) * array.unitEvalTime;
+  tAfter  = (1:nIterations - perturbIteration(1)) * array.unitEvalTime;
   
   oscAmp = 0.05;
   for iUnit = 1 : nUnits
@@ -350,9 +345,49 @@ if oDoPerturb && length(perturbIteration) == 1
         break;
       end
     end
-    convTimeBefore(iUnit) = iIteration;
+    steadyStateBefore(iUnit) = iIteration;
     precisionBefore(iUnit) = 100 - abs((mean(dBefore(iIteration:end, iUnit) - optPosBefore(iUnit)))) / optPosBefore(iUnit) * 100;
-    efficiencyBefore(iUnit) = 100 - abs(mean(dBefore(:,iUnit)) - optPosBefore(iUnit)) / optPosBefore(iUnit) * 100;
+    efficiencyBefore(iUnit) = 100 - abs(mean(jBefore(:,iUnit)) - optPowerBefore(iUnit)) / optPowerBefore(iUnit) * 100;
+    joulesBefore(iUnit) = trapz(tBefore, jBefore(:,iUnit));
+    
+    for iIteration = 1 : perturbIteration(1)
+      if length(dBefore(iIteration:end, iUnit)) < 3
+        break;
+      end
+      [maxPeaks maxIdx] = findpeaks(dBefore(iIteration:end, iUnit));
+      dInv = 1.01*max(dBefore(iIteration:end, iUnit)) - dBefore(iIteration:end, iUnit);
+      [minPeaks minIdx] = findpeaks(dInv);
+      dTemp = dBefore(iIteration:end, iUnit);
+      minPeaks = dTemp(minIdx);
+      if ~isempty(maxPeaks) && ~isempty(minIdx)
+        if (max(maxPeaks) - mean(maxPeaks)) / mean(maxPeaks) < oscAmp/2 && (mean(minPeaks) -  min(minPeaks)) / mean(minPeaks) < oscAmp
+          if dTemp(1) ~= max(dTemp) && dTemp(1) ~= min(dTemp)
+            break;
+          end
+        end
+      else
+        if isempty(maxPeaks) && isempty(minIdx)
+          break;
+        elseif isempty(maxPeaks)
+          if (mean(minPeaks) -  min(minPeaks)) / mean(minPeaks) < oscAmp/2
+            if dTemp(1) ~= max(dTemp) && dTemp(1) ~= min(dTemp)
+              break;
+            end
+          end
+        else % isempty(minIdx)
+          if (max(maxPeaks) - mean(maxPeaks)) / mean(maxPeaks) < oscAmp/2
+            if dTemp(1) ~= max(dTemp) && dTemp(1) ~= min(dTemp)
+              break;
+            end
+          end
+        end
+      end
+    end
+    convergenceBefore(iUnit) = iIteration;
+    meanPowerBefore(iUnit) = mean(jBefore(iIteration:end, iUnit));
+    ssOscBefore(iUnit) = max( max(jBefore(iIteration:end, iUnit) - meanPowerBefore(iUnit))  ...
+                            , min(meanPowerBefore(iUnit) - jBefore(iIteration:end, iUnit))) ...
+                            / meanPowerBefore(iUnit) * 100;
     
     for iIteration = 1 : nIterations - perturbIteration(1)
       clear meanJ
@@ -361,37 +396,103 @@ if oDoPerturb && length(perturbIteration) == 1
         break;
       end
     end
-    convTimeAfter(iUnit) = iIteration;
+    steadyStateAfter(iUnit) = iIteration;
     precisionAfter(iUnit) = 100 - abs((mean(dAfter(iIteration:end, iUnit) - optPosAfter(iUnit)))) / optPosAfter(iUnit) * 100;
-    efficiencyAfter(iUnit) = 100 - abs(mean(dAfter(:,iUnit)) - optPosAfter(iUnit)) / optPosAfter(iUnit) * 100;
+    efficiencyAfter(iUnit) = 100 - abs(mean(jAfter(:,iUnit)) - optPowerAfter(iUnit)) / optPowerAfter(iUnit) * 100;
+    joulesAfter(iUnit) = trapz(tAfter, jAfter(:,iUnit));
+    
+    for iIteration = 1 : perturbIteration(1)
+      if length(dAfter(iIteration:end, iUnit)) < 3
+        break;
+      end
+      [maxPeaks maxIdx] = findpeaks(dAfter(iIteration:end, iUnit));
+      dInv = 1.01*max(dAfter(iIteration:end, iUnit)) - dAfter(iIteration:end, iUnit);
+      [minPeaks minIdx] = findpeaks(dInv);
+      dTemp = dAfter(iIteration:end, iUnit);
+      minPeaks = dTemp(minIdx);
+      if ~isempty(maxPeaks) && ~isempty(minIdx)
+        if (max(maxPeaks) - mean(maxPeaks)) / mean(maxPeaks) < oscAmp/2 && (mean(minPeaks) -  min(minPeaks)) / mean(minPeaks) < oscAmp
+          if dTemp(1) ~= max(dTemp) && dTemp(1) ~= min(dTemp)
+            break;
+          end
+        end
+      else
+        if isempty(maxPeaks) && isempty(minIdx)
+          break;
+        elseif isempty(maxPeaks)
+          if (mean(minPeaks) -  min(minPeaks)) / mean(minPeaks) < oscAmp/2
+            if dTemp(1) ~= max(dTemp) && dTemp(1) ~= min(dTemp)
+              break;
+            end
+          end
+        else % isempty(minIdx)
+          if (max(maxPeaks) - mean(maxPeaks)) / mean(maxPeaks) < oscAmp/2
+            if dTemp(1) ~= max(dTemp) && dTemp(1) ~= min(dTemp)
+              break;
+            end
+          end
+        end
+      end
+    end
+    convergenceAfter(iUnit) = iIteration;
+    meanPowerAfter(iUnit) = mean(jAfter(iIteration:end, iUnit));
+    ssOscAfter(iUnit) = max( max(jAfter(iIteration:end, iUnit) - meanPowerAfter(iUnit))  ...
+                            , min(meanPowerAfter(iUnit) - jAfter(iIteration:end, iUnit))) ...
+                            / meanPowerAfter(iUnit) * 100;
   end
   
-  fprintf('\nBefore perturbation\n')
-  fprintf(['Unit\tPrecision\t\tConvergence\t\tEfficiency\n']);
+  fprintf('\n==========================================================================================================\n')
+  fprintf('\t\t\t\t\t\t\t\t********  Before perturbation  ********\n')
+  fprintf('==========================================================================================================\n')
+%   fprintf(['Unit\tS0\t\t\t\tPrecision\t\tConvergence\t\tEfficiency\tJoules\n']);
+  fprintf(['Unit\tS0\t\t\tPrecision\tSS @ ±' num2str(uint16(oscAmp*100)) '%%\tEfficiency\tJoules\t\tConvergence time\tConvergence power [mW]\n']);
   for iUnit = 1 : nUnits
-    fprintf([num2str(uint16(iUnit)) '\t\t' num2str(precisionBefore(iUnit), '%.2f') '\t\t\t' num2str(uint16(convTimeBefore(iUnit))) '\t\t\t\t' num2str(efficiencyBefore(iUnit), '%.2f') '\n']);
+    fprintf([num2str(uint16(iUnit)) '\t\t'])
+    if (unitsS0(iUnit) < 100)
+      fprintf(' ')
+    end
+    fprintf([num2str(unitsS0(iUnit), '%.4f') '\t'])
+    fprintf([num2str(precisionBefore(iUnit), '%.2f') '\t\t'])
+    fprintf([num2str(uint16(steadyStateBefore(iUnit))) '\t\t\t'])
+    fprintf([num2str(efficiencyBefore(iUnit), '%.2f') '\t\t'])
+    fprintf([num2str(joulesBefore(iUnit), '%.6f') '\t'])
+    fprintf([num2str(uint16(convergenceBefore(iUnit))) '\t\t\t\t\t'])
+    fprintf([num2str(meanPowerBefore(iUnit)*1000, '%.4f') ' ±' num2str(ssOscBefore(iUnit), '%.2f') '%%'])
+    fprintf('\n')
   end
+  fprintf('----------------------------------------------------------------------------------------------------------\n')
+  fprintf('Total\t\t\t\t')
+  fprintf([num2str(mean(precisionBefore(:)), '%.2f') '\t\t\t\t\t'])
+  fprintf([num2str(mean(efficiencyBefore(:)), '%.2f') '\t\t'])
+  fprintf([num2str(sum(joulesBefore(:)), '%.6f') '\t\t'])
   
-  fprintf('\nAfter perturbation\n')
-  fprintf(['Unit\tPrecision\t\tConvergence\t\tEfficiency\n']);
+  fprintf('\n==========================================================================================================\n')
+  fprintf(['\t\t\t\t\t\t\t\t********  After perturbation ' num2str(uint16(iPerturb)) ' ********\n'])
+  fprintf('==========================================================================================================\n')
+%   fprintf(['Unit\tS0\t\t\t\tPrecision\t\tConvergence\t\tEfficiency\tJoules\n']);
+  fprintf(['Unit\tS0\t\t\tPrecision\tSS @ ±' num2str(uint16(oscAmp*100)) '%%\tEfficiency\tJoules\t\tConvergence time\tConvergence power [mW]\n']);
   for iUnit = 1 : nUnits
-    fprintf([num2str(uint16(iUnit)) '\t\t' num2str(precisionAfter(iUnit), '%.2f') '\t\t\t' num2str(uint16(convTimeAfter(iUnit))) '\t\t\t\t' num2str(efficiencyAfter(iUnit), '%.2f') '\n']);
+    fprintf([num2str(uint16(iUnit)) '\t\t'])
+    if (unitsS0(iUnit) + perturbAmp) < 100
+      fprintf(' ')
+    end
+    fprintf([num2str(unitsS0(iUnit) + perturbAmp, '%.4f') '\t'])
+    fprintf([num2str(precisionAfter(iUnit), '%.2f') '\t\t'])
+    fprintf([num2str(uint16(steadyStateAfter(iUnit))) '\t\t\t'])
+    fprintf([num2str(efficiencyAfter(iUnit), '%.2f') '\t\t'])
+    fprintf([num2str(joulesAfter(iUnit), '%.6f') '\t'])
+    fprintf([num2str(uint16(convergenceAfter(iUnit))) '\t\t\t\t\t'])
+    fprintf([num2str(meanPowerAfter(iUnit)*1000, '%.4f') ' ±' num2str(ssOscAfter(iUnit), '%.2f') '%%'])
+    fprintf('\n')
   end
-%   disp({'Unit' 'Precision' 'Convergence' 'Efficiency'});
-%   for iUnit = 1 : nUnits
-%     tableVal = [iUnit precisionBefore(iUnit) convTimeBefore(iUnit) efficiencyBefore(iUnit)];
-%     disp(tableVal);
-%   end
-%   
-%   fprintf('\nAfter perturbation\n')
-%   disp({'Unit' 'Precision' 'Convergence' 'Efficiency'});
-%   for iUnit = 1 : nUnits
-%     tableVal = [iUnit precisionAfter(iUnit) convTimeAfter(iUnit) efficiencyAfter(iUnit)];
-%     disp(tableVal);
-%   end
+  fprintf('----------------------------------------------------------------------------------------------------------\n')
+  fprintf('Total\t\t\t\t')
+  fprintf([num2str(mean(precisionAfter(:)), '%.2f') '\t\t\t\t\t'])
+  fprintf([num2str(mean(efficiencyAfter(:)), '%.2f') '\t\t'])
+  fprintf([num2str(sum(joulesAfter(:)), '%.6f') '\t\t'])
 end
 
-
+fprintf('\n');
 
 %% Close waitbar handle
 %//////////////////////////////////////////////////////////////////////////
