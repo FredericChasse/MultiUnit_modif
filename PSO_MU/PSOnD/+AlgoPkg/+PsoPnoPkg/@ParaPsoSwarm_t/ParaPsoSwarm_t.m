@@ -50,7 +50,7 @@ classdef ParaPsoSwarm_t < handle
       s.id                    = id;
       s.minParticles          = 3;
       s.nUnitsPerParticle     = 1;
-      s.perturbAmp            = 15;
+      s.perturbAmp            = 5;
       s.sentinelMargin        = 0.05;    % 5% margin for sentinels
       s.steadyState           = SteadyState_t.empty;
       s.nParticles            = 0;

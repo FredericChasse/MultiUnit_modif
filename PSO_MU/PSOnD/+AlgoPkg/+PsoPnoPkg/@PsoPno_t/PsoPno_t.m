@@ -71,7 +71,7 @@ classdef PsoPno_t < AlgoPkg.AbstractAlgoInterface_t
       % P&O parameters
       pso.pnoParam.delta     = 5;
       pso.pnoParam.umin      = 10;
-      pso.pnoParam.umax      = 700;
+      pso.pnoParam.umax      = 500;
       pso.pnoParam.oscAmp    = 2;
       pso.pnoParam.nSamples  = 7;
       

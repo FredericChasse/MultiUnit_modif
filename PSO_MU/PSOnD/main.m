@@ -94,8 +94,8 @@ wbh = waitbar(0, ['Sim : ' num2str(0) '/' num2str(nIterations)]);  % Waitbar han
 
 %% Unit array
 %==========================================================================
-nUnits = 40;
-% nUnits = 5;
+% nUnits = 40;
+nUnits = 10;
 
 if strcmp(typeOfUnits, mfcType)
   InitMfc
@@ -333,8 +333,8 @@ if oDoPerturb && length(perturbIteration) == 1
   efficiencyAfter = zeros(1, nUnits);
   joulesBefore = zeros(1, nUnits);
   joulesAfter = zeros(1, nUnits);
-  tBefore = (1:perturbIteration(1)) * array.unitEvalTime;
-  tAfter  = (1:nIterations - perturbIteration(1)) * array.unitEvalTime;
+  tBefore = (1:perturbIteration(1)) * array.unitEvalTime * 24 * 60 * 60;
+  tAfter  = (1:nIterations - perturbIteration(1)) * array.unitEvalTime * 24 * 60 * 60;
   
   oscAmp = 0.05;
   for iUnit = 1 : nUnits
@@ -385,9 +385,10 @@ if oDoPerturb && length(perturbIteration) == 1
     end
     convergenceBefore(iUnit) = iIteration;
     meanPowerBefore(iUnit) = mean(jBefore(iIteration:end, iUnit));
-    ssOscBefore(iUnit) = max( max(jBefore(iIteration:end, iUnit) - meanPowerBefore(iUnit))  ...
-                            , min(meanPowerBefore(iUnit) - jBefore(iIteration:end, iUnit))) ...
-                            / meanPowerBefore(iUnit) * 100;
+%     ssOscBefore(iUnit) = max( max(jBefore(iIteration:end, iUnit) - meanPowerBefore(iUnit))  ...
+%                             , min(meanPowerBefore(iUnit) - jBefore(iIteration:end, iUnit))) ...
+%                             / meanPowerBefore(iUnit) * 100;
+    ssOscBefore(iUnit) = max(abs(jBefore(iIteration:end, iUnit) - meanPowerBefore(iUnit))) * 100 / meanPowerBefore(iUnit);
     
     for iIteration = 1 : nIterations - perturbIteration(1)
       clear meanJ
@@ -436,9 +437,10 @@ if oDoPerturb && length(perturbIteration) == 1
     end
     convergenceAfter(iUnit) = iIteration;
     meanPowerAfter(iUnit) = mean(jAfter(iIteration:end, iUnit));
-    ssOscAfter(iUnit) = max( max(jAfter(iIteration:end, iUnit) - meanPowerAfter(iUnit))  ...
-                            , min(meanPowerAfter(iUnit) - jAfter(iIteration:end, iUnit))) ...
-                            / meanPowerAfter(iUnit) * 100;
+%     ssOscAfter(iUnit) = max( max(jAfter(iIteration:end, iUnit) - meanPowerAfter(iUnit))  ...
+%                             , min(meanPowerAfter(iUnit) - jAfter(iIteration:end, iUnit))) ...
+%                             / meanPowerAfter(iUnit) * 100;
+    ssOscAfter(iUnit) = max(abs(jAfter(iIteration:end, iUnit) - meanPowerAfter(iUnit))) * 100 / meanPowerAfter(iUnit);
   end
   
   fprintf('\n==========================================================================================================\n')
@@ -455,7 +457,10 @@ if oDoPerturb && length(perturbIteration) == 1
     fprintf([num2str(precisionBefore(iUnit), '%.2f') '\t\t'])
     fprintf([num2str(uint16(steadyStateBefore(iUnit))) '\t\t\t'])
     fprintf([num2str(efficiencyBefore(iUnit), '%.2f') '\t\t'])
-    fprintf([num2str(joulesBefore(iUnit), '%.6f') '\t'])
+    if joulesBefore(iUnit) < 1000
+      fprintf(' ')
+    end
+    fprintf([num2str(joulesBefore(iUnit), '%.3f') '\t'])
     fprintf([num2str(uint16(convergenceBefore(iUnit))) '\t\t\t\t\t'])
     fprintf([num2str(meanPowerBefore(iUnit)*1000, '%.4f') ' ±' num2str(ssOscBefore(iUnit), '%.2f') '%%'])
     fprintf('\n')
@@ -464,7 +469,7 @@ if oDoPerturb && length(perturbIteration) == 1
   fprintf('Total\t\t\t\t')
   fprintf([num2str(mean(precisionBefore(:)), '%.2f') '\t\t\t\t\t'])
   fprintf([num2str(mean(efficiencyBefore(:)), '%.2f') '\t\t'])
-  fprintf([num2str(sum(joulesBefore(:)), '%.6f') '\t\t'])
+  fprintf([num2str(sum(joulesBefore(:)), '%.3f') '\t\t'])
   
   fprintf('\n==========================================================================================================\n')
   fprintf(['\t\t\t\t\t\t\t\t********  After perturbation ' num2str(uint16(iPerturb)) ' ********\n'])
@@ -480,7 +485,10 @@ if oDoPerturb && length(perturbIteration) == 1
     fprintf([num2str(precisionAfter(iUnit), '%.2f') '\t\t'])
     fprintf([num2str(uint16(steadyStateAfter(iUnit))) '\t\t\t'])
     fprintf([num2str(efficiencyAfter(iUnit), '%.2f') '\t\t'])
-    fprintf([num2str(joulesAfter(iUnit), '%.6f') '\t'])
+    if joulesAfter(iUnit) < 1000
+      fprintf(' ')
+    end
+    fprintf([num2str(joulesAfter(iUnit), '%.3f') '\t'])
     fprintf([num2str(uint16(convergenceAfter(iUnit))) '\t\t\t\t\t'])
     fprintf([num2str(meanPowerAfter(iUnit)*1000, '%.4f') ' ±' num2str(ssOscAfter(iUnit), '%.2f') '%%'])
     fprintf('\n')
@@ -489,7 +497,7 @@ if oDoPerturb && length(perturbIteration) == 1
   fprintf('Total\t\t\t\t')
   fprintf([num2str(mean(precisionAfter(:)), '%.2f') '\t\t\t\t\t'])
   fprintf([num2str(mean(efficiencyAfter(:)), '%.2f') '\t\t'])
-  fprintf([num2str(sum(joulesAfter(:)), '%.6f') '\t\t'])
+  fprintf([num2str(sum(joulesAfter(:)), '%.3f') '\t\t'])
 end
 
 fprintf('\n');
