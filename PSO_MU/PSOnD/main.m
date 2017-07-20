@@ -86,7 +86,7 @@ else
   error('Must define a type of algorithm!');
 end
 
-nIterations = 200;
+nIterations = 600;
 
 wbh = waitbar(0, ['Sim : ' num2str(0) '/' num2str(nIterations)]);  % Waitbar handle
 %//////////////////////////////////////////////////////////////////////////
@@ -389,6 +389,9 @@ if oDoPerturb && length(perturbIteration) == 1
 %                             , min(meanPowerBefore(iUnit) - jBefore(iIteration:end, iUnit))) ...
 %                             / meanPowerBefore(iUnit) * 100;
     ssOscBefore(iUnit) = max(abs(jBefore(iIteration:end, iUnit) - meanPowerBefore(iUnit))) * 100 / meanPowerBefore(iUnit);
+    totalPowerBefore = sum(jBefore(:,:), 2);
+    maxPowerBefore = max(totalPowerBefore);
+    totalEfficiencyBefore = mean(totalPowerBefore)/maxPowerBefore * 100;
     
     for iIteration = 1 : nIterations - perturbIteration(1)
       clear meanJ
@@ -441,6 +444,10 @@ if oDoPerturb && length(perturbIteration) == 1
 %                             , min(meanPowerAfter(iUnit) - jAfter(iIteration:end, iUnit))) ...
 %                             / meanPowerAfter(iUnit) * 100;
     ssOscAfter(iUnit) = max(abs(jAfter(iIteration:end, iUnit) - meanPowerAfter(iUnit))) * 100 / meanPowerAfter(iUnit);
+    totalPowerAfter = sum(jAfter(:,:), 2);
+    maxPowerAfter = max(totalPowerAfter);
+    totalEfficiencyAfter = mean(totalPowerAfter)/maxPowerAfter * 100;
+    
   end
   
   fprintf('\n==========================================================================================================\n')
@@ -468,7 +475,8 @@ if oDoPerturb && length(perturbIteration) == 1
   fprintf('----------------------------------------------------------------------------------------------------------\n')
   fprintf('Total\t\t\t\t')
   fprintf([num2str(mean(precisionBefore(:)), '%.2f') '\t\t\t\t\t'])
-  fprintf([num2str(mean(efficiencyBefore(:)), '%.2f') '\t\t'])
+%   fprintf([num2str(mean(efficiencyBefore(:)), '%.2f') '\t\t'])
+  fprintf([num2str(totalEfficiencyBefore, '%.2f') '\t\t'])
   fprintf([num2str(sum(joulesBefore(:)), '%.3f') '\t\t'])
   
   fprintf('\n==========================================================================================================\n')
@@ -496,7 +504,8 @@ if oDoPerturb && length(perturbIteration) == 1
   fprintf('----------------------------------------------------------------------------------------------------------\n')
   fprintf('Total\t\t\t\t')
   fprintf([num2str(mean(precisionAfter(:)), '%.2f') '\t\t\t\t\t'])
-  fprintf([num2str(mean(efficiencyAfter(:)), '%.2f') '\t\t'])
+%   fprintf([num2str(mean(efficiencyAfter(:)), '%.2f') '\t\t'])
+  fprintf([num2str(totalEfficiencyAfter, '%.2f') '\t\t'])
   fprintf([num2str(sum(joulesAfter(:)), '%.3f') '\t\t'])
 end
 

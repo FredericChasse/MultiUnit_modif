@@ -135,9 +135,6 @@ for iPno = 1 : algo.nPnos
   iAlgo = iAlgo + 1;
   
   pno = algo.pno(iPno);
-%   if iteration >= 122 && pno.unitArray.units(1).id == 3
-%     allo = 1;
-%   end
   
   idxToRemove = [];
   
@@ -176,9 +173,6 @@ for iPno = 1 : algo.nPnos
       else
         if pnoi.u(2) == pnoi.u(1)
           if pnoi.j(2) > pnoi.j(1)*1.05 || pnoi.j(2) < pnoi.j(1)*0.95
-            if iteration == 40
-              allo = 1;
-            end
             idxToRemove = [idxToRemove iInstance];
           end
         end

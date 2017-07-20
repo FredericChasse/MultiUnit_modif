@@ -97,7 +97,9 @@ classdef Classifier_t < handle
         optPos(i) = c.optPos(idx(i)).curPos;
       end
       
-      optPosSort = sort(optPos);iGroup = 1;
+      optPosSort = sort(optPos);
+      
+      iGroup = 1;
       
       nGroups = 1;
       groups = {};
