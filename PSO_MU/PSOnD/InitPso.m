@@ -10,12 +10,16 @@ import AlgoPkg.PnoPkg.*
 
 % psoAlgo       = PsoType.PSO_ND_SINGLE_SWARM;
 % psoAlgo       = PsoType.PSO_ND_MULTI_SWARM;
-psoAlgo       = PsoType.PSO_1D;
-% psoAlgo       = PsoType.PARALLEL_PSO;
+% psoAlgo       = PsoType.PSO_1D; 
+psoAlgo       = PsoType.PARALLEL_PSO;
 % psoAlgo       = PsoType.PARALLEL_PSO_PNO;
 % psoAlgo       = PsoType.PARALLEL_PSO_PBEST_ABS;
 
-nParticles    = 3;
+if psoAlgo == PsoType.PSO_1D
+  nParticles  = 5;
+else
+  nParticles  = 3;
+end
 psoId         = 1;
 
 if psoAlgo == PsoType.PARALLEL_PSO || psoAlgo == PsoType.PARALLEL_PSO_PBEST_ABS || psoAlgo == PsoType.PSO_1D || psoAlgo == PsoType.PARALLEL_PSO_PNO
@@ -28,18 +32,18 @@ else
   pso = Pso_t(psoId, array, psoAlgo);
 end
 
-c1        = 1;
-c2        = 2;
+c1        = 0.5;
+c2        = 1.2;
 % c1        = .5;
 % c2        = 1;
 % c1        = 0.4;
 % c2        = 1.1;
-omega     = 0.4;
+omega     = 0.3;
 decimals  = 4;
 posRes    = 0.1;
 if strcmp(typeOfUnits, mfcType)
   posMin    = 10;
-  posMax    = 500;
+  posMax    = 350;
 %   posMin    = 70;
 %   posMax    = 90;
 elseif strcmp(typeOfUnits, staticFunctionType)

@@ -51,7 +51,7 @@ classdef ParaPsoSwarm_t < handle
       s.minParticles          = 3;
       s.nUnitsPerParticle     = 1;
       s.perturbAmp            = 5;
-      s.sentinelMargin        = 0.05;    % 5% margin for sentinels
+      s.sentinelMargin        = 0.03;    % 5% margin for sentinels
       s.steadyState           = SteadyState_t.empty;
       s.nParticles            = 0;
       s.gbest                 = Position_t(1);
@@ -161,18 +161,19 @@ classdef ParaPsoSwarm_t < handle
     
     % Set swarm parameters
     %======================================================================
-    function SetParam(s, c1, c2, omega, decimals, posRes, posMin, posMax)
+    function SetParam(s, c1, c2, omega, decimals, posRes, posMin, posMax, sentinelMargin)
       if c1 < 0 || c2 < 0 || omega < 0 || decimals < 0 || posRes < 0 || posMin < 0 || posMax < 0 || posMin >= posMax
         error('Wrong input');
       end
       
-      s.c1        = c1;
-      s.c2        = c2;
-      s.omega     = omega;
-      s.decimals  = decimals;
-      s.posRes    = posRes;
-      s.posMin    = posMin;
-      s.posMax    = posMax;
+      s.c1              = c1;
+      s.c2              = c2;
+      s.omega           = omega;
+      s.decimals        = decimals;
+      s.posRes          = posRes;
+      s.posMin          = posMin;
+      s.posMax          = posMax;
+      s.sentinelMargin  = sentinelMargin;
     end
     %//////////////////////////////////////////////////////////////////////
     

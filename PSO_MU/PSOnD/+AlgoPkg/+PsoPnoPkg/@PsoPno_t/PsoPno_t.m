@@ -58,22 +58,24 @@ classdef PsoPno_t < AlgoPkg.AbstractAlgoInterface_t
       pso.nAlgos          = 1;
       
       % Swarm parameters
-      pso.swarmParam.c1          = 0.8;
-      pso.swarmParam.c2          = 1.5;
-      pso.swarmParam.omega       = 0.4;
+      pso.swarmParam.c1          = 0.5;
+      pso.swarmParam.c2          = 1.2;
+      pso.swarmParam.omega       = 0.3;
       pso.swarmParam.decimals    = 4;
       pso.swarmParam.posRes      = 0.1;
       pso.swarmParam.posMin      = 10;
-      pso.swarmParam.posMax      = 500;
+      pso.swarmParam.posMax      = 350;
       pso.swarmParam.ssOscAmp    = 0.01; % Steady-state defined @±1% oscillation
       pso.swarmParam.nSamples4ss = 5;   % For that number of iterations
+      pso.swarmParam.margin      = 0.03;
       
       % P&O parameters
       pso.pnoParam.delta     = 5;
-      pso.pnoParam.umin      = 10;
-      pso.pnoParam.umax      = 500;
+      pso.pnoParam.umin      = 1;
+      pso.pnoParam.umax      = 1000;
       pso.pnoParam.oscAmp    = 2;
       pso.pnoParam.nSamples  = 7;
+      pso.pnoParam.margin    = .03;
       
       % Algo interface
       pso.id_if               = 'id';

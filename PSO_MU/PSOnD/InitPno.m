@@ -5,10 +5,10 @@ pnoId   = 1;
 pno = Pno_t(pnoId, array);
 
 if strcmp(typeOfUnits, mfcType)
-  delta = 10;
-  umin = 1;
-  umax = 1000;
-  uInit = 500;
+  delta = 15;
+  umin = 10;
+  umax = 350;
+  uInit = 200;
 elseif strcmp(typeOfUnits, staticFunctionType)
   delta = 10;
   umin = 1;

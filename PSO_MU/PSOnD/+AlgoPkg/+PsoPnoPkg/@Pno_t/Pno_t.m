@@ -61,14 +61,14 @@ classdef Pno_t < AlgoPkg.AbstractAlgoInterface_t
     RunPno(pno, iteration);
 
     % Set all parameters of all instances
-    function SetInstancesParameters(pno, delta, umin, umax, uInit)
+    function SetInstancesParameters(pno, delta, umin, umax, uInit, margin)
       for i = 1 : pno.nInstances
-        pno.instances(i).SetInstanceParameters(delta, umin, umax, uInit);
+        pno.instances(i).SetInstanceParameters(delta, umin, umax, uInit, margin);
       end
     end
 
     % Set all parameters of all instances
-    function SetOneInstancesParameters(pno, id, delta, umin, umax, uInit)
+    function SetOneInstancesParameters(pno, id, delta, umin, umax, uInit, margin)
       for i = 1 : pno.nInstances
         if pno.instances(i).id == id
           oFoundId = 1;
@@ -80,7 +80,7 @@ classdef Pno_t < AlgoPkg.AbstractAlgoInterface_t
       if ~oFoundId
         error('No instance with this id');
       end
-      pno.instances(i).SetInstanceParameters(delta, umin, umax, uInit);
+      pno.instances(i).SetInstanceParameters(delta, umin, umax, uInit, margin);
     end
     
     % Set steady state settings

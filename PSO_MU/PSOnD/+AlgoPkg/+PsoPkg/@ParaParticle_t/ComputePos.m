@@ -12,8 +12,10 @@ end
 
 if p.pos.curPos > s.posMax
   p.pos.curPos = s.posMax;
+  p.curSpeed = p.pos.curPos - p.pos.prevPos;
 elseif p.pos.curPos < s.posMin
   p.pos.curPos = s.posMin;
+  p.curSpeed = p.pos.curPos - p.pos.prevPos;
 end
 
 end

@@ -9,6 +9,7 @@ classdef PnoInstance_t < handle
     umin
     umax
     uInit
+    margin
     j
     u
     steadyState
@@ -27,6 +28,7 @@ classdef PnoInstance_t < handle
       pnoi.umin   = 1;
       pnoi.umax   = 1000;
       pnoi.uInit  = 0;
+      pnoi.margin = 0;
       pnoi.j      = [0 0];
       pnoi.u      = [0 0];
       pnoi.steadyState = SteadyStatePno_t.empty;
@@ -40,12 +42,13 @@ classdef PnoInstance_t < handle
     end
 
     % Set all parameters of instance
-    function SetInstanceParameters(pnoi, delta, umin, umax, uInit)
+    function SetInstanceParameters(pnoi, delta, umin, umax, uInit, margin)
       pnoi.delta  = delta;
       pnoi.umin 	= umin;
       pnoi.umax   = umax;
       pnoi.u(2)   = uInit;
       pnoi.uInit  = uInit;
+      pnoi.margin = margin;
     end
     
     % Set steady state settings

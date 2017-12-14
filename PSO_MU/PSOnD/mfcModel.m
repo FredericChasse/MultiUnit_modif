@@ -1,8 +1,11 @@
 function [dx, Pout] = mfcModel(T, x, dummy, S0, Rext)
-F = 96485;
-R = 8.314472;
-T = 298.15;
-Y = 22.753;
+
+%% Initialisation
+
+F = 96485;                    % Constante de Faraday
+R = 8.314472;                 % Constante des gaz parfaits
+T = 298.15;                   % Température de la PCM
+Y = 22.753;                   % 
 Ych4 = .3;
 qmax_a = 8.48;
 qmax_m = 8.2;
@@ -25,7 +28,7 @@ Emin = .01;
 Emax = 0.25 + 0.4144+ Emin;
 Kr = .024;
 
-i0ref=0.4*4;
+i0ref = 0.4*4;
 
 e = 0.0001*Mtotal;
 
@@ -73,6 +76,7 @@ if xm < 0.99 && Xmp < 0
   Xmp = 0;
 end
 
+% Sortie
 Pout = Rext*Imfc^2;
 
 dx = [Sp; Xap; Xmp; Moxp];

@@ -1,12 +1,12 @@
 % clear all
 close all
 
-Rext = 25:1:200;
+Rext = 1:1:500;
 % Rext = 50:1:200;
 % Rext = 50:1000/255:400;
 
-% S0 = [250 300 350 400 450 500 550 600 650 700];
-S0 = [600 550 500 450 400 350 300];
+S0 = [700,675,650,625,600, 300,275,250,225,200];
+% S0 = [700,200];
 % gamma = [0 0.0002 0.0004];
 gamma = [0 0];
 % beta = [0 10];
@@ -66,7 +66,7 @@ for j = 1 : length(S0)
   maxPout = max(Pout)
   Ropt = Rext(find(Pout >= max(Pout)))
   
-  legendStr{j} = ['S_0 = ', num2str(S0(j)), ' [mg/L]'];
+  legendStr{j} = ['S_0 = ', num2str(S0(j)), ' [mg/L], R_o_p_t = ', num2str(Ropt), ', P_o_p_t = ' num2str(maxPout)];
   legend(legendStr)
 end
 close(waitBarHandler)

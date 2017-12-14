@@ -30,7 +30,7 @@ classdef ParaPsoSwarm_t < handle
   
     % Constructor
     %======================================================================
-    function s = ParaPsoSwarm_t(id, unitArray, simData)
+    function s = ParaPsoSwarm_t(id, unitArray, simData, minParticles)
       import AlgoPkg.SteadyState_t;
       import AlgoPkg.PsoPkg.*
       import AlgoPkg.Position_t;
@@ -47,10 +47,10 @@ classdef ParaPsoSwarm_t < handle
       s.decimals              = 0;
       s.posRes                = 0;
       s.id                    = id;
-      s.minParticles          = 3;
+      s.minParticles          = minParticles;
       s.nUnitsPerParticle     = 1;
       s.perturbAmp            = 15;
-      s.sentinelMargin        = 0.05;    % 5% margin for sentinels
+      s.sentinelMargin        = 0.03;    % 5% margin for sentinels
       s.steadyState           = SteadyState_t.empty;
       s.nParticles            = 0;
       s.gbest                 = Position_t(1);
@@ -61,8 +61,8 @@ classdef ParaPsoSwarm_t < handle
       
       nParticles = unitArray.nUnits; %#ok<*PROP>
       if nParticles == 1
-        s.nUnitsPerParticle = 3;
-        nParticles = 3;
+        s.nUnitsPerParticle = minParticles;
+        nParticles = minParticles;
       else
         while nParticles < s.minParticles
           s.nUnitsPerParticle = s.nUnitsPerParticle * 2;

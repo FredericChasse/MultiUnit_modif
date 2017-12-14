@@ -47,23 +47,26 @@ classdef ParaPso_t < AlgoPkg.AbstractAlgoInterface_t
       if psoType == PsoType.PARALLEL_PSO || psoType == PsoType.PARALLEL_PSO_PNO
         pso.nSwarms         = 1;
         pso.swarms          = ParaPsoSwarm_t.empty;
-        pso.swarms(1)       = ParaPsoSwarm_t(1, unitArray, PsoSimData_t);
+        nParticlesMin       = 3;
+        pso.swarms(1)       = ParaPsoSwarm_t(1, unitArray, PsoSimData_t, nParticlesMin);
         pso.simData{1}      = {pso.swarms(1).simData};
         pso.nSimData        = 1;
       elseif psoType == PsoType.PSO_1D
         pso.nSwarms         = unitArray.nUnits;
         pso.swarms          = ParaPsoSwarm_t.empty;
+        nParticlesMin       = 5;
         singleArrays = unitArray.empty;
         for iUnit = 1 : unitArray.nUnits
           [singleArrays(iUnit), aKeep, idxToKeep] = unitArray.SplitArray(iUnit, iUnit);
-          pso.swarms (iUnit) = ParaPsoSwarm_t(iUnit, singleArrays(iUnit), PsoSimData_t);
+          pso.swarms (iUnit) = ParaPsoSwarm_t(iUnit, singleArrays(iUnit), PsoSimData_t, nParticlesMin);
           pso.simData{iUnit} = {pso.swarms(iUnit).simData};
         end
         pso.nSimData        = pso.nSwarms;
       else % PARALLEL_PSO_PBEST_ABS
         pso.nSwarms         = 1;
+        nParticlesMin       = 3;
         pso.swarms          = ParaPsoSwarm_t.empty;
-        pso.swarms(1)       = ParaPsoSwarm_t(1, unitArray, PsoSimData_t);
+        pso.swarms(1)       = ParaPsoSwarm_t(1, unitArray, PsoSimData_t, nParticlesMin);
         pso.simData{1}      = {pso.swarms(1).simData};
         pso.nSimData        = 1;
       end

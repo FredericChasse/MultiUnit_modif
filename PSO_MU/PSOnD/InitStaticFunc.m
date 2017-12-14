@@ -1,3 +1,7 @@
+import SimPkg.*
+import SimPkg.UnitPkg.*
+import SimPkg.ArrayPkg.*
+
 integrationTime = 0.1;
 
 staticFuncArray = StaticFuncArray_t(1, nUnits, integrationTime);
