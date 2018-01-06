@@ -32,14 +32,8 @@ unitsS0 = zeros(1,nUnits);
 s0ToUse = [700,700,650,650,600,600,675,675,625,625];
 % s0ToUse = [700,700,700,650,650,650,625,600,600,600];
 for iUnit = 1 : nUnits
-%   S0 = 300 => (Ropt, Popt) = (156.0, 0.001793880437409)
-%   S0 = 290 => (Ropt, Popt) = (162.2, 0.001743879612695)
-%   S0 = 600 => (Ropt, Popt) = (81.10, 0.002063069379472)
-%   mfcArray.units(iUnit).s0 = s0Init - (iUnit-1) * 20;
-%   mfcArray.units(iUnit).s0 = s0mfc(iUnit);
 %   mfcArray.units(iUnit).s0 = 700;
   mfcArray.units(iUnit).s0 = s0ToUse(iUnit);
-%   mfcArray.units(iUnit).s0 = rand*(s0max-s0min)+s0min;
   unitsS0(iUnit) = mfcArray.units(iUnit).s0;
 end
 % for iUnit = nUnits/2+1 : nUnits

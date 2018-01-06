@@ -31,6 +31,10 @@ switch p.state
 %     oRemoveParticle = 1;
     
   case ParticleState.VALIDATE_OPTIMUM
+    p.pos.curPos = p.pbestAbs.pos;
+    oRemoveParticle = 1;
+    return;
+    
     if p.optPos.jinit == 0
       p.optPos.jinit  = p.pos.curFitness;
       p.optPos.dinit  = p.pos.curPos;

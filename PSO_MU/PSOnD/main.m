@@ -57,9 +57,9 @@ extremumSeekType  = 'extSeek';
 pnoType           = 'pno';
 psoPnoType        = 'psoPno';
 
-typeOfAlgo        = pnoType;
+% typeOfAlgo        = pnoType;
 % typeOfAlgo        = psoType;
-% typeOfAlgo        = psoPnoType;
+typeOfAlgo        = psoPnoType;
 % typeOfAlgo        = extremumSeekType;
 %-------------------------------------------
 
@@ -364,7 +364,8 @@ efficiencyBefore = zeros(1, nUnits);
 joulesBefore = zeros(1, nUnits);
 tBefore = (1:len) * array.unitEvalTime * 24 * 60 * 60;
 
-oscAmp = 0.05;
+oscAmp = 0.01;
+% oscAmp = 0.05;
 for iUnit = 1 : nUnits
   for iIteration = 1 : len
     clear meanJ
@@ -425,6 +426,9 @@ end
 
 if exist('oDoingLoops', 'var')
   joulesMem(iLoop, 1) = sum(joulesBefore(:));
+  powersMem(iLoop, 1) = mean(meanPowerBefore(:));
+  efficiencyMem(iLoop, 1) = totalEfficiencyBefore;
+  precisionMem(iLoop, 1) = mean(precisionBefore(:));
 end
   
 fprintf('\n==========================================================================================================\n')
@@ -486,7 +490,6 @@ for iPerturb = 1 : nPerturbToApply
     optPosAfter(iUnit) = dAfter(idx, iUnit);
   end
   
-  oscAmp = 0.05;
   for iUnit = 1 : nUnits
     for iIteration = 1 : finalIteration - perturbIteration(iPerturb)
       clear meanJ
@@ -546,6 +549,9 @@ for iPerturb = 1 : nPerturbToApply
   end
   if exist('oDoingLoops', 'var')
     joulesMem(iLoop, iPerturb + 1) = sum(joulesAfter(:));
+  powersMem(iLoop, iPerturb + 1) = mean(meanPowerAfter(:));
+  efficiencyMem(iLoop, iPerturb + 1) = totalEfficiencyAfter;
+  precisionMem(iLoop, iPerturb + 1) = mean(precisionAfter(:));
   end
 
   fprintf('\n==========================================================================================================\n')

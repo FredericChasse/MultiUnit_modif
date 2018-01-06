@@ -162,23 +162,78 @@ for iPno = 1 : algo.nPnos
 
       simData.AddData(pnoi.u(2), pnoi.j(2), pno.iteration);
 
-      if ~pnoi.steadyState.EvaluateSteadyState
+      if pnoi.j(2) > pnoi.pbestAbs.curFitness
+        pnoi.pbestAbs.prevFitness = pnoi.pbestAbs.curFitness;
+        pnoi.pbestAbs.prevPos = pnoi.pbestAbs.curPos;
+        pnoi.pbestAbs.curFitness = pnoi.j(2);
+        pnoi.pbestAbs.curPos = pnoi.u(2);
+      end
+      
+      pnoi.steadyState.EvaluateSteadyState;
+      
+      if pnoi.steadyState.oInSteadyState
+        if pnoi.oFirstSteadyState
+          pnoi.oFirstSteadyState = 0;
+          
+          pnoi.delta = 1;
+          pnoi.steadyState.ResetWithNewDelta(pnoi.delta);
+          
+          pnoi.u(1) = pnoi.u(2);
+          pnoi.u(2) = pnoi.u(2) + pnoi.delta*pnoi.k;
+          if pnoi.u(2) < pnoi.umin
+            pnoi.u(2) = pnoi.umin;
+            pnoi.k = abs(pnoi.k);
+          end
+          if pnoi.u(2) > pnoi.umax
+            pnoi.u(2) = pnoi.umax;
+            pnoi.k = -abs(pnoi.k);
+          end
+        else
+          if ~pnoi.oLastPos
+            pnoi.oLastPos = 1;
+            pnoi.u(1) = pnoi.u(2);
+            pnoi.u(2) = pnoi.pbestAbs.curPos;
+          else
+            if pnoi.u(1) == pnoi.u(2)
+              if pnoi.j(2) > pnoi.j(1)*(1+pnoi.margin) || pnoi.j(2) < pnoi.j(1)*(1-pnoi.margin)
+                idxToRemove = [idxToRemove iInstance];
+              end
+            end
+            pnoi.u(1) = pnoi.u(2);
+          end
+        end
+      else
         pnoi.u(1) = pnoi.u(2);
         pnoi.u(2) = pnoi.u(2) + pnoi.delta*pnoi.k;
         if pnoi.u(2) < pnoi.umin
           pnoi.u(2) = pnoi.umin;
-        elseif pnoi.u(2) > pnoi.umax
+          pnoi.k = abs(pnoi.k);
+        end
+        if pnoi.u(2) > pnoi.umax
           pnoi.u(2) = pnoi.umax;
+          pnoi.k = -abs(pnoi.k);
         end
-      else
-        if pnoi.u(2) == pnoi.u(1)
-          if pnoi.j(2) > pnoi.j(1)*(1+pnoi.margin) || pnoi.j(2) < pnoi.j(1)*(1-pnoi.margin)
-            idxToRemove = [idxToRemove iInstance];
-          end
-        end
-        pnoi.u(1) = pnoi.u(2);
-        pnoi.u(2) = algo.classifier.GetBestPos(pno.unitArray.units(iInstance).id);
       end
+        
+              
+          
+%       if ~pnoi.steadyState.EvaluateSteadyState
+%         pnoi.u(1) = pnoi.u(2);
+%         pnoi.u(2) = pnoi.u(2) + pnoi.delta*pnoi.k;
+%         if pnoi.u(2) < pnoi.umin
+%           pnoi.u(2) = pnoi.umin;
+%         elseif pnoi.u(2) > pnoi.umax
+%           pnoi.u(2) = pnoi.umax;
+%         end
+%       else
+%         if pnoi.u(2) == pnoi.u(1)
+%           if pnoi.j(2) > pnoi.j(1)*(1+pnoi.margin) || pnoi.j(2) < pnoi.j(1)*(1-pnoi.margin)
+%             idxToRemove = [idxToRemove iInstance];
+%           end
+%         end
+%         pnoi.u(1) = pnoi.u(2);
+%         pnoi.u(2) = algo.classifier.GetBestPos(pno.unitArray.units(iInstance).id);
+%       end
       
       pno.unitArray.units(iInstance).SetPos(pnoi.u(2));
     end
@@ -433,7 +488,7 @@ if ~isempty(idxPerturbed)
     group = groups{iGroup};
     nUnits = length(group);
     if nUnits < 3 % Sequential PSO
-      error('Didn''t work')
+      error('Classified with group less than 3')
       for iSwarm = 1 : nUnits
         [aSplit, aKeep, idxToKeep] = algo.unitArray.SplitArray(group(iSwarm), 0);
         swarm = algo.CreateSeqSwarms(1, 3, aSplit);

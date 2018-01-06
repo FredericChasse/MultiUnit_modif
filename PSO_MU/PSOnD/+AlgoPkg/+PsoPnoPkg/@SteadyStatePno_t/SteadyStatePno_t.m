@@ -44,6 +44,13 @@ classdef SteadyStatePno_t < handle
       end
     end
     
+    function ResetWithNewDelta(ss, delta)
+      ss.delta                  = delta;
+      ss.samples                = zeros([ss.nSamplesForSteadyState ss.sampleDimension]);
+      ss.oInSteadyState         = 0;
+      ss.nSamples               = 0;
+    end
+    
     function oInSs = EvaluateSteadyState(ss)
       if ss.nSamples < ss.nSamplesForSteadyState
         oInSs = 0;
