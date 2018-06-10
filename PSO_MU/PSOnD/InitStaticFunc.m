@@ -9,7 +9,12 @@ array = Array_t(staticFuncArray);
 
 nDiffUnits = floor(array.nUnits / 2);
 
-% for i = 1 : nDiffUnits
-%   staticFuncArray.units(i).beta = -80;
-%   staticFuncArray.units(i).gamma = 2;
-% end
+% nDiffUnits = array.nUnits;
+beta = 150;
+gamma = 0;
+for i = 1 : nDiffUnits
+%   staticFuncArray.units(i).beta = i*beta;
+%   staticFuncArray.units(i).gamma = i*gamma;
+  staticFuncArray.units(i).beta = beta;
+  staticFuncArray.units(i).gamma = gamma;
+end

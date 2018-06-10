@@ -169,12 +169,13 @@ for iPno = 1 : algo.nPnos
         pnoi.pbestAbs.curPos = pnoi.u(2);
       end
       
+      % OEPPCD
       pnoi.steadyState.EvaluateSteadyState;
-      
       if pnoi.steadyState.oInSteadyState
         if pnoi.oFirstSteadyState
           pnoi.oFirstSteadyState = 0;
           
+          pnoi.deltaMem = pnoi.delta;
           pnoi.delta = 1;
           pnoi.steadyState.ResetWithNewDelta(pnoi.delta);
           
@@ -198,6 +199,16 @@ for iPno = 1 : algo.nPnos
               if pnoi.j(2) > pnoi.j(1)*(1+pnoi.margin) || pnoi.j(2) < pnoi.j(1)*(1-pnoi.margin)
                 idxToRemove = [idxToRemove iInstance];
               end
+              pnoi.diversityCount = pnoi.diversityCount + 1;
+              if pnoi.diversityCount == pnoi.diversityMaxCount
+                pnoi.diversityCount = 0;
+                pnoi.pbestAbs.curFitness = pnoi.j(2);
+                pnoi.pbestAbs.curPos = pnoi.u(2);
+                pnoi.delta = pnoi.deltaMem;
+                pnoi.steadyState.ResetWithNewDelta(pnoi.delta);
+                pnoi.oLastPos = 0;
+                pnoi.oFirstSteadyState = 1;
+              end
             end
             pnoi.u(1) = pnoi.u(2);
           end
@@ -214,9 +225,97 @@ for iPno = 1 : algo.nPnos
           pnoi.k = -abs(pnoi.k);
         end
       end
-        
               
-          
+%       % OEPPCD2
+%       pnoi.steadyState.EvaluateSteadyState;
+%       if pnoi.oInValMode
+%         if pnoi.valPos2.d == 0
+%           pnoi.valPos1.j = pnoi.j(2);
+%           pnoi.valPos2.d = pnoi.valPos1.d + 2*pnoi.deltaVal;
+%           pnoi.u(1) = pnoi.u(2);
+%           pnoi.u(2) = pnoi.valPos2.d;
+%         elseif pnoi.valPos3.d == 0
+%           pnoi.valPos2.j = pnoi.j(2);
+%           pnoi.valPos3.d = pnoi.valPos1.d + pnoi.deltaVal;
+%           pnoi.u(1) = pnoi.u(2);
+%           pnoi.u(2) = pnoi.valPos3.d;
+% 
+%         else
+%           pnoi.valPos3.j = pnoi.j(2);
+%           if pnoi.valPos1.j <= pnoi.valPos3.j && pnoi.valPos2.j <= pnoi.valPos3.j
+%             pnoi.u(1) = pnoi.u(2);
+%             pnoi.pbestAbs.curFitness = pnoi.j(2);
+%             pnoi.pbestAbs.curPos = pnoi.u(2);
+%           else
+%             pnoi.pbestAbs.curFitness = pnoi.j(2);
+%             pnoi.pbestAbs.curPos = pnoi.u(2);
+%             pnoi.delta = pnoi.deltaMem;
+%             pnoi.steadyState.ResetWithNewDelta(pnoi.delta);
+%             pnoi.oLastPos = 0;
+%             pnoi.oFirstSteadyState = 1;
+%           end
+%           pnoi.valPos1.d = 0;
+%           pnoi.valPos2.d = 0;
+%           pnoi.valPos3.d = 0;
+%           pnoi.oInValMode = 0;
+%           pnoi.oLastPos = 0;
+%           pnoi.oFirstSteadyState = 1;
+%         end
+%       elseif pnoi.steadyState.oInSteadyState
+%         if pnoi.oFirstSteadyState
+%           pnoi.oFirstSteadyState = 0;
+%           
+%           pnoi.deltaMem = pnoi.delta;
+%           pnoi.delta = 1;
+%           pnoi.steadyState.ResetWithNewDelta(pnoi.delta);
+%           
+%           pnoi.u(1) = pnoi.u(2);
+%           pnoi.u(2) = pnoi.u(2) + pnoi.delta*pnoi.k;
+%           if pnoi.u(2) < pnoi.umin
+%             pnoi.u(2) = pnoi.umin;
+%             pnoi.k = abs(pnoi.k);
+%           end
+%           if pnoi.u(2) > pnoi.umax
+%             pnoi.u(2) = pnoi.umax;
+%             pnoi.k = -abs(pnoi.k);
+%           end
+%         else
+%           if ~pnoi.oLastPos
+%             pnoi.oLastPos = 1;
+%             pnoi.u(1) = pnoi.u(2);
+%             pnoi.u(2) = pnoi.pbestAbs.curPos;
+%           else
+%             if pnoi.u(1) == pnoi.u(2)
+%               if pnoi.j(2) > pnoi.j(1)*(1+pnoi.margin) || pnoi.j(2) < pnoi.j(1)*(1-pnoi.margin)
+%                 idxToRemove = [idxToRemove iInstance];
+%               end
+%               pnoi.diversityCount = pnoi.diversityCount + 1;
+%               if pnoi.diversityCount == pnoi.diversityMaxCount
+%                 pnoi.diversityCount = 0;
+%                 pnoi.oInValMode = 1;
+%                 pnoi.u(1) = pnoi.u(2);
+%                 pnoi.valPosMem = pnoi.u(2);
+%                 pnoi.valPos1.d = pnoi.u(2) - pnoi.deltaVal;
+%                 pnoi.u(2) = pnoi.valPos1.d;
+%               end
+%             end
+%             pnoi.u(1) = pnoi.u(2);
+%           end
+%         end
+%       else
+%         pnoi.u(1) = pnoi.u(2);
+%         pnoi.u(2) = pnoi.u(2) + pnoi.delta*pnoi.k;
+%         if pnoi.u(2) < pnoi.umin
+%           pnoi.u(2) = pnoi.umin;
+%           pnoi.k = abs(pnoi.k);
+%         end
+%         if pnoi.u(2) > pnoi.umax
+%           pnoi.u(2) = pnoi.umax;
+%           pnoi.k = -abs(pnoi.k);
+%         end
+%       end
+              
+%       % OEPPC
 %       if ~pnoi.steadyState.EvaluateSteadyState
 %         pnoi.u(1) = pnoi.u(2);
 %         pnoi.u(2) = pnoi.u(2) + pnoi.delta*pnoi.k;
@@ -433,6 +532,25 @@ for iParaSwarm = 1 : algo.nParaSwarms
     for i = 1 : pno.nInstances
       pno.instances(i).u(2) = pos(i);
       pno.unitArray.units(i).SetPos(pos(i));
+    end
+    if swarm.nParticles < 3
+      pos = zeros(1,swarm.nParticles);
+      for iParticle = 1 : swarm.nParticles
+        pos(iParticle) = swarm.particles(iParticle).pos.curPos;
+      end
+      unitArray = swarm.unitArray;
+      algo.RemoveParaSwarms(swarm.id);
+      paraPsoIdx = paraPsoIdx - 1;
+      pno = algo.CreatePno(unitArray);
+      pno.SetInstancesParameters(algo.pnoParam.delta, algo.pnoParam.umin, algo.pnoParam.umax, 0, algo.pnoParam.margin)
+      pno.SetSteadyState(algo.pnoParam.oscAmp, algo.pnoParam.nSamples);
+      for i = 1 : pno.nInstances
+        if iteration == 101
+          allo = 1;
+        end
+        pno.instances(i).u(2) = pos(i);
+        pno.unitArray.units(i).SetPos(pos(i));
+      end
     end
   end
   

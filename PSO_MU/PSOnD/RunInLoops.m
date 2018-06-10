@@ -3,7 +3,7 @@ close all
 
 nLoops = 10;
 
-nSections = 3;  % Must be equal to nPerturbToApply + 1
+nSections = 1;  % Must be equal to nPerturbToApply + 1
 
 oDoingLoops = 1;
 

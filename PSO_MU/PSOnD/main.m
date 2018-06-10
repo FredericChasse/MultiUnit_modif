@@ -89,7 +89,8 @@ else
   error('Must define a type of algorithm!');
 end
 
-% nIterations = 75;
+nIterations = 500;
+% nIterations = 300;
 
 wbh = waitbar(0, ['Sim : ' num2str(0) '/' num2str(nIterations)]);  % Waitbar handle
 %//////////////////////////////////////////////////////////////////////////
@@ -129,23 +130,27 @@ end
 %% Perturbations
 %==========================================================================
 oDoPerturb = 1;
+% oDoPerturb = 0;
 
 if oDoPerturb == 1
-  nPerturbToApply = 2;
+%   nPerturbToApply = 1;
+  nPerturbToApply = 100;
 else
   nPerturbToApply = 0;
 end
 
-nUnitsToPerturb = [nUnits/2 nUnits/2];
+% nUnitsToPerturb = [nUnits/2 nUnits/2];
 % nUnitsToPerturb = [nUnits nUnits];
-perturbIteration = [100 200];
+nUnitsToPerturb = ones(1, nPerturbToApply)*nUnits;
+% perturbIteration = [100 200];
+% perturbIteration = 50;
+perturbIteration = 50:1:149;
 
 if strcmp(typeOfUnits, mfcType)
-  perturbAmp = [-400 400];
-%     perturbIteration = 4000;
-%     perturbIteration = 23;
+%   perturbAmp = [-400 400];
+  perturbAmp = ones(1, nPerturbToApply)*-0.5;
 elseif strcmp(typeOfUnits, staticFunctionType)
-  perturbAmp = [70 -3];
+  perturbAmp = [-10 -3];
 %     perturbIteration = 100;
 %     perturbIteration = 40;
 else
@@ -255,9 +260,10 @@ end
 %% Plot data
 %--------------------------------------------------------------------------
 
-% figure
-figure('units','normalized','outerposition',[0 0 1 1])
-% set(gcf, 'Position', get(0,'Screensize')); % Maximize figure.
+figure
+% figure('units','normalized','outerposition',[0 0 1 1])
+% figure(1)
+set(gcf, 'Position', get(0,'Screensize')); % Maximize figure.
 subplot(2,1,1)
 hold on
 legendStr = {};
@@ -278,14 +284,16 @@ set(gca, 'FontSize', 14)
 tmpLegendIdx = array.nUnits;
 tmpLineStyleIdx = 1;
 lineStyles = {'--', ':'};
-for iPerturb = 1 : nPerturbToApply
-  line([perturbIteration(iPerturb) perturbIteration(iPerturb)], ylim, 'LineStyle', lineStyles{tmpLineStyleIdx}, 'LineWidth', 1)
-  tmpLineStyleIdx = tmpLineStyleIdx + 1;
-  if tmpLineStyleIdx == 3
-    tmpLineStyleIdx = 1;
+if nPerturbToApply <= 10
+  for iPerturb = 1 : nPerturbToApply
+    line([perturbIteration(iPerturb) perturbIteration(iPerturb)], ylim, 'LineStyle', lineStyles{tmpLineStyleIdx}, 'LineWidth', 1)
+    tmpLineStyleIdx = tmpLineStyleIdx + 1;
+    if tmpLineStyleIdx == 3
+      tmpLineStyleIdx = 1;
+    end
+    tmpLegendIdx = tmpLegendIdx + 1;
+    legendStr{tmpLegendIdx} = ['Perturbation ' num2str(iPerturb)];
   end
-  tmpLegendIdx = tmpLegendIdx + 1;
-  legendStr{tmpLegendIdx} = ['Perturbation ' num2str(iPerturb)];
 end
 legend(legendStr)
 
@@ -303,20 +311,47 @@ xlabel('Itération')
 ylabel('P_o_u_t (W)')
 set(gca, 'FontSize', 14)
 tmpLineStyleIdx = 1;
-for iPerturb = 1 : nPerturbToApply
-  line([perturbIteration(iPerturb) perturbIteration(iPerturb)], ylim, 'LineStyle', lineStyles{tmpLineStyleIdx}, 'LineWidth', 1)
-  tmpLineStyleIdx = tmpLineStyleIdx + 1;
-  if tmpLineStyleIdx == 3
-    tmpLineStyleIdx = 1;
+if nPerturbToApply <= 10
+  for iPerturb = 1 : nPerturbToApply
+    line([perturbIteration(iPerturb) perturbIteration(iPerturb)], ylim, 'LineStyle', lineStyles{tmpLineStyleIdx}, 'LineWidth', 1)
+    tmpLineStyleIdx = tmpLineStyleIdx + 1;
+    if tmpLineStyleIdx == 3
+      tmpLineStyleIdx = 1;
+    end
   end
 end
 legend(legendStr)
 
 set(gcf, 'Color', 'w')
 
+% jOpt=ones(nUnits,nIterations);
+% dOpt=ones(nUnits,nIterations);
+% for i = 1 : nUnits
+%   jOpt(i,:) = staticFuncArray.units(i).jopt+staticFuncArray.units(i).gamma;
+%   dOpt(i,:) = staticFuncArray.units(i).dopt-staticFuncArray.units(i).beta;
+%   
+%   subplot(2,1,1)
+%   plot(dOpt(i, :), 'LineStyle', '--', 'Linewidth', 1)
+%   subplot(2,1,2)
+%   plot(jOpt(i,:), 'LineStyle', '--', 'Linewidth', 1)
+% end
+% for i = 1 : array.nUnits
+%   legendStr{i + array.nUnits} = ['R_o_p_t ' num2str(i)]; %#ok<SAGROW>
+% end
+% subplot(2,1,1)
+% legend(legendStr)
+% for i = 1 : array.nUnits
+%   legendStr{i + array.nUnits} = ['P_o_p_t ' num2str(i)]; %#ok<SAGROW>
+% end
+% subplot(2,1,2)
+% legend(legendStr)
 
 %% Analyze convergence time, precision, and tracking efficiency of algorithm
 %--------------------------------------------------------------------------
+if nPerturbToApply > 10
+  oDoPerturb = 0;
+  nPerturbToApply = 0;
+end
 fprintf('\n\t\t\t\t\t\t\t***********************************************\n')
 if strcmp(typeOfAlgo, psoType)
   import AlgoPkg.PsoPkg.PsoType
@@ -364,8 +399,9 @@ efficiencyBefore = zeros(1, nUnits);
 joulesBefore = zeros(1, nUnits);
 tBefore = (1:len) * array.unitEvalTime * 24 * 60 * 60;
 
-oscAmp = 0.01;
-% oscAmp = 0.05;
+% oscAmp = 0.01;
+oscAmp = 0.05;
+% oscAmp = 0.08;
 for iUnit = 1 : nUnits
   for iIteration = 1 : len
     clear meanJ
@@ -418,7 +454,7 @@ for iUnit = 1 : nUnits
   totalPowerBefore = sum(jBefore(:,:), 2);
   maxPowerBefore = max(totalPowerBefore);
   totalEfficiencyBefore = mean(totalPowerBefore)/maxPowerBefore * 100;
-  
+
   if exist('oDoingLoops', 'var')
     convTime (iLoop, iUnit, 1) = convergenceBefore(iUnit);
   end
@@ -426,11 +462,11 @@ end
 
 if exist('oDoingLoops', 'var')
   joulesMem(iLoop, 1) = sum(joulesBefore(:));
-  powersMem(iLoop, 1) = mean(meanPowerBefore(:));
+  powersMem(iLoop, 1) = sum(meanPowerBefore(:));
   efficiencyMem(iLoop, 1) = totalEfficiencyBefore;
   precisionMem(iLoop, 1) = mean(precisionBefore(:));
 end
-  
+
 fprintf('\n==========================================================================================================\n')
 fprintf('\t\t\t\t\t\t\t\t********  Before perturbation  ********\n')
 fprintf('==========================================================================================================\n')
@@ -458,12 +494,13 @@ fprintf('Total\t\t\t\t')
 fprintf([num2str(mean(precisionBefore(:)), '%.2f') '\t\t\t\t\t'])
 %   fprintf([num2str(mean(efficiencyBefore(:)), '%.2f') '\t\t'])
 fprintf([num2str(totalEfficiencyBefore, '%.2f') '\t\t'])
-fprintf([num2str(sum(joulesBefore(:)), '%.3f') '\t\t'])
+fprintf([num2str(sum(joulesBefore(:)), '%.3f') '\t\t\t\t\t\t'])
+fprintf([num2str(sum(meanPowerBefore(:).*1000), '%.3f')])
 
 % ---------------------------------
 
 for iPerturb = 1 : nPerturbToApply
-  
+
   if iPerturb < nPerturbToApply
     finalIteration = perturbIteration(iPerturb + 1);
   else
@@ -489,7 +526,7 @@ for iPerturb = 1 : nPerturbToApply
     [optPowerAfter(iUnit), idx] = max(jAfter(:,iUnit));
     optPosAfter(iUnit) = dAfter(idx, iUnit);
   end
-  
+
   for iUnit = 1 : nUnits
     for iIteration = 1 : finalIteration - perturbIteration(iPerturb)
       clear meanJ
@@ -542,14 +579,14 @@ for iPerturb = 1 : nPerturbToApply
     totalPowerAfter = sum(jAfter(:,:), 2);
     maxPowerAfter = max(totalPowerAfter);
     totalEfficiencyAfter = mean(totalPowerAfter)/maxPowerAfter * 100;
-    
+
     if exist('oDoingLoops', 'var')
       convTime (iLoop, iUnit, iPerturb + 1) = convergenceAfter(iUnit);
     end
   end
   if exist('oDoingLoops', 'var')
     joulesMem(iLoop, iPerturb + 1) = sum(joulesAfter(:));
-  powersMem(iLoop, iPerturb + 1) = mean(meanPowerAfter(:));
+  powersMem(iLoop, iPerturb + 1) = sum(meanPowerAfter(:));
   efficiencyMem(iLoop, iPerturb + 1) = totalEfficiencyAfter;
   precisionMem(iLoop, iPerturb + 1) = mean(precisionAfter(:));
   end
@@ -581,12 +618,12 @@ for iPerturb = 1 : nPerturbToApply
   fprintf([num2str(mean(precisionAfter(:)), '%.2f') '\t\t\t\t\t'])
   %   fprintf([num2str(mean(efficiencyAfter(:)), '%.2f') '\t\t'])
   fprintf([num2str(totalEfficiencyAfter, '%.2f') '\t\t'])
-  fprintf([num2str(sum(joulesAfter(:)), '%.3f') '\t\t'])
+  fprintf([num2str(sum(joulesAfter(:)), '%.3f') '\t\t\t\t\t\t'])
+  fprintf([num2str(sum(meanPowerAfter(:).*1000), '%.3f')])
 
 end
 
 fprintf('\n');
-
 
 %% Close waitbar handle
 %//////////////////////////////////////////////////////////////////////////

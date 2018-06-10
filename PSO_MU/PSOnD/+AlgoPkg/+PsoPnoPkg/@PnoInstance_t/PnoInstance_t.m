@@ -15,9 +15,18 @@ classdef PnoInstance_t < handle
     steadyState
     simData
     pbestAbs
+    valPos1
+    valPos2
+    valPos3
+    valPosMem
+    deltaVal
     
     oFirstSteadyState
     oLastPos
+    diversityMaxCount
+    diversityCount
+    deltaMem
+    oInValMode
   end
 
   methods
@@ -40,6 +49,19 @@ classdef PnoInstance_t < handle
       pnoi.oFirstSteadyState = 1;
       pnoi.oLastPos     = 0;
       pnoi.pbestAbs     = Position_t(1);
+      pnoi.diversityCount = 0;
+      pnoi.diversityMaxCount = 10;
+      pnoi.deltaMem = 0;
+      
+      pnoi.valPos1.d = 0;
+      pnoi.valPos1.j = 0;
+      pnoi.valPos2.d = 0;
+      pnoi.valPos2.j = 0;
+      pnoi.valPos3.d = 0;
+      pnoi.valPos3.j = 0;
+      pnoi.valPosMem = 0;
+      pnoi.deltaVal = 3;
+      pnoi.oInValMode = 0;
 
       pnoi.simData      = simData;
     end

@@ -29,10 +29,11 @@ s0min = 300;
 s0max = 800;
 
 unitsS0 = zeros(1,nUnits);
-s0ToUse = [700,700,650,650,600,600,675,675,625,625];
-% s0ToUse = [700,700,700,650,650,650,625,600,600,600];
+% s0ToUse = [700,700,650,650,600,600,675,675,625,625];
+s0ToUse = [600,600,550,550,500,500,575,575,525,525];
 for iUnit = 1 : nUnits
 %   mfcArray.units(iUnit).s0 = 700;
+%   mfcArray.units(iUnit).s0 = 600;
   mfcArray.units(iUnit).s0 = s0ToUse(iUnit);
   unitsS0(iUnit) = mfcArray.units(iUnit).s0;
 end

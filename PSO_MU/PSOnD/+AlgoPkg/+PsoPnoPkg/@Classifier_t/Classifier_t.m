@@ -124,35 +124,37 @@ classdef Classifier_t < handle
       end
       
       groupIdx = 0;
-      for iGroup = 1 : length(groups)
-        groupIdx = groupIdx + 1;
-        if length(groups{groupIdx}) < 3
-          if groupIdx > 1 && groupIdx < length(groups)
-            if groups{groupIdx}(1) - groups{groupIdx-1}(end) < groups{groupIdx+1}(1)-groups{groupIdx}(end)
-              groups{groupIdx-1} = [groups{groupIdx-1} groups{groupIdx}];
-              groups(groupIdx) = [];
-              groupIdx = groupIdx - 1;
-              nGroups = nGroups -1;
+%       if length(groups) > 1
+        for iGroup = 1 : length(groups)
+          groupIdx = groupIdx + 1;
+          if length(groups{groupIdx}) < 3
+            if groupIdx > 1 && groupIdx < length(groups)
+              if groups{groupIdx}(1) - groups{groupIdx-1}(end) < groups{groupIdx+1}(1)-groups{groupIdx}(end)
+                groups{groupIdx-1} = [groups{groupIdx-1} groups{groupIdx}];
+                groups(groupIdx) = [];
+                groupIdx = groupIdx - 1;
+                nGroups = nGroups -1;
+              else
+                groups{groupIdx+1} = [groups{groupIdx} groups{groupIdx+1}];
+                groups(groupIdx) = [];
+                groupIdx = groupIdx - 1;
+                nGroups = nGroups -1;
+              end
+            elseif groupIdx == 1
+                groups{groupIdx+1} = [groups{groupIdx} groups{groupIdx+1}];
+                groups(groupIdx) = [];
+                groupIdx = groupIdx - 1;
+                nGroups = nGroups -1;
             else
-              groups{groupIdx+1} = [groups{groupIdx} groups{groupIdx+1}];
-              groups(groupIdx) = [];
-              groupIdx = groupIdx - 1;
-              nGroups = nGroups -1;
+                groups{groupIdx-1} = [groups{groupIdx-1} groups{groupIdx}];
+                groups(groupIdx) = [];
+                groupIdx = groupIdx - 1;
+                nGroups = nGroups -1;
             end
-          elseif groupIdx == 1
-              groups{groupIdx+1} = [groups{groupIdx} groups{groupIdx+1}];
-              groups(groupIdx) = [];
-              groupIdx = groupIdx - 1;
-              nGroups = nGroups -1;
-          else
-              groups{groupIdx-1} = [groups{groupIdx-1} groups{groupIdx}];
-              groups(groupIdx) = [];
-              groupIdx = groupIdx - 1;
-              nGroups = nGroups -1;
           end
         end
-      end
-
+%       end
+      
       groupsIdx = cell(1, length(groups));
       for i = 1 : length(groups)
         iSame = 0;
